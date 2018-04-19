@@ -1,0 +1,84 @@
+{
+  "name": "Event",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "event_sequence_id_number": {
+      "type": "number"
+    },
+    "event_type": {
+      "type": "number"
+    },
+    "event_code": {
+      "type": "number",
+      "required": true
+    },
+    "event_date": {
+      "type": "string",
+      "required": true
+    },
+    "event_time": {
+      "type": "string",
+      "required": true
+    },
+    "shipping_doc_number": {
+      "type": "string",
+      "required": true
+    },
+    "codriver_id": {
+      "type": "number"
+    },
+    "event_record_status": {
+      "type": "number"
+    },
+    "accumulated_vehicle_miles": {
+      "type": "number"
+    },
+    "elapsed_engine_hours": {
+      "type": "number"
+    },
+    "coordinates": {
+      "type": "geopoint"
+    },
+    "distance_since_last_valid_coordinates": {
+      "type": "number"
+    },
+    "malfunction_indicator_status": {
+      "type": "number"
+    },
+    "data_diagnostic_event_indicator_status_for_driver": {
+      "type": "number"
+    },
+    "annotation": {
+      "type": "string"
+    },
+    "event_data_check_value": {
+      "type": "number"
+    },
+    "driver_location_description": {
+      "type": "string"
+    },
+    "total_vehicle_miles": {
+      "type": "number"
+    },
+    "total_engine_hours": {
+      "type": "number"
+    },
+    "time_zone_offset_utc": {
+      "type": "number"
+    },
+    "date_of_certified_record": {
+      "type": "string"
+    },
+    "diagnostic_code": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "Person": {
+    "dataSource": null,
+    "public": true
+  },
+  "Driver": {
+    "dataSource": null,
+    "public": true
+  },
+  "MotorCarrier": {
+    "dataSource": null,
+    "public": true
+  },
+  "Vehicle": {
+    "dataSource": null,
+    "public": true
+  },
+  "Event": {
+    "dataSource": null,
+    "public": true
+  }
+}
