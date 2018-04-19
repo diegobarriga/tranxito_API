@@ -1,0 +1,25 @@
+{
+  "name": "MotorCarrier",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "USDOT_number": {
+      "type": "number",
+      "required": true
+    },
+    "multiday_basis_used": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
