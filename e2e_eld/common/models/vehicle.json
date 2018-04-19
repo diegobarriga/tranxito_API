@@ -1,0 +1,35 @@
+{
+  "name": "Vehicle",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "vin": {
+      "type": "string"
+    },
+    "CMV_power_unit_number": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "car_maker": {
+      "type": "string"
+    },
+    "plaque": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "IMEI_ELD": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

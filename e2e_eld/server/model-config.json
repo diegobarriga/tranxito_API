@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "Person": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+  "Driver": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+  "MotorCarrier": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+  "Vehicle": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+  "Event": {
+    "dataSource": "mongoDB",
+    "public": true
+  }
+}
