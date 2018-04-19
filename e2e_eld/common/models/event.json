@@ -76,7 +76,28 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "driver": {
+      "type": "belongsTo",
+      "model": "Driver",
+      "foreignKey": ""
+    },
+    "vehicle": {
+      "type": "belongsTo",
+      "model": "Vehicle",
+      "foreignKey": ""
+    },
+    "codriver": {
+      "type": "belongsTo",
+      "model": "Driver",
+      "foreignKey": ""
+    },
+    "motorCarrier": {
+      "type": "belongsTo",
+      "model": "MotorCarrier",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }

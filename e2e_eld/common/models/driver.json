@@ -38,7 +38,23 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "person": {
+      "type": "belongsTo",
+      "model": "Person",
+      "foreignKey": ""
+    },
+    "events": {
+      "type": "hasMany",
+      "model": "Event",
+      "foreignKey": ""
+    },
+    "coevents": {
+      "type": "hasMany",
+      "model": "Event",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }

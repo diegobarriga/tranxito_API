@@ -19,7 +19,23 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "vehicles": {
+      "type": "hasMany",
+      "model": "Vehicle",
+      "foreignKey": ""
+    },
+    "people": {
+      "type": "hasMany",
+      "model": "Person",
+      "foreignKey": ""
+    },
+    "events": {
+      "type": "hasMany",
+      "model": "Event",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }
