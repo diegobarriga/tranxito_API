@@ -6,7 +6,7 @@
     "validateUpsert": true
   },
   "properties": {
-    "VIN": {
+    "vin": {
       "type": "string"
     },
     "CMV_power_unit_number": {

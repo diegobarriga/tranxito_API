@@ -7,20 +7,18 @@
   },
   "properties": {
     "event_sequence_id_number": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "event_type": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "event_code": {
       "type": "number",
       "required": true
     },
-    "event_date": {
-      "type": "string",
-      "required": true
-    },
-    "event_time": {
+    "event_timestamp": {
       "type": "string",
       "required": true
     },
