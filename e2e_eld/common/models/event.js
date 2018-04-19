@@ -48,7 +48,15 @@ function time_zone_offset_utc_validator(err) {
 }
 
 module.exports = function(Event) {
-  Event.validatesPresenceOf('event_sequence_id_number', 'event_type', 'event_timestamp', 'event_code', 'event_timestamp', 'shipping_doc_number', {"message": "Can't be blank"});
+  Event.validatesPresenceOf(
+    'event_sequence_id_number',
+    'event_type',
+    'event_timestamp',
+    'event_code',
+    'event_timestamp',
+    'shipping_doc_number',
+    {"message": "Can't be blank"}
+  );
   Event.validatesNumericalityOf(
     'codriver_id',
     'event_sequence_id_number',
@@ -58,7 +66,6 @@ module.exports = function(Event) {
     'accumulated_vehicle_miles',
     'distance_since_last_valid_coordinates',
     'event_data_check_value',
-    'shipping_doc_number',
     'total_vehicle_miles',
     'time_zone_offset_utc',
      {int: true}

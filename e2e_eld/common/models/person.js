@@ -2,7 +2,7 @@
 var validator = require('validator');
 
 function email_validator(err) {
-  if(!validator(isEmail(this.email))) return err();
+  if(!validator.isEmail(this.email)) return err();
 }
 
 module.exports = function(Person) {

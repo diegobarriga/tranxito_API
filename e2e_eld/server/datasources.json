@@ -1,30 +1,6 @@
 {
-  "postgresDB": {
-    "host": "localhost",
-    "port": 5432,
-    "url": "",
-    "database": "E2E_relational",
-    "password": "",
-    "name": "postgresDB",
-    "user": "",
-    "ssl": false,
-    "connector": "postgresql"
-  },
-  "mongoDB": {
-    "host": "localhost",
-    "port": 27017,
-    "url": "",
-    "database": "E2E_logs",
-    "password": "",
-    "name": "mongoDB",
-    "user": "",
-    "connector": "mongodb"
-  },
-  "azureStorage": {
-    "name": "azureStorage",
-    "connector": "loopback-component-storage",
-    "provider": "azure",
-    "storageAccount": "",
-    "storageAccessKey": ""
+  "db": {
+    "name": "db",
+    "connector": "memory"
   }
 }
