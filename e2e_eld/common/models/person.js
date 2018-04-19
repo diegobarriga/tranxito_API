@@ -1,5 +1,5 @@
 'use strict';
-import validator from 'validator';
+var validator = require('validator');
 
 function email_validator(err) {
   if(!validator(isEmail(this.email))) return err();

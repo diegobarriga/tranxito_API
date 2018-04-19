@@ -1,5 +1,5 @@
 'use strict';
-import validator from 'validator';
+var validator = require('validator');
 
 function time_zone_offset_utc_validator(err) {
   if (!validator.isInt(String(this.time_zone_offset_utc), { min: 4, max: 11})) return err();

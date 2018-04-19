@@ -1,5 +1,5 @@
 'use strict';
-import validator from 'validator';
+var validator = require('validator');
 
 function event_type_validator(err) {
   if (!validator.isInt(String(this.event_type), { min: 1, max: 7})) return err();
