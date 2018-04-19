@@ -45,10 +45,10 @@
       "type": "number"
     },
     "malfunction_indicator_status": {
-      "type": "number"
+      "type": "Boolean"
     },
     "data_diagnostic_event_indicator_status_for_driver": {
-      "type": "number"
+      "type": "Boolean"
     },
     "annotation": {
       "type": "string"
@@ -69,10 +69,16 @@
       "type": "number"
     },
     "date_of_certified_record": {
-      "type": "string"
+      "type": "date"
     },
     "diagnostic_code": {
       "type": "string"
+    },
+    "event_report_status": {
+      "type": "Boolean"
+    },
+    "certified": {
+      "type": "Boolean"
     }
   },
   "validations": [],

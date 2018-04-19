@@ -1,8 +1,9 @@
 'use strict';
+import validator from 'validator';
 
 function usdot_validator(err) {
-    if (this.USDOT_number > 999999999 || this.USDOT_number < 0) err();
-});)
+  if (!validator.isInt(this.USDOT_number, {min: 0, max: 999999999})) err();
+}
 
 module.exports = function(Motorcarrier) {
   Motorcarrier.validatesPresenceOf('name', 'USDOT_number', {"message": "Can't be blank"});

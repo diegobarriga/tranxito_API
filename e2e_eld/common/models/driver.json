@@ -15,17 +15,17 @@
       "required": true
     },
     "account_status": {
-      "type": "number",
+      "type": "Boolean",
       "required": true
     },
     "exempt_driver_configuration": {
       "type": "string"
     },
     "time_zone_offset_utc": {
-      "type": "date"
+      "type": "number"
     },
     "24_hour_period_starting_time": {
-      "type": "number"
+      "type": "date"
     },
     "move_yards_use": {
       "type": "Boolean"
