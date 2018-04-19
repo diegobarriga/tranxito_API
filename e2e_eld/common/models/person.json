@@ -27,7 +27,18 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "motorCarrier": {
+      "type": "belongsTo",
+      "model": "MotorCarrier",
+      "foreignKey": ""
+    },
+    "driver": {
+      "type": "hasOne",
+      "model": "Driver",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }

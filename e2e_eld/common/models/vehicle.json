@@ -29,7 +29,18 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "motorCarrier": {
+      "type": "belongsTo",
+      "model": "MotorCarrier",
+      "foreignKey": ""
+    },
+    "events": {
+      "type": "hasMany",
+      "model": "Event",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }
