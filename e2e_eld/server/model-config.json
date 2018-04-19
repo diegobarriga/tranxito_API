@@ -14,23 +14,23 @@
     ]
   },
   "Person": {
-    "dataSource": null,
+    "dataSource": "postgresDB",
     "public": true
   },
   "Driver": {
-    "dataSource": null,
+    "dataSource": "postgresDB",
     "public": true
   },
   "MotorCarrier": {
-    "dataSource": null,
+    "dataSource": "postgresDB",
     "public": true
   },
   "Vehicle": {
-    "dataSource": null,
+    "dataSource": "postgresDB",
     "public": true
   },
   "Event": {
-    "dataSource": null,
+    "dataSource": "mongoDB",
     "public": true
   }
 }

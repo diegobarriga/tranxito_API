@@ -22,10 +22,19 @@
       "type": "string"
     },
     "time_zone_offset_utc": {
-      "type": "number"
+      "type": "date"
     },
     "24_hour_period_starting_time": {
       "type": "number"
+    },
+    "move_yards_use": {
+      "type": "Boolean"
+    },
+    "default_use": {
+      "type": "Boolean"
+    },
+    "personal_use": {
+      "type": "Boolean"
     }
   },
   "validations": [],
