@@ -1,5 +1,5 @@
 'use strict';
-import validator from 'validator';
+var validator = require('validator');
 
 function event_type_validator(err) {
   if (!validator.isInt(String(this.event_type), { min: 1, max: 7})) return err();
@@ -58,7 +58,6 @@ module.exports = function(Event) {
     'accumulated_vehicle_miles',
     'distance_since_last_valid_coordinates',
     'event_data_check_value',
-    'shipping_doc_number',
     'total_vehicle_miles',
     'time_zone_offset_utc',
      {int: true}
