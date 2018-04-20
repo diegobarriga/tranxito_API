@@ -4,9 +4,9 @@
     "port": 5432,
     "url": "",
     "database": "E2E_relational",
-    "password": "",
+    "password": "${E2E_relational_pass}",
     "name": "postgresDB",
-    "user": "",
+    "user": "${E2E_relational_user}",
     "ssl": false,
     "connector": "postgresql"
   },
