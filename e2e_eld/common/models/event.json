@@ -19,7 +19,7 @@
       "required": true
     },
     "event_timestamp": {
-      "type": "string",
+      "type": "date",
       "required": true
     },
     "shipping_doc_number": {
@@ -73,9 +73,6 @@
     },
     "diagnostic_code": {
       "type": "string"
-    },
-    "event_report_status": {
-      "type": "Boolean"
     },
     "certified": {
       "type": "Boolean"
