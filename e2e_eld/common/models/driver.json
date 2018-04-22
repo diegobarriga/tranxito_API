@@ -19,13 +19,16 @@
       "required": true
     },
     "exempt_driver_configuration": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "time_zone_offset_utc": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "24_hour_period_starting_time": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "move_yards_use": {
       "type": "Boolean"
