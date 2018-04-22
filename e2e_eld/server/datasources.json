@@ -3,7 +3,7 @@
     "host": "localhost",
     "port": 5432,
     "url": "",
-    "database": "E2E_relational",
+    "database": "${E2E_relational_db}",
     "password": "${E2E_relational_pass}",
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
