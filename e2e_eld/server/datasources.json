@@ -13,7 +13,7 @@
   "mongoDB": {
     "host": "localhost",
     "port": 27017,
-    "url": "",
+    "url": "${MONGODB_URI}",
     "database": "E2E_logs",
     "password": "",
     "name": "mongoDB",
