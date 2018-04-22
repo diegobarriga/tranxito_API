@@ -11,13 +11,8 @@
     "connector": "postgresql"
   },
   "mongoDB": {
-    "host": "localhost",
-    "port": 27017,
     "url": "${MONGODB_URI}",
-    "database": "E2E_logs",
-    "password": "",
     "name": "mongoDB",
-    "user": "",
     "connector": "mongodb"
   },
   "azureStorage": {
