@@ -1,6 +1,6 @@
 {
   "postgresDB": {
-    "host": "localhost",
+    "host": "${E2E_relational_host}",
     "port": 5432,
     "url": "",
     "database": "${E2E_relational_db}",
