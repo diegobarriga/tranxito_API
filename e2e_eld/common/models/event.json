@@ -74,9 +74,6 @@
     "diagnostic_code": {
       "type": "string"
     },
-    "event_report_status": {
-      "type": "Boolean"
-    },
     "certified": {
       "type": "Boolean"
     }
