@@ -10,7 +10,7 @@ function event_code_validator(err) {
 }
 
 function event_record_validator(err) {
-  if (!validator.isInt(String(this.event_record), { min: 1, max: 4})) return err();
+  if (!validator.isInt(String(this.event_record_status), { min: 1, max: 4})) return err();
 }
 
 function accumulated_vehicle_miles_validator(err) {
@@ -50,7 +50,7 @@ function time_zone_offset_utc_validator(err) {
 module.exports = function(Event) {
   Event.validatesPresenceOf('event_sequence_id_number', 'event_type', 'event_timestamp', 'event_code', 'event_timestamp', 'shipping_doc_number', {"message": "Can't be blank"});
   Event.validatesNumericalityOf(
-    'codriver_id',
+    //'codriver_id',
     'event_sequence_id_number',
     'event_record_status',
     'event_type',
@@ -65,10 +65,10 @@ module.exports = function(Event) {
    Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
    Event.validatesLengthOf('annotation', {min: 0, max: 60});
    Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
-   Event.validatesInclusionOf('diagnostic_code', {in: ['P', 'E', 'T', 'L', 'R', 'S', 'O', '1', '2', '3', '4', '5','6']})
+  // Event.validatesInclusionOf('diagnostic_code', {in: ['P', 'E', 'T', 'L', 'R', 'S', 'O', '1', '2', '3', '4', '5','6']})
    Event.validate('event_type', event_type_validator);
    Event.validate('event_code', event_code_validator);
-   Event.validate('event_record', event_record_validator);
+   Event.validate('event_record_status', event_record_validator);
    Event.validate('accumulated_vehicle_miles', accumulated_vehicle_miles_validator);
    Event.validate('elapsed_engine_hours', elapsed_engine_hours_validator);
    Event.validate('distance_since_last_valid_coordinates', distance_since_last_valid_coordinates_validator);
