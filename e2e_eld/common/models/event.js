@@ -39,6 +39,7 @@ function event_code_validator(err) {
   if (!this.event_type || !validator.isInt(String(this.event_code), { min: dict[this.event_type].min, max: dict[this.event_type].max})) return err();
 }
 
+
 function event_record_status_validator(err) {
   if (!validator.isInt(String(this.event_record_status), { min: 1, max: 4})) return err();
 }
@@ -98,6 +99,7 @@ module.exports = function(Event) {
     'time_zone_offset_utc',
      {int: true}
    );
+  
    Event.validate('event_type', event_type_validator);
    Event.validate('event_code', event_code_validator);
    Event.validate('event_record_status', event_record_status_validator);
