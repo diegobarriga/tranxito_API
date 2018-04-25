@@ -40,10 +40,6 @@
     "dataSource": "postgresDB",
     "public": true
   },
-  "Driver": {
-    "dataSource": "postgresDB",
-    "public": true
-  },
   "MotorCarrier": {
     "dataSource": "postgresDB",
     "public": true
