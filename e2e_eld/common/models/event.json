@@ -19,15 +19,12 @@
       "required": true
     },
     "event_timestamp": {
-      "type": "string",
+      "type": "date",
       "required": true
     },
     "shipping_doc_number": {
       "type": "string",
       "required": true
-    },
-    "codriver_id": {
-      "type": "number"
     },
     "event_record_status": {
       "type": "number"
@@ -74,9 +71,6 @@
     "diagnostic_code": {
       "type": "string"
     },
-    "event_report_status": {
-      "type": "Boolean"
-    },
     "certified": {
       "type": "Boolean"
     }
@@ -85,8 +79,8 @@
   "relations": {
     "driver": {
       "type": "belongsTo",
-      "model": "Driver",
-      "foreignKey": ""
+      "model": "Person",
+      "foreignKey": "driverId"
     },
     "vehicle": {
       "type": "belongsTo",
@@ -95,7 +89,7 @@
     },
     "codriver": {
       "type": "belongsTo",
-      "model": "Driver",
+      "model": "Person",
       "foreignKey": ""
     },
     "motorCarrier": {

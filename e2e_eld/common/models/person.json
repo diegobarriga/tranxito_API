@@ -24,6 +24,33 @@
     "account_type": {
       "type": "string",
       "required": true
+    },
+    "driver_license_number": {
+      "type": "string"
+    },
+    "licenses_issuing_state": {
+      "type": "string"
+    },
+    "account_status": {
+      "type": "Boolean"
+    },
+    "exempt_driver_configuration": {
+      "type": "string"
+    },
+    "time_zone_offset_utc": {
+      "type": "number"
+    },
+    "starting_time_24_hour_period": {
+      "type": "date"
+    },
+    "move_yards_use": {
+      "type": "Boolean"
+    },
+    "default_use": {
+      "type": "Boolean"
+    },
+    "personal_use": {
+      "type": "Boolean"
     }
   },
   "validations": [],
@@ -33,10 +60,10 @@
       "model": "MotorCarrier",
       "foreignKey": ""
     },
-    "driver": {
-      "type": "hasOne",
-      "model": "Driver",
-      "foreignKey": ""
+    "events": {
+      "type": "hasMany",
+      "model": "Event",
+      "foreignKey": "driverId"
     }
   },
   "acls": [],
