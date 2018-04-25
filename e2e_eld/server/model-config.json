@@ -13,6 +13,28 @@
       "./mixins"
     ]
   },
+  "User": {
+    "dataSource": "postgresDB"
+  },
+  "AccessToken": {
+    "dataSource": "postgresDB",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "postgresDB",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "postgresDB",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "postgresDB",
+    "public": false
+  },
   "Person": {
     "dataSource": "postgresDB",
     "public": true
