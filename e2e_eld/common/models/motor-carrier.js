@@ -1,5 +1,5 @@
 'use strict';
-//var validator = require('validator');
+var validator = require('validator');
 
 function usdot_validator(err) {
   if (!validator.isInt(String(this.USDOT_number), {min: 0, max: 999999999})) err();

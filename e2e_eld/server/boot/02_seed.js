@@ -5,16 +5,16 @@ module.exports = async function(app) {
   var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
 
-  var carrier = createCarriers(function(err) {
+  var carriers = createCarriers(function(err) {
     if (err) throw err;
     console.log('> models created sucessfully');
   });
-  var carrier = await carrier.then(function(res){
+  var carriers = await carriers.then(function(res){
     return res;
   })
+  console.log(carriers);
 
-
-  var people = createPeople(carrier, function(err) {
+  var people = createPeople(carriers, function(err) {
     if (err) throw err;
     console.log('> models created sucessfully');
   });
@@ -22,31 +22,27 @@ module.exports = async function(app) {
     return res;
   })
 
+  console.log(people);
 
-  var driver = createDrivers(people, function(err) {
+  var vehicles = createVehicles(carriers, function(err) {
     if (err) throw err;
     console.log('> models created sucessfully');
   });
-  var driver = await driver.then(function(res){
+  var vehicles = await vehicles.then(function(res){
     return res;
   })
 
+  console.log(vehicles);
 
-  var vehicle = createVehicles(carrier, function(err) {
+  var events = createEvents(people, vehicles, function(err) {
     if (err) throw err;
     console.log('> models created sucessfully');
   });
-  var vehicle = await vehicle.then(function(res){
+  var events = await events.then(function(res){
     return res;
   })
 
-  var event = createEvents(driver, vehicle, function(err) {
-    if (err) throw err;
-    console.log('> models created sucessfully');
-  });
-  var event = await event.then(function(res){
-    return res;
-  })
+  console.log(events);
 
   //create carriers
   async function createCarriers(cb) {
@@ -69,7 +65,7 @@ module.exports = async function(app) {
 
     var Person = app.models.Person;
     var people = await Person.create([
-            {
+    {
       "first_name": "Andres", "last_name": "Flores",
       "email": "aflores@gmail.com", "account_type": "A",
       "username": "aflores", "emailVerified": true,
@@ -85,8 +81,14 @@ module.exports = async function(app) {
       "first_name": "Pablo", "last_name": "Sanchez",
       "email": "pablo.sanchez@gmail.com", "account_type": "D",
       "username": "pablo.sanchez", "emailVerified": true,
-      "motorCarrierId": carriers[0].id, "password": "1234" 
-    },            {
+      "motorCarrierId": carriers[0].id, "password": "1234",
+      "driver_license_number": "10234502", "licenses_issuing_state": "Santiago",
+      "account_status": true, "exempt_driver_configuration": "E",
+      "time_zone_offset_utc": 5, "starting_time_24_hour_period": Date.now(),
+      "move_yards_use": true, "default_use": true, "personal_use": true
+
+    },
+    {
       "first_name": "Andrea", "last_name": "Fernandez",
       "email": "afdez@gmail.com", "account_type": "A",
       "username": "afdez", "emailVerified": true,
@@ -102,48 +104,15 @@ module.exports = async function(app) {
       "first_name": "Pedro", "last_name": "Lopez",
       "email": "pedro.lopez@gmail.com", "account_type": "D",
       "username": "pedro.lopez", "emailVerified": true,
-      "motorCarrierId": carriers[1].id, "password": "1234" 
+      "motorCarrierId": carriers[1].id, "password": "1234",
+      "driver_license_number": "10255321", "licenses_issuing_state": "Santiago", 
+      "account_status": true, "exempt_driver_configuration": "E",
+      "time_zone_offset_utc": 4, "starting_time_24_hour_period": Date.now(), 
+      "move_yards_use": false, "default_use": true, "personal_use": false
     }
-
     ]);
     console.log('people created!');
     return people;
-  }
-
-  //create drivers
-  async function createDrivers(people, cb) {
-    await postgresDs.automigrate('Driver');
-    var Driver = app.models.Driver;
-    var driver = await Driver.create([
-    {
-      "driver_license_number": "103234",
-      "licenses_issuing_state": "Santiago",
-      "account_status": true,
-      "exempt_driver_configuration": "E",
-      "time_zone_offset_utc": 2,
-      "24_hour_period_starting_time": Date.now(),
-      "move_yards_use": true,
-      "default_use": true,
-      "personal_use": true,
-      "personId": people[2].id
-    },
-    {
-      "driver_license_number": "103216",
-      "licenses_issuing_state": "Santiago",
-      "account_status": true,
-      "exempt_driver_configuration": "E",
-      "time_zone_offset_utc": 3,
-      "24_hour_period_starting_time": Date.now(),
-      "move_yards_use": true,
-      "default_use": true,
-      "personal_use": true,
-      "personId": people[5].id
-    }
-
-    ]);
-    console.log('drivers created!')
-
-    return driver;
   }
 
 
@@ -182,7 +151,7 @@ module.exports = async function(app) {
   }
 
   //create events
-  async function createEvents(drivers, vehicle, cb) {
+  async function createEvents(people, vehicles, cb) {
     await mongoDs.automigrate('Event');
 
     var Event = app.models.Event;
@@ -215,9 +184,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
 
               // event type 5
@@ -246,9 +215,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
           // event type 1
           {
@@ -276,9 +245,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
           // event type 2
 
@@ -307,9 +276,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-22T00:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
 
           //event type 3
@@ -338,9 +307,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
           // event type 4
           {
@@ -368,9 +337,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           },
           // event type 7
           {
@@ -398,9 +367,9 @@ module.exports = async function(app) {
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
           "certified": false,
-          "driverId": drivers[0].id,
-          "vehicleId": vehicle.id,
-          "motorCarrierId": vehicle.motorCarrierId
+          "driverId": people[2].id,
+          "vehicleId": vehicles[0].id,
+          "motorCarrierId": vehicles[0].motorCarrierId
           }
 
     ];

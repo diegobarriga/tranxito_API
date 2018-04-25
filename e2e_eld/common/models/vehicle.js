@@ -1,7 +1,7 @@
 'use strict';
 
 function vin_validator(err) {
-  if (this.vin != "" && (this.vin.length == 18 || this.vin.length == 17)) return err();
+  if (this.vin != "" && (this.vin.length > 18 || this.vin.length < 17)) return err();
 }
 
 function CMV_power_unit_number_validator(err) {
