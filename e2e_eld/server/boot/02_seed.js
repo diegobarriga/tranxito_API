@@ -47,15 +47,16 @@ module.exports = async function(app) {
   var event = await event.then(function(res){
     return res;
   })
-  console.log(event)
 
   //create carriers
   async function createCarriers(cb) {
     await postgresDs.automigrate('MotorCarrier');
 
     var Carrier = app.models.MotorCarrier;
-    var motor_carriers = await Carrier.create(
-      { "name": "E2EGroup", "USDOT_number": 0, "multiday_basis_used": 7});  
+    var motor_carriers = await Carrier.create([
+      { "name": "E2EGroup", "USDOT_number": 0, "multiday_basis_used": 7},
+      { "name": "DCCGroup", "USDOT_number": 12, "multiday_basis_used": 8}
+      ]);  
 
     console.log('motor carrier created!')
     return motor_carriers;
@@ -72,20 +73,38 @@ module.exports = async function(app) {
       "first_name": "Andres", "last_name": "Flores",
       "email": "aflores@gmail.com", "account_type": "A",
       "username": "aflores", "emailVerified": true,
-      "motorCarrierId": carriers.id, "password": "1234" 
+      "motorCarrierId": carriers[0].id, "password": "1234" 
     },
     {
       "first_name": "Fernando", "last_name": "Diaz",
       "email": "fdiaz@gmail.com", "account_type": "S",
       "username": "fdiaz", "emailVerified": true,
-      "motorCarrierId": carriers.id, "password": "1234" 
+      "motorCarrierId": carriers[0].id, "password": "1234" 
     },
     {
       "first_name": "Pablo", "last_name": "Sanchez",
       "email": "pablo.sanchez@gmail.com", "account_type": "D",
       "username": "pablo.sanchez", "emailVerified": true,
-      "motorCarrierId": carriers.id, "password": "1234" 
-    }     
+      "motorCarrierId": carriers[0].id, "password": "1234" 
+    },            {
+      "first_name": "Andrea", "last_name": "Fernandez",
+      "email": "afdez@gmail.com", "account_type": "A",
+      "username": "afdez", "emailVerified": true,
+      "motorCarrierId": carriers[1].id, "password": "1234" 
+    },
+    {
+      "first_name": "Bernardo", "last_name": "Perez",
+      "email": "bperez@gmail.com", "account_type": "S",
+      "username": "bperez", "emailVerified": true,
+      "motorCarrierId": carriers[1].id, "password": "1234" 
+    },
+    {
+      "first_name": "Pedro", "last_name": "Lopez",
+      "email": "pedro.lopez@gmail.com", "account_type": "D",
+      "username": "pedro.lopez", "emailVerified": true,
+      "motorCarrierId": carriers[1].id, "password": "1234" 
+    }
+
     ]);
     console.log('people created!');
     return people;
@@ -107,7 +126,20 @@ module.exports = async function(app) {
       "default_use": true,
       "personal_use": true,
       "personId": people[2].id
+    },
+    {
+      "driver_license_number": "103216",
+      "licenses_issuing_state": "Santiago",
+      "account_status": true,
+      "exempt_driver_configuration": "E",
+      "time_zone_offset_utc": 3,
+      "24_hour_period_starting_time": Date.now(),
+      "move_yards_use": true,
+      "default_use": true,
+      "personal_use": true,
+      "personId": people[5].id
     }
+
     ]);
     console.log('drivers created!')
 
@@ -120,7 +152,7 @@ module.exports = async function(app) {
     await postgresDs.automigrate('Vehicle');
 
     var Vehicle = app.models.Vehicle;
-    var vehicles = 
+    var vehicles = [
     {
       "vin": "A1B2C3A1B2C3A1B2C3",
       "CMV_power_unit_number": "00110022",
@@ -129,15 +161,21 @@ module.exports = async function(app) {
       "plaque": "BBCC23",
       "state": "Santiago",
       "IMEI_ELD": 0,
-      "motorCarrierId": carriers.id
-    };
-    //add city if it's in the model
-    // if(CoffeeShop.definition.properties.hasOwnProperty('city')){
-    //   var cities = ['Vancouver', 'San Mateo'];
-    //   shops.forEach(function(shop, idx){
-    //     shop.city = cities[idx%2];
-    //   });
-    // }
+      "motorCarrierId": carriers[0].id
+    },
+    {
+      "vin": "GHI323ACD123O1PQR2",
+      "CMV_power_unit_number": "00330001",
+      "model": "Bus",
+      "car_maker": "Mercedez",
+      "plaque": "XL3456",
+      "state": "Santiago",
+      "IMEI_ELD": 12,
+      "motorCarrierId": carriers[1].id
+    }
+
+    ];
+
     var vehicle = await Vehicle.create(vehicles);
     console.log('vehicles created!');
     return vehicle;
@@ -148,15 +186,76 @@ module.exports = async function(app) {
     await mongoDs.automigrate('Event');
 
     var Event = app.models.Event;
-    var today = Date.now();
+    var today = new Date();
 
     var data = [
-          // event type 1
+              // event type 6
           {
           "event_sequence_id_number": 0,
-          "event_type": 1,
+          "event_type": 6,
           "event_code": 1,
           "event_timestamp": today,
+          "shipping_doc_number": "AAEECC1234",
+          "event_record_status": 1,
+          "accumulated_vehicle_miles": 0,
+          "elapsed_engine_hours": 0,
+          "coordinates": {
+            "lat": 40.32,
+            "lng": -70.65
+          },
+          "distance_since_last_valid_coordinates": 4,
+          "malfunction_indicator_status": false,
+          "data_diagnostic_event_indicator_status_for_driver": false,
+          "event_data_check_value": 0,
+          "annotation": "evento prueba tipo 1",
+          "driver_location_description": "Avenida Las Condes 324",
+          "total_vehicle_miles": 100,
+          "total_engine_hours": 3.5,
+          "time_zone_offset_utc": 4,
+          "date_of_certified_record": "2018-04-21T23:30:20.660Z",
+          "event_report_status": true,
+          "certified": false,
+          "driverId": drivers[0].id,
+          "vehicleId": vehicle.id,
+          "motorCarrierId": vehicle.motorCarrierId
+          },
+
+              // event type 5
+          {
+          "event_sequence_id_number": 1,
+          "event_type": 5,
+          "event_code": 1,
+          "event_timestamp": today.setMinutes(today.getMinutes() + 2),
+          "shipping_doc_number": "AAEECC1234",
+          "event_record_status": 1,
+          "accumulated_vehicle_miles": 0,
+          "elapsed_engine_hours": 0,
+          "coordinates": {
+            "lat": 40.32,
+            "lng": -70.65
+          },
+          "distance_since_last_valid_coordinates": 4,
+          "malfunction_indicator_status": false,
+          "data_diagnostic_event_indicator_status_for_driver": false,
+          "event_data_check_value": 0,
+          "annotation": "evento prueba tipo 1",
+          "driver_location_description": "Avenida Las Condes 324",
+          "total_vehicle_miles": 100,
+          "total_engine_hours": 3.5,
+          "time_zone_offset_utc": 4,
+          "date_of_certified_record": "2018-04-21T23:30:20.660Z",
+          "event_report_status": true,
+          "certified": false,
+          "driverId": drivers[0].id,
+          "vehicleId": vehicle.id,
+          "motorCarrierId": vehicle.motorCarrierId
+          },
+          // event type 1
+          {
+          "event_sequence_id_number": 2,
+          "event_type": 1,
+          "event_code": 3,
+          "event_timestamp": today.setMinutes(today.getMinutes() + 2),
           "shipping_doc_number": "AAEECC1234",
           "event_record_status": 1,
           "accumulated_vehicle_miles": 0,
@@ -184,10 +283,10 @@ module.exports = async function(app) {
           // event type 2
 
           {
-          "event_sequence_id_number": 1,
+          "event_sequence_id_number": 3,
           "event_type": 2,
           "event_code": 1,
-          "event_timestamp": today.setHour(today.getHour()+ 1),
+          "event_timestamp": today.setHours(today.getHours()+ 1),
           "shipping_doc_number": "AAEECC1234",
           "event_record_status": 1,
           "accumulated_vehicle_miles": 50,
@@ -199,7 +298,7 @@ module.exports = async function(app) {
           "distance_since_last_valid_coordinates": 2,
           "malfunction_indicator_status": false,
           "data_diagnostic_event_indicator_status_for_driver": false,
-          "event_data_check_value": 1,
+          "event_data_check_value": 0,
           "annotation": "evento prueba tipo 1",
           "driver_location_description": "Avenida Las Condes 324",
           "total_vehicle_miles": 150,
@@ -215,26 +314,26 @@ module.exports = async function(app) {
 
           //event type 3
           {
-          "event_sequence_id_number": 2,
+          "event_sequence_id_number": 4,
           "event_type": 3,
           "event_code": 1,
-          "event_timestamp": today.setHour(today.getHour()+ 1),
+          "event_timestamp": today.setHours(today.getHours()+ 1),
           "shipping_doc_number": "AAEECC1234",
           "event_record_status": 1,
-          "accumulated_vehicle_miles": 150,
-          "elapsed_engine_hours": 4.5,
+          "accumulated_vehicle_miles": 100,
+          "elapsed_engine_hours": 2,
           "coordinates": {
-            "lat": 42.32,
-            "lng": -71.65
+            "lat": 43.32,
+            "lng": -71.85
           },
           "distance_since_last_valid_coordinates": 2,
           "malfunction_indicator_status": false,
           "data_diagnostic_event_indicator_status_for_driver": false,
-          "event_data_check_value": 1,
+          "event_data_check_value": 0,
           "annotation": "evento prueba tipo 1",
           "driver_location_description": "Avenida Las Condes 324",
-          "total_vehicle_miles": 0,
-          "total_engine_hours": 0,
+          "total_vehicle_miles": 200,
+          "total_engine_hours": 5.5,
           "time_zone_offset_utc": 4,
           "date_of_certified_record": "2018-04-21T23:30:20.660Z",
           "event_report_status": true,
@@ -243,7 +342,66 @@ module.exports = async function(app) {
           "vehicleId": vehicle.id,
           "motorCarrierId": vehicle.motorCarrierId
           },
-
+          // event type 4
+          {
+          "event_sequence_id_number": 5,
+          "event_type": 4,
+          "event_code": 1,
+          "event_timestamp": today,
+          "shipping_doc_number": "AAEECC1234",
+          "event_record_status": 1,
+          "accumulated_vehicle_miles": 100,
+          "elapsed_engine_hours": 2,
+          "coordinates": {
+            "lat": 43.32,
+            "lng": -71.85
+          },
+          "distance_since_last_valid_coordinates": 0,
+          "malfunction_indicator_status": false,
+          "data_diagnostic_event_indicator_status_for_driver": false,
+          "event_data_check_value": 0,
+          "annotation": "evento prueba tipo 1",
+          "driver_location_description": "Avenida Las Condes 324",
+          "total_vehicle_miles": 200,
+          "total_engine_hours": 5.5,
+          "time_zone_offset_utc": 4,
+          "date_of_certified_record": "2018-04-21T23:30:20.660Z",
+          "event_report_status": true,
+          "certified": false,
+          "driverId": drivers[0].id,
+          "vehicleId": vehicle.id,
+          "motorCarrierId": vehicle.motorCarrierId
+          },
+          // event type 7
+          {
+          "event_sequence_id_number": 6,
+          "event_type": 7,
+          "event_code": 1,
+          "event_timestamp": today,
+          "shipping_doc_number": "AAEECC1234",
+          "event_record_status": 1,
+          "accumulated_vehicle_miles": 100,
+          "elapsed_engine_hours": 2,
+          "coordinates": {
+            "lat": 43.32,
+            "lng": -71.85
+          },
+          "distance_since_last_valid_coordinates": 0,
+          "malfunction_indicator_status": true,
+          "data_diagnostic_event_indicator_status_for_driver": false,
+          "event_data_check_value": 0,
+          "annotation": "evento prueba tipo 1",
+          "driver_location_description": "Avenida Las Condes 324",
+          "total_vehicle_miles": 200,
+          "total_engine_hours": 5.5,
+          "time_zone_offset_utc": 4,
+          "date_of_certified_record": "2018-04-21T23:30:20.660Z",
+          "event_report_status": true,
+          "certified": false,
+          "driverId": drivers[0].id,
+          "vehicleId": vehicle.id,
+          "motorCarrierId": vehicle.motorCarrierId
+          }
 
     ];
 
