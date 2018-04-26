@@ -41,7 +41,7 @@
     {
       "accessType": "*",
       "principalType": "ROLE",
-      "principalId": "$unauthenticated",
+      "principalId": "$everyone",
       "permission": "DENY"
     },
     {
@@ -71,10 +71,18 @@
       "property": "__destroyById__events"
     },
     {
-      "accessType": "*",
+      "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "DENY"
+      "principalId": "A",
+      "permission": "DENY",
+      "property": "__delete__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "A",
+      "permission": "DENY",
+      "property": "__destroyById__events"
     }
   ],
   "methods": {}
