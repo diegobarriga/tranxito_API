@@ -52,7 +52,7 @@ module.exports = async function(app) {
     var motor_carriers = await Carrier.create([
       { "name": "E2EGroup", "USDOT_number": 0, "multiday_basis_used": 7},
       { "name": "DCCGroup", "USDOT_number": 12, "multiday_basis_used": 8}
-      ]);  
+      ]);
 
     console.log('motor carrier created!')
     return motor_carriers;
@@ -69,13 +69,13 @@ module.exports = async function(app) {
       "first_name": "Andres", "last_name": "Flores",
       "email": "aflores@gmail.com", "account_type": "A",
       "username": "aflores", "emailVerified": true,
-      "motorCarrierId": carriers[0].id, "password": "1234" 
+      "motorCarrierId": carriers[0].id, "password": "1234"
     },
     {
       "first_name": "Fernando", "last_name": "Diaz",
       "email": "fdiaz@gmail.com", "account_type": "S",
       "username": "fdiaz", "emailVerified": true,
-      "motorCarrierId": carriers[0].id, "password": "1234" 
+      "motorCarrierId": carriers[0].id, "password": "1234"
     },
     {
       "first_name": "Pablo", "last_name": "Sanchez",
@@ -92,22 +92,22 @@ module.exports = async function(app) {
       "first_name": "Andrea", "last_name": "Fernandez",
       "email": "afdez@gmail.com", "account_type": "A",
       "username": "afdez", "emailVerified": true,
-      "motorCarrierId": carriers[1].id, "password": "1234" 
+      "motorCarrierId": carriers[1].id, "password": "1234"
     },
     {
       "first_name": "Bernardo", "last_name": "Perez",
       "email": "bperez@gmail.com", "account_type": "S",
       "username": "bperez", "emailVerified": true,
-      "motorCarrierId": carriers[1].id, "password": "1234" 
+      "motorCarrierId": carriers[1].id, "password": "1234"
     },
     {
       "first_name": "Pedro", "last_name": "Lopez",
       "email": "pedro.lopez@gmail.com", "account_type": "D",
       "username": "pedro.lopez", "emailVerified": true,
       "motorCarrierId": carriers[1].id, "password": "1234",
-      "driver_license_number": "10255321", "licenses_issuing_state": "Santiago", 
+      "driver_license_number": "10255321", "licenses_issuing_state": "Santiago",
       "account_status": true, "exempt_driver_configuration": "E",
-      "time_zone_offset_utc": 4, "starting_time_24_hour_period": Date.now(), 
+      "time_zone_offset_utc": 4, "starting_time_24_hour_period": Date.now(),
       "move_yards_use": false, "default_use": true, "personal_use": false
     }
     ]);
@@ -374,8 +374,7 @@ module.exports = async function(app) {
 
     ];
 
-
-    var event = await Event.create(data);
+    var event = Event.create(data);
 
     console.log('events created!');
     return event;

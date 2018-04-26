@@ -27,13 +27,11 @@ function validateTimeZoneOffsetUtc(err) {
   if (this.account_type === 'D' && !Number.isInteger(this.time_zone_offset_utc)) err();
   if (this.account_type === 'D' && (this.time_zone_offset_utc < 4 || this.time_zone_offset_utc > 11)) err();
 
-
 }
 
 function validateStartingTime24HourPeriod(err) {
   if (this.account_type === 'D' && this.starting_time_24_hour_period === undefined) err()
 }
-
 
 module.exports = function(Person) {
   Person.validatesPresenceOf('first_name', 'last_name', 'username', 'account_type', {"message": "Can't be blank"});
