@@ -86,7 +86,15 @@ function diagnostic_code_validator(err) {
 }
 
 module.exports = function(Event) {
-  Event.validatesPresenceOf('event_sequence_id_number', 'event_type', 'event_timestamp', 'event_code', 'event_timestamp', 'shipping_doc_number', {"message": "Can't be blank"});
+  Event.validatesPresenceOf(
+    'event_sequence_id_number',
+    'event_type',
+    'event_timestamp',
+    'event_code',
+    'event_timestamp',
+    'shipping_doc_number',
+    {"message": "Can't be blank"}
+  );
   Event.validatesNumericalityOf(
     'event_sequence_id_number',
     'event_record_status',
