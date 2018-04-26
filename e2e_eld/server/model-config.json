@@ -41,15 +41,15 @@
     "public": true
   },
   "MotorCarrier": {
-    "dataSource": "db",
+    "dataSource": "postgresDB",
     "public": true
   },
   "Vehicle": {
-    "dataSource": "db",
+    "dataSource": "postgresDB",
     "public": true
   },
   "Event": {
-    "dataSource": "db",
+    "dataSource": "mongoDB",
     "public": true
   }
 }
