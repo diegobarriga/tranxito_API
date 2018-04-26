@@ -26,9 +26,6 @@
       "type": "string",
       "required": true
     },
-    "codriver_id": {
-      "type": "number"
-    },
     "event_record_status": {
       "type": "number"
     },
@@ -82,8 +79,8 @@
   "relations": {
     "driver": {
       "type": "belongsTo",
-      "model": "Driver",
-      "foreignKey": ""
+      "model": "Person",
+      "foreignKey": "driverId"
     },
     "vehicle": {
       "type": "belongsTo",
@@ -92,7 +89,7 @@
     },
     "codriver": {
       "type": "belongsTo",
-      "model": "Driver",
+      "model": "Person",
       "foreignKey": ""
     },
     "motorCarrier": {
