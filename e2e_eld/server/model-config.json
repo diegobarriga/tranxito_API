@@ -10,6 +10,7 @@
       "loopback/common/mixins",
       "loopback/server/mixins",
       "../common/mixins",
+      "../node_modules/loopback-import-mixin/dist",
       "./mixins"
     ]
   },
@@ -51,5 +52,13 @@
   "Event": {
     "dataSource": "mongoDB",
     "public": true
+  },
+    "ImportContainer": {
+    "dataSource": "container",
+    "public": false
+  },
+  "ImportLog": {
+    "dataSource": "postgresDB",
+    "public": false
   }
 }

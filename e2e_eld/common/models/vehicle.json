@@ -2,6 +2,27 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
+  "mixins": {
+    "Import": [{
+        "map": {
+          "vin": "vin",
+          "CMV_power_unit_number": "CMV_power_unit_number",
+          "model": "model",
+          "car_maker": "car_maker",
+          "plaque": "plaque",
+          "state": "state",
+          "IMEI_ELD": "IMEI_ELD"
+            },
+        "relations": {
+          "motorCarrier": {
+              "type": "link",
+              "where": {
+                  "name": "motor_carrier_name"
+              }
+            }
+        }
+    }]
+  },
   "options": {
     "validateUpsert": true
   },

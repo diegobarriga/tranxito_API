@@ -1,0 +1,39 @@
+{
+  "name": "ImportLog",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "promisify": true
+  },
+  "properties": {
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "model": {
+      "type": "string",
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "notices": {
+      "type": ["object"],
+      "required": true
+    },
+    "warnings": {
+      "type": ["object"],
+      "required": true
+    },
+    "errors": {
+      "type": ["object"],
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

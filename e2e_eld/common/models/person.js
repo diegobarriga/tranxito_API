@@ -1,6 +1,7 @@
 'use strict';
 var validator = require('validator');
 
+
 function email_validator(err) {
   if(!validator.isEmail(String(this.email))) return err();
 }
@@ -49,4 +50,7 @@ module.exports = function(Person) {
   Person.validate('exempt_driver_configuration', validateExemptDriverConfiguration, {"message": "Can't be blank when account_type is D"});
   Person.validate('time_zone_offset_utc', validateTimeZoneOffsetUtc, {"message": "Can't be blank when account_type is D"});
   Person.validate('starting_time_24_hour_period', validateStartingTime24HourPeriod, {"message": "Can't be blank when account_type is D"});
+
+
+
 };

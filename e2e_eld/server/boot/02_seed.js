@@ -12,7 +12,6 @@ module.exports = async function(app) {
   var carriers = await carriers.then(function(res){
     return res;
   })
-  console.log(carriers);
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
@@ -22,8 +21,6 @@ module.exports = async function(app) {
     return res;
   })
 
-  console.log(people);
-
   var vehicles = createVehicles(carriers, function(err) {
     if (err) throw err;
     console.log('> models created sucessfully');
@@ -31,8 +28,6 @@ module.exports = async function(app) {
   var vehicles = await vehicles.then(function(res){
     return res;
   })
-
-  console.log(vehicles);
 
   var events = createEvents(people, vehicles, function(err) {
     if (err) throw err;
@@ -42,7 +37,7 @@ module.exports = async function(app) {
     return res;
   })
 
-  console.log(events);
+  console.log('Database seeded');
 
   //create carriers
   async function createCarriers(cb) {
@@ -163,7 +158,7 @@ module.exports = async function(app) {
           "event_sequence_id_number": 0,
           "event_type": 6,
           "event_code": 1,
-          "event_timestamp": today,
+          "event_timestamp": today.setMinutes(today.getMinutes() + 0),
           "shipping_doc_number": "AAEECC1234",
           "event_record_status": 1,
           "accumulated_vehicle_miles": 0,
