@@ -84,7 +84,7 @@ module.exports = async function(app) {
       "first_name": "Andres", "last_name": "Flores",
       "email": "aflores@gmail.com", "account_type": "A",
       "username": "aflores", "emailVerified": true,
-      "motorCarrierId": carriers[0].id, "password": "1234"
+      "password": "1234"
     },
     {
       "first_name": "Fernando", "last_name": "Diaz",
@@ -107,7 +107,7 @@ module.exports = async function(app) {
       "first_name": "Andrea", "last_name": "Fernandez",
       "email": "afdez@gmail.com", "account_type": "A",
       "username": "afdez", "emailVerified": true,
-      "motorCarrierId": carriers[1].id, "password": "1234"
+      "password": "1234"
     },
     {
       "first_name": "Bernardo", "last_name": "Perez",
