@@ -1,5 +1,8 @@
 'use strict';
 var validator = require('validator');
+var models = require('../../server/model-config.json')
+var Role = models.Role;
+var RoleMapping = models.RoleMapping;
 
 
 function email_validator(err) {
@@ -48,6 +51,31 @@ module.exports = function(Person) {
   Person.validate('exempt_driver_configuration', validateExemptDriverConfiguration, {"message": "Can't be blank when account_type is D"});
   Person.validate('time_zone_offset_utc', validateTimeZoneOffsetUtc, {"message": "Can't be blank when account_type is D"});
   Person.validate('starting_time_24_hour_period', validateStartingTime24HourPeriod, {"message": "Can't be blank when account_type is D"});
+
+
+//   Person.observe ('after save', function (ctx, next) {
+
+//       Role.find({where: {name: ctx.instance.account_type}}, function(err, role) {
+//         if (err) {return console.log(err);}
+
+//         RoleMapping.create({
+//           principalType: "ROLE",
+//           principalId: ctx.instance.id,
+//           roleId: role.id
+//         }, function(err, roleMapping) {
+
+//           if (err) {return console.log(err);}
+
+//           console.log('User assigned RoleID ' + role.id + ' (' + ctx.instance.account_type + ')');
+
+//         })
+
+//       });
+
+//         next();
+// });
+
+
 
 
 

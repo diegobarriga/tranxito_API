@@ -1,13 +1,17 @@
 
 
 module.exports = async function(app) {
+
+  var Role = app.models.Role;
+  var RoleMapping = app.models.RoleMapping;
+
   //data sources
   var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
 
   var carriers = createCarriers(function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> motor carriers created sucessfully');
   });
   var carriers = await carriers.then(function(res){
     return res;
@@ -15,7 +19,7 @@ module.exports = async function(app) {
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> people created sucessfully');
   });
   var people = await people.then(function(res){
     return res;
@@ -23,15 +27,24 @@ module.exports = async function(app) {
 
   var vehicles = createVehicles(carriers, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> vehicles created sucessfully');
   });
   var vehicles = await vehicles.then(function(res){
     return res;
   })
 
+  var roles = assignRoles(people, function(err) {
+    if (err) throw err;
+    console.log('> roles created sucessfully');
+  });
+
+  await roles.then(function(res){
+    return res;
+  })
+
   var events = createEvents(people, vehicles, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> events created sucessfully');
   });
   var events = await events.then(function(res){
     return res;
@@ -62,7 +75,7 @@ module.exports = async function(app) {
     var people = await Person.create([
     {
       "first_name": "Andres", "last_name": "Flores",
-      "email": "aflores@gmail.com", "account_type": "A",
+      "email": "f", "account_type": "A",
       "username": "aflores", "emailVerified": true,
       "motorCarrierId": carriers[0].id, "password": "1234"
     },
@@ -105,7 +118,12 @@ module.exports = async function(app) {
       "time_zone_offset_utc": 4, "starting_time_24_hour_period": Date.now(),
       "move_yards_use": false, "default_use": true, "personal_use": false
     }
-    ]);
+    ]
+    );
+
+
+
+
     console.log('people created!');
     return people;
   }
@@ -147,6 +165,7 @@ module.exports = async function(app) {
 
   //create events
   async function createEvents(people, vehicles, cb) {
+
     await mongoDs.automigrate('Event');
 
     var Event = app.models.Event;
@@ -374,4 +393,59 @@ module.exports = async function(app) {
     console.log('events created!');
     return event;
     }
+
+
+    async function assignRoles(users, cb) {
+
+          await postgresDs.automigrate('Role');
+          await postgresDs.automigrate('RoleMapping');
+          //create the admin role
+          var roles = await Role.create([{
+            name: 'A'
+          },
+          {
+            name: 'S'
+          },
+          {
+            name: 'D'
+          }]);
+
+            //admins
+            roles[0].principals.create([{
+              principalType: RoleMapping.USER,
+              principalId: users[0].id
+            },{
+              principalType: RoleMapping.USER,
+              principalId: users[3].id
+            }], function(err, principal) {
+              cb(err);
+            });
+
+            // supervisores
+            roles[1].principals.create([{
+              principalType: RoleMapping.USER,
+              principalId: users[1].id
+            },{
+              principalType: RoleMapping.USER,
+              principalId: users[4].id
+            }], function(err, principal) {
+              cb(err);
+            });
+
+            // drivers
+            roles[2].principals.create([{
+              principalType: RoleMapping.USER,
+              principalId: users[2].id
+            },{
+              principalType: RoleMapping.USER,
+              principalId: users[5].id
+            }], function(err, principal) {
+              cb(err);
+            });
+
+
+            console.log('Roles assigned');
+
+            return roles;
+      } 
 };
