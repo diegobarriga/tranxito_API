@@ -8,7 +8,8 @@
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
     "ssl": false,
-    "connector": "postgresql"
+    "connector": "postgresql",
+    "poolIdleTimeout": 1200000
   },
   "mongoDB": {
     "host": "localhost",
@@ -26,5 +27,11 @@
     "provider": "azure",
     "storageAccount": "",
     "storageAccessKey": ""
+  },
+    "container": {
+    "name": "container",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "tmp"
   }
 }
