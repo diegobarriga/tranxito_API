@@ -1,23 +1,18 @@
 {
   "postgresDB": {
-    "host": "localhost",
+    "host": "${E2E_relational_host}",
     "port": 5432,
-    "url": "",
-    "database": "E2E_relational",
+    "database": "${E2E_relational_db}",
     "password": "${E2E_relational_pass}",
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
-    "ssl": false,
+    "ssl": true,
     "connector": "postgresql"
   },
   "mongoDB": {
-    "host": "localhost",
-    "port": 27017,
-    "url": "",
-    "database": "E2E_logs",
-    "password": "",
+    "user": "eld-mongo",
+    "url": "${MONGODB_URI}",
     "name": "mongoDB",
-    "user": "",
     "connector": "mongodb"
   },
   "azureStorage": {
