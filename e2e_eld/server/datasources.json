@@ -7,7 +7,8 @@
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
     "ssl": true,
-    "connector": "postgresql"
+    "connector": "postgresql",
+    "poolIdleTimeout": 1200000
   },
   "mongoDB": {
     "user": "eld-mongo",
@@ -21,5 +22,11 @@
     "provider": "azure",
     "storageAccount": "",
     "storageAccessKey": ""
+  },
+    "container": {
+    "name": "container",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "tmp"
   }
 }

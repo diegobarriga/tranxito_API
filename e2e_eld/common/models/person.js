@@ -1,5 +1,7 @@
 'use strict';
 var validator = require('validator');
+var app = require('../../server/server.js')
+
 
 function email_validator(err) {
   if(!validator.isEmail(String(this.email))) return err();
@@ -47,4 +49,22 @@ module.exports = function(Person) {
   Person.validate('exempt_driver_configuration', validateExemptDriverConfiguration, {"message": "Can't be blank when account_type is D"});
   Person.validate('time_zone_offset_utc', validateTimeZoneOffsetUtc, {"message": "Can't be blank when account_type is D"});
   Person.validate('starting_time_24_hour_period', validateStartingTime24HourPeriod, {"message": "Can't be blank when account_type is D"});
+
+
+  Person.observe('after save', function (context, next) {    
+    var Role = app.models.Role;
+    var RoleMapping = app.models.RoleMapping;
+    Role.findOne({where: {name: context.instance.account_type}}, function(err, role) { 
+        if (context.isNewInstance){
+          RoleMapping.create({
+              principalType: RoleMapping.USER,
+              principalId: context.instance.id,
+              roleId: role.id
+          });
+        };
+      next();
+    });
+  });
+
+
 };
