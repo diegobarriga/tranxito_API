@@ -9,6 +9,16 @@ module.exports = async function(app) {
   var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
 
+
+  var roles = createRoles(people, function(err) {
+    if (err) throw err;
+    console.log('> roles created sucessfully');
+  });
+
+  await roles.then(function(res){
+    return res;
+  })
+
   var carriers = createCarriers(function(err) {
     if (err) throw err;
     console.log('> motor carriers created sucessfully');
@@ -30,15 +40,6 @@ module.exports = async function(app) {
     console.log('> vehicles created sucessfully');
   });
   var vehicles = await vehicles.then(function(res){
-    return res;
-  })
-
-  var roles = assignRoles(people, function(err) {
-    if (err) throw err;
-    console.log('> roles created sucessfully');
-  });
-
-  await roles.then(function(res){
     return res;
   })
 
@@ -72,10 +73,16 @@ module.exports = async function(app) {
     await postgresDs.automigrate('Person');
 
     var Person = app.models.Person;
+
+    // RoleMapping.belongsTo(Person);
+    // Person.hasOne(RoleMapping, {foreignKey: 'principalId'});
+    // Role.hasMany(Person, {through: RoleMapping, foreignKey: 'roleId'});
+
+
     var people = await Person.create([
     {
       "first_name": "Andres", "last_name": "Flores",
-      "email": "f", "account_type": "A",
+      "email": "aflores@gmail.com", "account_type": "A",
       "username": "aflores", "emailVerified": true,
       "motorCarrierId": carriers[0].id, "password": "1234"
     },
@@ -395,7 +402,7 @@ module.exports = async function(app) {
     }
 
 
-    async function assignRoles(users, cb) {
+    async function createRoles(users, cb) {
 
           await postgresDs.automigrate('Role');
           await postgresDs.automigrate('RoleMapping');
@@ -410,41 +417,8 @@ module.exports = async function(app) {
             name: 'D'
           }]);
 
-            //admins
-            roles[0].principals.create([{
-              principalType: RoleMapping.USER,
-              principalId: users[0].id
-            },{
-              principalType: RoleMapping.USER,
-              principalId: users[3].id
-            }], function(err, principal) {
-              cb(err);
-            });
 
-            // supervisores
-            roles[1].principals.create([{
-              principalType: RoleMapping.USER,
-              principalId: users[1].id
-            },{
-              principalType: RoleMapping.USER,
-              principalId: users[4].id
-            }], function(err, principal) {
-              cb(err);
-            });
-
-            // drivers
-            roles[2].principals.create([{
-              principalType: RoleMapping.USER,
-              principalId: users[2].id
-            },{
-              principalType: RoleMapping.USER,
-              principalId: users[5].id
-            }], function(err, principal) {
-              cb(err);
-            });
-
-
-            console.log('Roles assigned');
+            console.log('Roles created');
 
             return roles;
       } 
