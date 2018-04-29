@@ -1,48 +1,57 @@
 
 
 module.exports = async function(app) {
+
+  var Role = app.models.Role;
+  var RoleMapping = app.models.RoleMapping;
+
   //data sources
   var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
 
+
+  var roles = createRoles(people, function(err) {
+    if (err) throw err;
+    console.log('> roles created sucessfully');
+  });
+
+  await roles.then(function(res){
+    return res;
+  })
+
   var carriers = createCarriers(function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> motor carriers created sucessfully');
   });
   var carriers = await carriers.then(function(res){
     return res;
   })
-  console.log(carriers);
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> people created sucessfully');
   });
   var people = await people.then(function(res){
     return res;
   })
 
-  console.log(people);
-
   var vehicles = createVehicles(carriers, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> vehicles created sucessfully');
   });
   var vehicles = await vehicles.then(function(res){
     return res;
   })
 
-  console.log(vehicles);
-
   var events = createEvents(people, vehicles, function(err) {
     if (err) throw err;
-    console.log('> models created sucessfully');
+    console.log('> events created sucessfully');
   });
   var events = await events.then(function(res){
     return res;
   })
 
-  console.log(events);
+  console.log('Database seeded');
 
   //create carriers
   async function createCarriers(cb) {
@@ -64,6 +73,12 @@ module.exports = async function(app) {
     await postgresDs.automigrate('Person');
 
     var Person = app.models.Person;
+
+    // RoleMapping.belongsTo(Person);
+    // Person.hasOne(RoleMapping, {foreignKey: 'principalId'});
+    // Role.hasMany(Person, {through: RoleMapping, foreignKey: 'roleId'});
+
+
     var people = await Person.create([
     {
       "first_name": "Andres", "last_name": "Flores",
@@ -110,7 +125,12 @@ module.exports = async function(app) {
       "time_zone_offset_utc": 4, "starting_time_24_hour_period": Date.now(),
       "move_yards_use": false, "default_use": true, "personal_use": false
     }
-    ]);
+    ]
+    );
+
+
+
+
     console.log('people created!');
     return people;
   }
@@ -152,6 +172,7 @@ module.exports = async function(app) {
 
   //create events
   async function createEvents(people, vehicles, cb) {
+
     await mongoDs.automigrate('Event');
 
     var Event = app.models.Event;
@@ -163,7 +184,7 @@ module.exports = async function(app) {
           "event_sequence_id_number": 0,
           "event_type": 6,
           "event_code": 1,
-          "event_timestamp": today,
+          "event_timestamp": today.setMinutes(today.getMinutes() + 0),
           "shipping_doc_number": "AAEECC1234",
           "event_record_status": 1,
           "accumulated_vehicle_miles": 0,
@@ -379,4 +400,26 @@ module.exports = async function(app) {
     console.log('events created!');
     return event;
     }
+
+
+    async function createRoles(users, cb) {
+
+          await postgresDs.automigrate('Role');
+          await postgresDs.automigrate('RoleMapping');
+          //create the admin role
+          var roles = await Role.create([{
+            name: 'A'
+          },
+          {
+            name: 'S'
+          },
+          {
+            name: 'D'
+          }]);
+
+
+            console.log('Roles created');
+
+            return roles;
+      } 
 };

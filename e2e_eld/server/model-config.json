@@ -10,6 +10,7 @@
       "loopback/common/mixins",
       "loopback/server/mixins",
       "../common/mixins",
+      "../node_modules/loopback-import-mixin/dist",
       "./mixins"
     ]
   },
@@ -27,14 +28,14 @@
   },
   "RoleMapping": {
     "dataSource": "postgresDB",
-    "public": false,
+    "public": true,
     "options": {
       "strictObjectIDCoercion": true
     }
   },
   "Role": {
     "dataSource": "postgresDB",
-    "public": false
+    "public": true
   },
   "Person": {
     "dataSource": "postgresDB",
@@ -51,5 +52,13 @@
   "Event": {
     "dataSource": "mongoDB",
     "public": true
+  },
+    "ImportContainer": {
+    "dataSource": "container",
+    "public": false
+  },
+  "ImportLog": {
+    "dataSource": "postgresDB",
+    "public": false
   }
 }
