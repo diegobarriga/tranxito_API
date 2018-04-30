@@ -10,5 +10,4 @@ module.exports = function(app) {
     if (er) throw er;
     console.log('Loopback tables ['+['AccessToken, ACL']+'] created');
   });
-
 }
