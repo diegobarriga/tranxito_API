@@ -21,15 +21,15 @@
     },
     "notices": {
       "type": ["object"],
-      "required": true
+      "required": false
     },
     "warnings": {
       "type": ["object"],
-      "required": true
+      "required": false
     },
     "errors": {
       "type": ["object"],
-      "required": true
+      "required": false
     }
   },
   "validations": [],
