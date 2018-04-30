@@ -164,6 +164,13 @@
       "principalId": "A",
       "permission": "DENY",
       "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "import"
     }
   ],
   "methods": {}

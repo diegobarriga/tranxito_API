@@ -2,16 +2,16 @@
   "postgresDB": {
     "host": "${E2E_relational_host}",
     "port": 5432,
-    "url": "",
     "database": "${E2E_relational_db}",
     "password": "${E2E_relational_pass}",
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
-    "ssl": false,
+    "ssl": true,
     "connector": "postgresql",
     "poolIdleTimeout": 1200000
   },
   "mongoDB": {
+    "user": "eld-mongo",
     "url": "${MONGODB_URI}",
     "name": "mongoDB",
     "connector": "mongodb"
