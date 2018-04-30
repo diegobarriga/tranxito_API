@@ -59,6 +59,6 @@
   },
   "ImportLog": {
     "dataSource": "postgresDB",
-    "public": false
+    "public": true
   }
 }
