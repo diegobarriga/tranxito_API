@@ -103,6 +103,12 @@
       "principalId": "S",
       "permission": "DENY",
       "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "property": "__get__people"
     }
   ],
   "methods": {}
