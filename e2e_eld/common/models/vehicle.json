@@ -27,6 +27,9 @@
     },
     "IMEI_ELD": {
       "type": "number"
+    },
+    "image": {
+      "type": "string"
     }
   },
   "validations": [],
@@ -151,6 +154,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "import"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "setImage"
     }
   ],
   "methods": {}

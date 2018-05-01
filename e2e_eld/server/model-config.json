@@ -50,7 +50,7 @@
     "public": true
   },
   "Event": {
-    "dataSource": "mongoDB",
+    "dataSource": "postgresDB",
     "public": true
   },
     "Container": {
@@ -63,6 +63,10 @@
   },
   "FileUploadError": {
     "dataSource": "postgresDB",
+    "public": true
+  },
+  "imageContainer": {
+    "dataSource": "images-storage",
     "public": true
   }
 }

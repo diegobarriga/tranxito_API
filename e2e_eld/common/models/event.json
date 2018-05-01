@@ -30,16 +30,25 @@
       "type": "number"
     },
     "accumulated_vehicle_miles": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "double precision"
+      }
     },
     "elapsed_engine_hours": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "double precision"
+      }
     },
     "coordinates": {
       "type": "geopoint"
     },
     "distance_since_last_valid_coordinates": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "double precision"
+      }
     },
     "malfunction_indicator_status": {
       "type": "Boolean"
@@ -57,10 +66,16 @@
       "type": "string"
     },
     "total_vehicle_miles": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "double precision"
+      }
     },
     "total_engine_hours": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "double precision"
+      }
     },
     "time_zone_offset_utc": {
       "type": "number"

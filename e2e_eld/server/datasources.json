@@ -10,12 +10,6 @@
     "connector": "postgresql",
     "poolIdleTimeout": 1200000
   },
-  "mongoDB": {
-    "user": "",
-    "url": "",
-    "name": "mongoDB",
-    "connector": "mongodb"
-  },
   "azureStorage": {
     "name": "azureStorage",
     "connector": "loopback-component-storage",
@@ -23,10 +17,17 @@
     "storageAccount": "",
     "storageAccessKey": ""
   },
-    "container": {
+  "container": {
     "name": "container",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "tmp"
+  },
+  "images-storage": {
+    "name": "images-storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/local-storage",
+    "nameConflict": "makeUnique"
   }
 }

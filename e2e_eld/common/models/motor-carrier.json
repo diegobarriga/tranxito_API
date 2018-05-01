@@ -57,6 +57,12 @@
       "permission": "ALLOW"
     },
     {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW"
+    },
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$owner",
@@ -80,9 +86,29 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "A",
       "permission": "DENY",
       "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "property": "__get__people"
     }
   ],
   "methods": {}

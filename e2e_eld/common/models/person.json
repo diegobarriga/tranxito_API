@@ -52,6 +52,9 @@
     },
     "personal_use": {
       "type": "Boolean"
+    },
+    "image": {
+      "type": "string"
     }
   },
   "validations": [],
