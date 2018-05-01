@@ -11,4 +11,8 @@ module.exports = function(app) {
   console.log('Loopback tables ['+['AccessToken', 'ACL']+'] created');
 });
 
+  app.dataSources.postgresDB.automigrate(['AccessToken', 'ACL'], function(er) {
+    if (er) throw er;
+    console.log('Loopback tables ['+['AccessToken', 'ACL']+'] created');
+  });
 }
