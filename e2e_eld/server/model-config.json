@@ -53,11 +53,15 @@
     "dataSource": "mongoDB",
     "public": true
   },
-    "ImportContainer": {
+    "Container": {
     "dataSource": "container",
     "public": false
   },
-  "ImportLog": {
+  "FileUpload": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+  "FileUploadError": {
     "dataSource": "postgresDB",
     "public": true
   }

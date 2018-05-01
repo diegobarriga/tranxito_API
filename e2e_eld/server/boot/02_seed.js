@@ -6,8 +6,10 @@ module.exports = async function(app) {
   var RoleMapping = app.models.RoleMapping;
 
   //data sources
-  var mongoDs = app.dataSources.mongoDB;
+ var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
+
+  postgresDs.automigrate(['FileUpload', 'FileUploadError']);
 
 
   var roles = createRoles(people, function(err) {
@@ -17,7 +19,7 @@ module.exports = async function(app) {
 
   await roles.then(function(res){
     return res;
-  })
+  });
 
   var carriers = createCarriers(function(err) {
     if (err) throw err;
@@ -25,7 +27,7 @@ module.exports = async function(app) {
   });
   var carriers = await carriers.then(function(res){
     return res;
-  })
+  });
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
@@ -33,7 +35,7 @@ module.exports = async function(app) {
   });
   var people = await people.then(function(res){
     return res;
-  })
+  });
 
   var vehicles = createVehicles(carriers, function(err) {
     if (err) throw err;
@@ -41,7 +43,7 @@ module.exports = async function(app) {
   });
   var vehicles = await vehicles.then(function(res){
     return res;
-  })
+  });
 
   var events = createEvents(people, vehicles, function(err) {
     if (err) throw err;
@@ -49,7 +51,7 @@ module.exports = async function(app) {
   });
   var events = await events.then(function(res){
     return res;
-  })
+  });
 
   console.log('Database seeded');
 
@@ -393,12 +395,15 @@ module.exports = async function(app) {
           "motorCarrierId": vehicles[0].motorCarrierId
           }
 
-    ];
+      ];
 
-    var event = Event.create(data);
 
-    console.log('events created!');
-    return event;
+      var event = await Event.create(data, function(err){
+        if (err) throw err; 
+      });
+      console.log(event);
+      console.log('events created!');
+      return event;
     }
 
 

@@ -4,6 +4,6 @@
 module.exports = function(app) {
 
   app.dataSources.postgresDB.automigrate();
-  app.dataSources.mongoDB.automigrate();
+  //app.dataSources.mongoDB.automigrate();
 
 }

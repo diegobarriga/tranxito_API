@@ -6,13 +6,13 @@
     "password": "${E2E_relational_pass}",
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
-    "ssl": true,
+    "ssl": false,
     "connector": "postgresql",
     "poolIdleTimeout": 1200000
   },
   "mongoDB": {
-    "user": "eld-mongo",
-    "url": "${MONGODB_URI}",
+    "user": "",
+    "url": "",
     "name": "mongoDB",
     "connector": "mongodb"
   },

@@ -2,35 +2,7 @@
   "name": "Person",
   "base": "User",
   "idInjection": true,
-  "mixins": {
-    "Import": [{
-        "map": {
-            "first_name": "first_name",
-            "last_name": "last_name",
-            "email": "email",
-            "account_type": "D",
-            "driver_license_number": "driver_license_number",
-            "licenses_issuing_state": "licenses_issuing_state",
-            "account_status": true,
-            "exempt_driver_configuration": "exempt_driver_configuration",
-            "time_zone_offset_utc": "time_zone_offset_utc",
-            "starting_time_24_hour_period": "starting_time_24_hour_period",
-            "move_yards_use": "move_yards_use",
-            "default_use": "default_use",
-            "personal_use": "personal_use",
-            "username": "username",
-            "password": "password"
-        },
-        "relations": {
-          "motorCarrier": {
-              "type": "link",
-              "where": {
-                  "name": "motor_carrier_name"
-              }
-            }
-        }
-    }]
-  },
+  "mixins": {},
   "options": {
     "validateUpsert": true
   },
@@ -239,6 +211,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "import"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "upload"
     }
   ],
   "methods": {}
