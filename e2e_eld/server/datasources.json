@@ -6,15 +6,9 @@
     "password": "${E2E_relational_pass}",
     "name": "postgresDB",
     "user": "${E2E_relational_user}",
-    "ssl": true,
+    "ssl": false,
     "connector": "postgresql",
     "poolIdleTimeout": 1200000
-  },
-  "mongoDB": {
-    "url": "${MONGODB_URI}",
-    "name": "mongoDB",
-    "user": "eld-mongo",
-    "connector": "mongodb"
   },
   "azureStorage": {
     "name": "azureStorage",

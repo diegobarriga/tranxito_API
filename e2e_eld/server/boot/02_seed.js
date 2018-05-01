@@ -6,7 +6,7 @@ module.exports = async function(app) {
   var RoleMapping = app.models.RoleMapping;
 
   //data sources
-  var mongoDs = app.dataSources.mongoDB;
+  //var mongoDs = app.dataSources.mongoDB;
   var postgresDs = app.dataSources.postgresDB;
 
 
@@ -49,7 +49,7 @@ module.exports = async function(app) {
   });
   var events = await events.then(function(res){
     return res;
-  })
+  });
 
   console.log('Database seeded');
 
@@ -173,7 +173,8 @@ module.exports = async function(app) {
   //create events
   async function createEvents(people, vehicles, cb) {
 
-    await mongoDs.automigrate('Event');
+    //await mongoDs.automigrate('Event');
+    await postgresDs.automigrate('Event');
 
     var Event = app.models.Event;
     var today = new Date();
@@ -395,31 +396,31 @@ module.exports = async function(app) {
 
     ];
 
-    var event = Event.create(data);
+    var event = await Event.create(data);
 
     console.log('events created!');
     return event;
     }
 
 
-    async function createRoles(users, cb) {
+  async function createRoles(users, cb) {
 
-          await postgresDs.automigrate('Role');
-          await postgresDs.automigrate('RoleMapping');
-          //create the admin role
-          var roles = await Role.create([{
-            name: 'A'
-          },
-          {
-            name: 'S'
-          },
-          {
-            name: 'D'
-          }]);
+        await postgresDs.automigrate('Role');
+        await postgresDs.automigrate('RoleMapping');
+        //create the admin role
+        var roles = await Role.create([{
+          name: 'A'
+        },
+        {
+          name: 'S'
+        },
+        {
+          name: 'D'
+        }]);
 
 
-            console.log('Roles created');
+          console.log('Roles created');
 
-            return roles;
-      } 
+          return roles;
+    }
 };
