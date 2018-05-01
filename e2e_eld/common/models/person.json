@@ -54,7 +54,8 @@
       "type": "Boolean"
     },
     "image": {
-      "type": "string"
+      "type": "string",
+      "default": "personDefaultProfilePicture.jpeg"
     }
   },
   "validations": [],

@@ -29,7 +29,8 @@
       "type": "number"
     },
     "image": {
-      "type": "string"
+      "type": "string",
+      "default": "vehicleDefaultPic.png"
     }
   },
   "validations": [],
