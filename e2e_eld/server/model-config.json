@@ -50,7 +50,7 @@
     "public": true
   },
   "Event": {
-    "dataSource": "mongoDB",
+    "dataSource": "postgresDB",
     "public": true
   },
     "ImportContainer": {
