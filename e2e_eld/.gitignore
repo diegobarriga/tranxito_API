@@ -18,6 +18,5 @@ coverage
 node_modules
 npm-debug.log
 env.txt
-local-storage/*/*.jpg
-local-storage/*/*.png
-local-storage/*/*.jepg
+local-storage/People/*
+local-storage/Vehicles/*
