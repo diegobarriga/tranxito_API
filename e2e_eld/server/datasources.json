@@ -17,10 +17,17 @@
     "storageAccount": "",
     "storageAccessKey": ""
   },
-    "container": {
+  "container": {
     "name": "container",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "tmp"
+  },
+  "images-storage": {
+    "name": "images-storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/local-storage",
+    "nameConflict": "makeUnique"
   }
 }
