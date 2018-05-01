@@ -50,15 +50,19 @@
     "public": true
   },
   "Event": {
-    "dataSource": "mongoDB",
+    "dataSource": "postgresDB",
     "public": true
   },
-    "ImportContainer": {
+  "ImportContainer": {
     "dataSource": "container",
     "public": false
   },
   "ImportLog": {
     "dataSource": "postgresDB",
+    "public": true
+  },
+  "imageContainer": {
+    "dataSource": "images-storage",
     "public": true
   }
 }

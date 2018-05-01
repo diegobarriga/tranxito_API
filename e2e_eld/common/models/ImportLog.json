@@ -20,15 +20,21 @@
       "required": true
     },
     "notices": {
-      "type": ["object"],
+      "type": [
+        "object"
+      ],
       "required": false
     },
     "warnings": {
-      "type": ["object"],
+      "type": [
+        "object"
+      ],
       "required": false
     },
     "errors": {
-      "type": ["object"],
+      "type": [
+        "object"
+      ],
       "required": false
     }
   },

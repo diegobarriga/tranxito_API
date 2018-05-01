@@ -2,8 +2,12 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
   "mixins": {
-    "Import": [{
+    "Import": [
+      {
         "map": {
           "vin": "vin",
           "CMV_power_unit_number": "CMV_power_unit_number",
@@ -12,19 +16,17 @@
           "plaque": "plaque",
           "state": "state",
           "IMEI_ELD": "IMEI_ELD"
-            },
+        },
         "relations": {
           "motorCarrier": {
-              "type": "link",
-              "where": {
-                  "name": "motor_carrier_name"
-              }
+            "type": "link",
+            "where": {
+              "name": "motor_carrier_name"
             }
+          }
         }
-    }]
-  },
-  "options": {
-    "validateUpsert": true
+      }
+    ]
   },
   "properties": {
     "vin": {
@@ -47,6 +49,9 @@
     },
     "IMEI_ELD": {
       "type": "number"
+    },
+    "image": {
+      "type": "string"
     }
   },
   "validations": [],
@@ -171,6 +176,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "import"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "setImage"
     }
   ],
   "methods": {}
