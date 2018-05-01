@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node .",
-    "posttest": "npm run lint && nsp check"
+    "posttest": "npm run lint && nsp check",
+    "console": "loopback-console"
   },
   "dependencies": {
     "async": "^2.6.0",
@@ -23,6 +24,8 @@
     "loopback-component-storage": "^3.3.1",
     "loopback-connector-mongodb": "^3.4.3",
     "loopback-connector-postgresql": "^3.3.0",
+    "loopback-console": "^1.1.0",
+    "loopback-context": "^3.3.0",
     "loopback-import-mixin": "^1.2.2",
     "npm": "^5.8.0",
     "serve-favicon": "^2.0.1",
