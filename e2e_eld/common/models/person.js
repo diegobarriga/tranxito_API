@@ -1,6 +1,6 @@
 'use strict';
 var validator = require('validator');
-var app = require('../../server/server.js')
+var app = require('../../server/server.js');
 
 
 function email_validator(err) {
@@ -66,5 +66,26 @@ module.exports = function(Person) {
     });
   });
 
+
+  Person.setImage = function(id, image, cb) {
+    Person.findById(id, function(err, person) {
+      if (err) {
+        cb(err, 'Person not found');
+      } else {
+      person.image = image;
+      person.save();
+      cb(null, 'Image set correctly');
+      }
+    });
+  };
+
+  Person.remoteMethod('setImage', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true},
+      {arg: 'image', type: 'string', required: true}
+    ],
+    returns: {arg: 'message', type: 'string'},
+    http: {path: '/:id/setImage', verb: 'post'}
+  });
 
 };

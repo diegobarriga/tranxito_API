@@ -17,3 +17,10 @@
 coverage
 node_modules
 npm-debug.log
+env.txt
+local-storage/people/*.jpg
+local-storage/people/*.png
+local-storage/people/*.jepg
+local-storage/vehicle/*.jepg
+local-storage/vehicle/*.jpg
+local-storage/vehicle/*.png

@@ -11,9 +11,9 @@
     "poolIdleTimeout": 1200000
   },
   "mongoDB": {
-    "user": "eld-mongo",
     "url": "${MONGODB_URI}",
     "name": "mongoDB",
+    "user": "eld-mongo",
     "connector": "mongodb"
   },
   "azureStorage": {
@@ -23,10 +23,17 @@
     "storageAccount": "",
     "storageAccessKey": ""
   },
-    "container": {
+  "container": {
     "name": "container",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "tmp"
+  },
+  "images-storage": {
+    "name": "images-storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/local-storage",
+    "nameConflict": "makeUnique"
   }
 }
