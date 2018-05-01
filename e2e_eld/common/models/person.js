@@ -8,6 +8,8 @@ var fork      = require('child_process').fork;
 var fs        = require ('fs');
 var path      = require ('path');
 var loopback  = require ('loopback');
+var LoopBackContext = require('loopback-context');
+
 
 
 
@@ -66,7 +68,6 @@ module.exports = function(Person) {
     var RoleMapping = app.models.RoleMapping;
     Role.findOne({where: {name: context.instance.account_type}}, function(err, role) { 
         if (context.isNewInstance){
-          console.log(context.instance.account_type);
           RoleMapping.create({
               principalType: RoleMapping.USER,
               principalId: context.instance.id,
@@ -118,9 +119,11 @@ module.exports = function(Person) {
         };
 
         // Launch a fork node process that will handle the import
-        fork(__dirname + '/../../server/scripts/import-people.js', [
-          JSON.stringify(params)
-        ]);
+        // fork(__dirname + '/../../server/scripts/import-people.js', [
+        //   JSON.stringify(params)
+        // ]);
+        Person.import(params.container, params.file, params, err => process.exit(err ? 1 : 0));
+
         return callback(null, fileContainer);
       });
     };
@@ -234,6 +237,7 @@ module.exports = function(Person) {
       Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
         if (err) { return callback(err); }
         fileUpload.status = 'SUCCESS';
+        console.log('Success');
         return fileUpload.save(callback);
       })
     ;
@@ -242,24 +246,34 @@ module.exports = function(Person) {
       Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
         if (err) { return callback(err); }
         fileUpload.status = 'ERROR';
+        console.log('Error');
         return fileUpload.save(callback);
       })
     ;
 
-    Person.import_clean = (ctx, container, file, options, callback) =>
-      Person.app.models.Container.destroyContainer(container, callback)
-    ;
+    Person.import_clean = function(ctx, container, file, options, callback) {
+      console.log('Container Deleted');
+      Person.app.models.Container.destroyContainer(container, callback);
+    };
 
 
     Person.import_handleLine = function(ctx, line, options, callback) {
+        var context = LoopBackContext.getCurrentContext();
+        var currentUser = context && context.get('currentUser');
+        line.motorCarrierId = currentUser.motorCarrierId
         line.account_type = 'D'
         line.account_status = true
         line.move_yards_use = (line.move_yards_use == '1') ? true : false
         line.default_use = (line.default_use == '1') ? true : false
         line.personal_use = (line.personal_use == '1') ? true : false
-        console.log(line)
         return Person.create(line, callback);
     };
+
+    Person.rejectLine = function(columnName, cellData, customErrorMessage, callback) {
+      const err = new Error(`Unprocessable entity in column ${columnName} where data = ${cellData}: ${customErrorMessage}`);
+      err.status = 422;
+      return callback(err);
+    }
 
     Person.remoteMethod('upload',
       {

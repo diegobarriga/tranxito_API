@@ -401,7 +401,7 @@ module.exports = async function(app) {
       var event = await Event.create(data, function(err){
         if (err) throw err; 
       });
-      console.log(event);
+
       console.log('events created!');
       return event;
     }
