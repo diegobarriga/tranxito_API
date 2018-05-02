@@ -185,6 +185,20 @@
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "S",
+      "permission": "ALLOW",
+      "property": "update"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "patch"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
       "permission": "DENY",
       "property": "__delete__events"
     },
