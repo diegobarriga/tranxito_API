@@ -77,184 +77,172 @@ module.exports = function(Person) {
     });
   });
 
-
-  //transactional csv importation
-  // based on https://blog.theodo.fr/2016/01/how-to-make-a-user-friendly-and-transactional-csv-import-in-loopback/ tutorial and github repo
   Person.upload = function(req, callback) {
-      const Container  = Person.app.models.Container;
-      const FileUpload  = Person.app.models.FileUpload;
+    const Container  = Person.app.models.Container;
+    const FileUpload  = Person.app.models.FileUpload;
 
-      // Generate a unique name to the container
-      const containerName = `Person-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+    // Generate a unique name to the container
+    const containerName = `Person-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
 
-      // async.waterfall is like a waterfall of functions applied one after the other
-      return async.waterfall([
-        done =>
-          // Create the container (the directory where the file will be stored)
-          Container.createContainer({name: containerName}, done)
-        ,
-        function(container, done) {
-          req.params.container = containerName;
-          // Upload one or more files into the specified container. The request body must use multipart/form-data which the file input type for HTML uses.
-          return Container.upload(req, {}, done);
-        },
-        (fileContainer, done) =>
+    // async.waterfall is like a waterfall of functions applied one after the other
+    return async.waterfall([
+      function(done) {
+        // Create the container (the directory where the file will be stored)
+        Container.createContainer({name: containerName}, done);
+      }
+      ,
+      function(container, done) {
+        req.params.container = containerName;
+        // Upload one or more files into the specified container. The request body must use multipart/form-data which the file input type for HTML uses.
+        Container.upload(req, {}, done);
+      },
+      function (fileContainer, done) {
 
-          // Store the state of the import process in the database
-          FileUpload.create({
-            date: new Date(),
-            fileType: Person.modelName,
-            status: 'PENDING'
-          }
-          , (err, fileUpload) => done(err, fileContainer, fileUpload))
-        
-      ], function(err, fileContainer, fileUpload) {
-        if (err) { return callback(err); }
-        const params = {
-          fileUpload: fileUpload.id,
-          root: Person.app.datasources.container.settings.root,
-          container: fileContainer.files.file[0].container,
-          file: fileContainer.files.file[0].name
-        };
-
-        // Launch a fork node process that will handle the import
-        // fork(__dirname + '/../../server/scripts/import-people.js', [
-        //   JSON.stringify(params)
-        // ]);
-        Person.import(params.container, params.file, params, err => process.exit(err ? 1 : 0));
-
-        return callback(null, fileContainer);
-      });
-    };
-
-
-  Person.import = function(container, file, options, callback) {
-      // Initialize a context object that will hold the transaction
-      const ctx = {};
-      console.log('Started import process');
-
-      // The import_preprocess is used to initialize the sql transaction
-      return Person.import_preprocess(ctx, container, file, options, err =>
-        Person.import_process(ctx, container, file, options, function(importError) {
-          if (importError) {
-            // rollback does not apply the transaction
-            return async.waterfall([
-              done => ctx.transaction.rollback(done),
-              done =>
-                // Do some other stuff to clean and acknowledge the end of the import
-                Person.import_postprocess_error(ctx, container, file, options, done)
-              ,
-              done => Person.import_clean(ctx, container, file, options, done)
-            ], () => callback(importError));
-
-          } else {
-            return async.waterfall([
-              done =>
-                // The commit applies the changes to the database
-                ctx.transaction.commit(done)
-              ,
-              done =>
-                 // Do some other stuff to clean and acknowledge the end of the import
-                Person.import_postprocess_success(ctx, container, file, options, done)
-              ,
-              done => Person.import_clean(ctx, container, file, options, done)
-            ], () => callback(null));
-          }
-        })
-      );
-    };
-
-
-   Person.import_preprocess = (ctx, container, file, options, callback) =>
-
-      // initialize the SQL transaction
-      Person.beginTransaction(
-        {isolationLevel: Person.Transaction.READ_UNCOMMITTED}
-      , function(err, transaction) {
-        ctx.transaction = transaction;
-        console.log('Transaction begun');
-        return callback(err);
-      })
-    ;
-
-
-
-  Person.import_process = function(ctx, container, file, options, callback) {
-      const fileContent = [];
-      const filename = path.join(Person.app.datasources.container.settings.root, container, file);
-
-      // Here we fix the delimiter of the csv file to semicolon. You can change it or make it a parameter of the import.
-      const stream = csv({
-        delimiter: ',',
-        headers: true
-      });
-      stream.on('data', data => fileContent.push(data));
-      stream.on('end', function() {
-        const errors = [];
-
-        // Iterate over every line of the file
-        return async.mapSeries(__range__(0, fileContent.length, true), function(i, done) {
-          if ((fileContent[i] == null)) { return done(); }
-
-          //  Import the individual line
-          return Person.import_handleLine(ctx, fileContent[i], options, function(err) {
-            if (err) {
-              errors.push(err);
-              // If an error is raised on a particular line, store it with the FileUploadError model
-              // i + 2 is the real excel user-friendly index of the line
-              return Person.app.models.FileUploadError.create({
-                line: i + 2,
-                message: err.message,
-                fileUploadId: options.fileUpload
-              }
-              , done(null));
-            } else {
-              return done();
-            }
-          });
-        }
-        , function() {
-          if (errors.length > 0) { return callback(errors); }
-          return callback();
+        // Store the state of the import process in the database
+        var context = LoopBackContext.getCurrentContext();
+        var currentUser = context && context.get('currentUser');
+        FileUpload.create({
+          date: new Date(),
+          fileType: Person.modelName,
+          status: 'PENDING',
+          personId: currentUser.id,
+        }, function(err, fileUpload) {
+          done(err, fileContainer, fileUpload);
         });
-      });
-      return fs.createReadStream(filename).pipe(stream);
-    };
+      }
+      
+    ], function(err, fileContainer, fileUpload) {
+      if (err) { return callback(err); }
+      const params = {
+        fileUpload: fileUpload.id,
+        root: Person.app.datasources.container.settings.root,
+        container: fileContainer.files.file[0].container,
+        file: fileContainer.files.file[0].name
+      };
 
-  function __range__(left, right, inclusive) {
-    let range = [];
-    let ascending = left < right;
-    let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-    for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-      range.push(i);
-    }
-    return range;
+      // Launch a fork node process that will handle the import
+      // fork(__dirname + '/../../server/scripts/import-people.js', [
+      //   JSON.stringify(params)
+      // ]);
+      Person.import(params.container, params.file, params, err => console.log(err ? 'Error with csv import' : 'Import process ended correctly'));
+
+      return callback(null, fileContainer);
+    });
   };
 
 
-    Person.import_postprocess_success = (ctx, container, file, options, callback) =>
-      Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
-        if (err) { return callback(err); }
-        fileUpload.status = 'SUCCESS';
-        console.log('Success');
-        return fileUpload.save(callback);
-      })
-    ;
+  Person.import = function(container, file, options, callback) {
+    // Initialize a context object that will hold the transaction
+    const ctx = {};
+    console.log('Started import process');
 
-    Person.import_postprocess_error = (ctx, container, file, options, callback) =>
-      Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
-        if (err) { return callback(err); }
-        fileUpload.status = 'ERROR';
-        console.log('Error');
-        return fileUpload.save(callback);
-      })
-    ;
+    // The import_preprocess is used to initialize the sql transaction
+    Person.import_preprocess(ctx, container, file, options, function(err, transaction) {
+      Person.import_process(ctx, container, file, options, function(importError) {
+        if (importError) {
+          async.waterfall([
+            done => ctx.transaction.rollback(done),
+            done => Person.import_postprocess_error(ctx, container, file, options, done),
+          ], () => callback(importError));
+        } else {
+          async.waterfall([
+            done => ctx.transaction.commit(done),
+            done => Person.import_postprocess_success(ctx, container, file, options, done),
+          ], () => callback(null));
+        }
+      });
+    });
+  };
 
-    Person.import_clean = function(ctx, container, file, options, callback) {
+  Person.import_preprocess = function(ctx, container, file, options, callback) {
+    // initialize the SQL transaction
+    Person.beginTransaction(
+      {isolationLevel: Person.Transaction.READ_UNCOMMITTED}
+    , function(err, transaction) {
+      ctx.transaction = transaction;
+      console.log('Transaction begun');
+      callback(err, transaction);
+    })
+  };
+
+  Person.import_process = function(ctx, container, file, options, callback) {
+    const errors = [];
+    let i = -1;
+    const filename = path.join(Person.app.datasources.container.settings.root, container, file);
+    const stream = csv({
+      delimiter: ',',
+      headers: true,
+      ignoreEmpty: true,
+      objectMode: true
+    });
+    stream.on('data', data => {
+      stream.pause();
+      i++;
+      console.log(data);
+      var context = LoopBackContext.getCurrentContext();
+      var currentUser = context && context.get('currentUser');
+      data.motorCarrierId = currentUser.motorCarrierId;
+      data.account_type = 'D'
+      data.account_status = true
+      data.move_yards_use = (data.move_yards_use == '1') ? true : false
+      data.default_use = (data.default_use == '1') ? true : false
+      data.personal_use = (data.personal_use == '1') ? true : false
+      Person.create(data, function(err) {
+        if (err) {
+          errors.push(err);
+          Person.app.models.FileUploadError.create({
+              line: i + 2,
+              message: err.message,
+              fileUploadId: options.fileUpload,
+            }, function(err2) {
+              if (err2) {
+                console.log("Error creating FileUploadError");
+              }
+            }
+          );
+        }
+        stream.resume();
+      });
+    });
+    stream.on('end', function() {
+      if (errors) {
+        callback(errors[0]);
+      } else {
+        callback(null);
+      }
+    });
+    return fs.createReadStream(filename).pipe(stream);
+  };
+
+  Person.import_postprocess_success = (ctx, container, file, options, callback) =>
+    Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
+      if (err) { return callback(err); }
+      fileUpload.status = 'SUCCESS';
+      console.log('Success');
+      fileUpload.save(function (err) {
+        if (err) {
+          return callback(err);
+        }
+      });
       console.log('Container Deleted');
       Person.app.models.Container.destroyContainer(container, callback);
-    };
+    })
+  ;
 
+  Person.import_postprocess_error = (ctx, container, file, options, callback) =>
+    Person.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
+      if (err) { return callback(err); }
+      fileUpload.status = 'ERROR';
+      console.log('Error');
+      fileUpload.save(function (err) {
+        if (err) {
+          return callback(err);
+        }
+      });
+      console.log('Container Deleted');
+      Person.app.models.Container.destroyContainer(container, callback);
+    })
+  ;
 
     Person.import_handleLine = function(ctx, line, options, callback) {
         var context = LoopBackContext.getCurrentContext();

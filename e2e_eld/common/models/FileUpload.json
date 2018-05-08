@@ -30,6 +30,11 @@
       "type": "hasMany",
       "model": "FileUploadError",
       "foreignKey": "fileUploadId"
+    },
+    "person": {
+      "type": "belongsTo",
+      "model": "Person",
+      "foreignKey": "personId"
     }
   },
   "acls": [],
