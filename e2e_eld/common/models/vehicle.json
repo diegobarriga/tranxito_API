@@ -162,6 +162,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "setImage"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "upload"
     }
   ],
   "methods": {}
