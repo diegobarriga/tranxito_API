@@ -147,6 +147,7 @@ module.exports = function(Vehicle) {
     });
     stream.on('data', data => {
       i++;
+      stream.pause();
       console.log(data);
       var context = LoopBackContext.getCurrentContext();
       var currentUser = context && context.get('currentUser');
@@ -165,6 +166,7 @@ module.exports = function(Vehicle) {
             }
           );
         }
+      stream.resume();
       });
     });
     stream.on('end', function() {
