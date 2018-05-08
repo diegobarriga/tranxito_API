@@ -69,10 +69,13 @@ module.exports = function(Vehicle) {
       function (fileContainer, done) {
 
         // Store the state of the import process in the database
+        var context = LoopBackContext.getCurrentContext();
+        var currentUser = context && context.get('currentUser');
         FileUpload.create({
           date: new Date(),
           fileType: Vehicle.modelName,
-          status: 'PENDING'
+          status: 'PENDING',
+          personId: currentUser.id,
         }, function(err, fileUpload) {
           done(err, fileContainer, fileUpload);
         });
@@ -145,13 +148,16 @@ module.exports = function(Vehicle) {
     stream.on('data', data => {
       i++;
       console.log(data);
+      var context = LoopBackContext.getCurrentContext();
+      var currentUser = context && context.get('currentUser');
+      data.motorCarrierId = currentUser.motorCarrierId;
       Vehicle.create(data, function(err) {
         if (err) {
           errors.push(err);
           Vehicle.app.models.FileUploadError.create({
               line: i + 2,
               message: err.message,
-              fileUploadId: options.fileUpload
+              fileUploadId: options.fileUpload,
             }, function(err2) {
               if (err2) {
                 console.log("Error creating FileUploadError");
