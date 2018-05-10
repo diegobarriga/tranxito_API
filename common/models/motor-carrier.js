@@ -12,15 +12,28 @@ module.exports = function(Motorcarrier) {
   Motorcarrier.validatesInclusionOf('multiday_basis_used', {in: [7, 8]});
   Motorcarrier.validate('USDOT_number', usdot_validator, {message: 'USDOT number not in range 0 - 999,999,999'});
 
-	Motorcarrier.getPeople = function(id, cb) {
-		Motorcarrier.app.models.Person.find({where: {motorCarrierId: id, account_status: true}}, function(err, data) {
+	Motorcarrier.getSupervisors = function(id, cb) {
+		Motorcarrier.app.models.Person.find({where: {motorCarrierId: id, account_status: true, account_type: 'S'}}, function(err, data) {
 			cb(err, data);
 		})
 	}
 
-	Motorcarrier.remoteMethod('getPeople', {
+	Motorcarrier.remoteMethod('getSupervisors', {
     accepts: {arg: 'id', type: 'string'},
     returns: {arg: 'data', type: 'string', root: true},
-    http: {path: '/:id/people', verb: 'get'}
+    http: {path: '/:id/supervisors', verb: 'get'}
 	});
+
+  Motorcarrier.getDrivers = function(id, cb) {
+    Motorcarrier.app.models.Person.find({where: {motorCarrierId: id, account_status: true, account_type: 'D'}}, function(err, data) {
+      cb(err, data);
+    })
+  }
+
+  Motorcarrier.remoteMethod('getDrivers', {
+    accepts: {arg: 'id', type: 'string'},
+    returns: {arg: 'data', type: 'string', root: true},
+    http: {path: '/:id/drivers', verb: 'get'}
+  });
+
 };
