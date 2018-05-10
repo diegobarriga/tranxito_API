@@ -282,9 +282,9 @@ module.exports = function(Person) {
       if (err) {
         cb(err, 'Person not found');
       } else {
-      person.image = image;
-      person.save();
-      cb(null, 'Image set correctly');
+        person.image = image;
+        person.save();
+        cb(null, 'Image set correctly');
       }
     });
   };
@@ -297,5 +297,27 @@ module.exports = function(Person) {
     returns: {arg: 'message', type: 'string'},
     http: {path: '/:id/setImage', verb: 'post'}
   });
+
+  Person.softDelete = function(id, cb) {
+    Person.findById(id, function(err, person) {
+      if (err) {
+        cb(err, 'Person not found');
+      } else {
+        person.account_status = false;
+        person.save(function(err, person) {
+          cb(err, person);
+        });
+      }
+    });
+  };
+
+  Person.remoteMethod('softDelete', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true}
+    ],
+    returns: {arg: 'message', type: 'string'},
+    http: {path: '/:id/', verb: 'delete'}
+  });
+
 
 };
