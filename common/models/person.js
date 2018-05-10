@@ -279,7 +279,9 @@ module.exports = function(Person) {
 
   Person.setImage = function(id, image, cb) {
     Person.findById(id, function(err, person) {
-      if (err) {
+      if (err || !person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
         cb(err, 'Person not found');
       } else {
         person.image = image;
@@ -300,7 +302,9 @@ module.exports = function(Person) {
 
   Person.softDelete = function(id, cb) {
     Person.findById(id, function(err, person) {
-      if (err) {
+      if (err || !person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
         cb(err, 'Person not found');
       } else {
         person.account_status = false;
@@ -315,9 +319,7 @@ module.exports = function(Person) {
     accepts: [
       {arg: 'id', type: 'number', required: true}
     ],
-    returns: {arg: 'message', type: 'string'},
+    returns: {arg: 'message', type: 'string', root: true},
     http: {path: '/:id/', verb: 'delete'}
   });
-
-
 };
