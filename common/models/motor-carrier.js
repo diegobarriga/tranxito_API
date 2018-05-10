@@ -21,7 +21,8 @@ module.exports = function(Motorcarrier) {
 	Motorcarrier.remoteMethod('getSupervisors', {
     accepts: {arg: 'id', type: 'string'},
     returns: {arg: 'data', type: 'string', root: true},
-    http: {path: '/:id/supervisors', verb: 'get'}
+    http: {path: '/:id/supervisors', verb: 'get'},
+    description: ["get all non archived supervisors (account_type: 'S', account_status: true) from the Motorcarrier with the required id"]
 	});
 
   Motorcarrier.getDrivers = function(id, cb) {
@@ -33,7 +34,8 @@ module.exports = function(Motorcarrier) {
   Motorcarrier.remoteMethod('getDrivers', {
     accepts: {arg: 'id', type: 'string'},
     returns: {arg: 'data', type: 'string', root: true},
-    http: {path: '/:id/drivers', verb: 'get'}
+    http: {path: '/:id/drivers', verb: 'get'},
+    description: ["get all non archived drivers (account_type: 'D', account_status: true) from the Motorcarrier with the required id"]
   });
 
 };
