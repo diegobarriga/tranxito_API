@@ -169,6 +169,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "upload"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
     }
   ],
   "methods": {}

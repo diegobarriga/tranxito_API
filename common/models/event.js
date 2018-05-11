@@ -107,19 +107,19 @@ module.exports = function(Event) {
     'time_zone_offset_utc',
      {int: true}
    );
-  
-   Event.validate('event_type', event_type_validator);
-   Event.validate('event_code', event_code_validator);
-   Event.validate('event_record_status', event_record_status_validator);
-   Event.validate('accumulated_vehicle_miles', accumulated_vehicle_miles_validator);
-   Event.validate('elapsed_engine_hours', elapsed_engine_hours_validator);
-   Event.validate('distance_since_last_valid_coordinates', distance_since_last_valid_coordinates_validator);
-   Event.validate('annotation', annotation_validator);
-   Event.validate('event_data_check_value', event_data_check_value_validator);
-   Event.validate('total_vehicle_miles', total_vehicle_miles_validator);
-   Event.validate('annotation', annotation_validator);
-   Event.validate('total_engine_hours', total_engine_hours_validator);
-   Event.validate('time_zone_offset_utc_validator', time_zone_offset_utc_validator);
-   Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
-   Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
+
+  Event.validate('event_type', event_type_validator);
+  Event.validate('event_code', event_code_validator);
+  Event.validate('event_record_status', event_record_status_validator);
+  Event.validate('accumulated_vehicle_miles', accumulated_vehicle_miles_validator);
+  Event.validate('elapsed_engine_hours', elapsed_engine_hours_validator);
+  Event.validate('distance_since_last_valid_coordinates', distance_since_last_valid_coordinates_validator);
+  Event.validate('annotation', annotation_validator);
+  Event.validate('event_data_check_value', event_data_check_value_validator);
+  Event.validate('total_vehicle_miles', total_vehicle_miles_validator);
+  Event.validate('annotation', annotation_validator);
+  Event.validate('total_engine_hours', total_engine_hours_validator);
+  Event.validate('time_zone_offset_utc_validator', time_zone_offset_utc_validator);
+  Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
+  Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
 };
