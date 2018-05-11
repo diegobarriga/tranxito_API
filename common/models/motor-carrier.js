@@ -1,7 +1,7 @@
 'use strict';
 var validator = require('validator');
 
-function usdot_validator(err) {
+function usdotValidator(err) {
   if (!validator.isInt(String(this.USDOT_number), {min: 0, max: 999999999}))
     err();
 }
@@ -11,7 +11,7 @@ module.exports = function(Motorcarrier) {
   Motorcarrier.validatesLengthOf('name', {min: 4, max: 120});
   Motorcarrier.validatesNumericalityOf('USDOT_number', 'multiday_basis_used', {int: true});
   Motorcarrier.validatesInclusionOf('multiday_basis_used', {in: [7, 8]});
-  Motorcarrier.validate('USDOT_number', usdot_validator, {message: 'USDOT number not in range 0 - 999,999,999'});
+  Motorcarrier.validate('USDOT_number', usdotValidator, {message: 'USDOT number not in range 0 - 999,999,999'});
 
   Motorcarrier.getSupervisors = function(id, cb) {
     Motorcarrier.app.models.Person.find({where: {motorCarrierId: id, account_status: true, account_type: 'S'}}, function(err, data) {
