@@ -2,7 +2,7 @@
 var validator = require('validator');
 
 function event_type_validator(err) {
-  if (!validator.isInt(String(this.event_type), { min: 1, max: 7})) return err();
+  if (!validator.isInt(String(this.event_type), {min: 1, max: 7})) return err();
 }
 
 function event_code_validator(err) {
@@ -93,7 +93,7 @@ module.exports = function(Event) {
     'event_code',
     'event_timestamp',
     'shipping_doc_number',
-    {"message": "Can't be blank"}
+    {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
     'event_sequence_id_number',
