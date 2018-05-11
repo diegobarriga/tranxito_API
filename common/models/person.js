@@ -1,12 +1,11 @@
 'use strict';
 var validator = require('validator');
-var app = require('../../server/server.js')
-var _         = require ('lodash');
-var async     = require ('async');
-var csv       = require ('fast-csv');
-var fork      = require('child_process').fork;
+var app = require('../../server/server.js');
+var _         = require('lodash');
+var async     = require('async');
+var csv       = require('fast-csv');
 var fs        = require ('fs');
-var path      = require ('path');
+var path      = require('path');
 var loopback  = require ('loopback');
 var LoopBackContext = require('loopback-context');
 
@@ -62,10 +61,10 @@ module.exports = function(Person) {
   Person.validate('starting_time_24_hour_period', validateStartingTime24HourPeriod, {"message": "Can't be blank when account_type is D"});
 
   // role assingment
-  Person.observe('after save', function (context, next) {    
+  Person.observe('after save', function (context, next) {
     var Role = app.models.Role;
     var RoleMapping = app.models.RoleMapping;
-    Role.findOne({where: {name: context.instance.account_type}}, function(err, role) { 
+    Role.findOne({where: {name: context.instance.account_type}}, function(err, role) {
         if (context.isNewInstance){
           RoleMapping.create({
               principalType: RoleMapping.USER,
@@ -110,7 +109,7 @@ module.exports = function(Person) {
           done(err, fileContainer, fileUpload);
         });
       }
-      
+
     ], function(err, fileContainer, fileUpload) {
       if (err) { return callback(err); }
       const params = {
@@ -282,9 +281,9 @@ module.exports = function(Person) {
       if (err) {
         cb(err, 'Person not found');
       } else {
-      person.image = image;
-      person.save();
-      cb(null, 'Image set correctly');
+        person.image = image;
+        person.save();
+        cb(null, 'Image set correctly');
       }
     });
   };
@@ -292,10 +291,9 @@ module.exports = function(Person) {
   Person.remoteMethod('setImage', {
     accepts: [
       {arg: 'id', type: 'number', required: true},
-      {arg: 'image', type: 'string', required: true}
+      {arg: 'image', type: 'string', required: true},
     ],
     returns: {arg: 'message', type: 'string'},
-    http: {path: '/:id/setImage', verb: 'post'}
+    http: {path: '/:id/setImage', verb: 'post'},
   });
-
 };
