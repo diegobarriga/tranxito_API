@@ -279,7 +279,10 @@ module.exports = function(Person) {
 
   Person.setImage = function(id, image, cb) {
     Person.findById(id, function(err, person) {
-      if (err || !person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
         err = Error('Person not found');
         err.statusCode = '404';
         cb(err, 'Person not found');
@@ -302,7 +305,10 @@ module.exports = function(Person) {
 
   Person.softDelete = function(id, cb) {
     Person.findById(id, function(err, person) {
-      if (err || !person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
         err = Error('Person not found');
         err.statusCode = '404';
         cb(err, 'Person not found');
@@ -320,6 +326,7 @@ module.exports = function(Person) {
       {arg: 'id', type: 'number', required: true}
     ],
     returns: {arg: 'message', type: 'string', root: true},
-    http: {path: '/:id/', verb: 'delete'}
+    http: {path: '/:id/', verb: 'delete'},
+    description: ["Soft delete of a model instance"]
   });
 };
