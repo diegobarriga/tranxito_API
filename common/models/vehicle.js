@@ -11,7 +11,8 @@ var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
 function vinValidator(err) {
-  if (this.vin != '' && (this.vin.length > 18 || this.vin.length < 17)) return err();
+  if (this.vin != '' && (this.vin.length > 18 || this.vin.length < 17))
+    return err();
 }
 
 function CMV_power_unit_numberValidator(err) {
