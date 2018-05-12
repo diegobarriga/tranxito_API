@@ -193,7 +193,14 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "patch"
+      "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
     },
     {
       "accessType": "EXECUTE",
