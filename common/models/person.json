@@ -69,6 +69,11 @@
       "type": "hasMany",
       "model": "Event",
       "foreignKey": "driverId"
+    },
+    "trackings": {
+      "type": "hasMany",
+      "model": "tracking",
+      "foreignKey": ""
     }
   },
   "acls": [

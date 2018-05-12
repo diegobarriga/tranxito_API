@@ -69,6 +69,10 @@
     "dataSource": "images-storage",
     "public": true
   },
+  "tracking": {
+    "dataSource": "postgresDB",
+    "public": true
+   },
   "device": {
     "dataSource": "postgresDB",
     "public": true

@@ -45,6 +45,11 @@
       "model": "Event",
       "foreignKey": ""
     },
+    "trackings": {
+      "type": "hasMany",
+      "model": "tracking",
+      "foreignKey": ""
+    },
     "devices": {
       "type": "hasOne",
       "model": "device",
