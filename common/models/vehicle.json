@@ -44,6 +44,11 @@
       "type": "hasMany",
       "model": "Event",
       "foreignKey": ""
+    },
+    "devices": {
+      "type": "hasOne",
+      "model": "device",
+      "foreignKey": ""
     }
   },
   "acls": [
