@@ -1,39 +1,38 @@
 'use strict';
 var validator = require('validator');
-var app = require('../../server/server.js')
-var _         = require ('lodash');
-var async     = require ('async');
-var csv       = require ('fast-csv');
+var app = require('../../server/server.js');
+var _         = require('lodash');
+var async     = require('async');
+var csv       = require('fast-csv');
 var fork      = require('child_process').fork;
-var fs        = require ('fs');
-var path      = require ('path');
-var loopback  = require ('loopback');
+var fs        = require('fs');
+var path      = require('path');
+var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
-
-function vin_validator(err) {
-  if (this.vin != "" && (this.vin.length > 18 || this.vin.length < 17)) return err();
+function vinValidator(err) {
+  if (this.vin != '' && (this.vin.length > 18 || this.vin.length < 17))
+    return err();
 }
 
-function CMV_power_unit_number_validator(err) {
+function CMV_power_unit_numberValidator(err) {
   if (this.IMEI_ELD && !this.CMV_power_unit_number) return err();
 }
 
 module.exports = function(Vehicle) {
-  // Vehicle.validate('vin', vin_validator);
+  // Vehicle.validate('vin', vinValidator);
   Vehicle.validatesNumericalityOf('IMEI_ELD', {int: true});
   Vehicle.validatesLengthOf('CMV_power_unit_number', {min: 1, max: 10});
-  Vehicle.validate('CMV_power_unit_number', CMV_power_unit_number_validator, {"message": "Can't be blank if connected to ELD"});
-
-
+  Vehicle.validate('CMV_power_unit_number', CMV_power_unit_numberValidator,
+    {'message': "Can't be blank if connected to ELD"});
   Vehicle.setImage = function(id, image, cb) {
     Vehicle.findById(id, function(err, vehicle) {
       if (err) {
         cb(err, 'Vehicle not found');
       } else {
-      vehicle.image = image;
-      vehicle.save();
-      cb(null, 'Image set correctly');
+        vehicle.image = image;
+        vehicle.save();
+        cb(null, 'Image set correctly');
       }
     });
   };
@@ -41,10 +40,10 @@ module.exports = function(Vehicle) {
   Vehicle.remoteMethod('setImage', {
     accepts: [
       {arg: 'id', type: 'number', required: true},
-      {arg: 'image', type: 'string', required: true}
+      {arg: 'image', type: 'string', required: true},
     ],
     returns: {arg: 'message', type: 'string'},
-    http: {path: '/:id/setImage', verb: 'post'}
+    http: {path: '/:id/setImage', verb: 'post'},
   });
 
   Vehicle.upload = function(req, callback) {
@@ -59,15 +58,13 @@ module.exports = function(Vehicle) {
       function(done) {
         // Create the container (the directory where the file will be stored)
         Container.createContainer({name: containerName}, done);
-      }
-      ,
+      },
       function(container, done) {
         req.params.container = containerName;
         // Upload one or more files into the specified container. The request body must use multipart/form-data which the file input type for HTML uses.
         Container.upload(req, {}, done);
       },
-      function (fileContainer, done) {
-
+      function(fileContainer, done) {
         // Store the state of the import process in the database
         var context = LoopBackContext.getCurrentContext();
         var currentUser = context && context.get('currentUser');
@@ -79,17 +76,15 @@ module.exports = function(Vehicle) {
         }, function(err, fileUpload) {
           done(err, fileContainer, fileUpload);
         });
-      }
-      
+      },
     ], function(err, fileContainer, fileUpload) {
       if (err) { return callback(err); }
       const params = {
         fileUpload: fileUpload.id,
         root: Vehicle.app.datasources.container.settings.root,
         container: fileContainer.files.file[0].container,
-        file: fileContainer.files.file[0].name
+        file: fileContainer.files.file[0].name,
       };
-
       // Launch a fork node process that will handle the import
       // fork(__dirname + '/../../server/scripts/import-people.js', [
       //   JSON.stringify(params)
@@ -99,7 +94,6 @@ module.exports = function(Vehicle) {
       return callback(null, fileContainer);
     });
   };
-
 
   Vehicle.import = function(container, file, options, callback) {
     // Initialize a context object that will hold the transaction
@@ -156,17 +150,17 @@ module.exports = function(Vehicle) {
         if (err) {
           errors.push(err);
           Vehicle.app.models.FileUploadError.create({
-              line: i + 2,
-              message: err.message,
-              fileUploadId: options.fileUpload,
-            }, function(err2) {
-              if (err2) {
-                console.log("Error creating FileUploadError");
-              }
+            line: i + 2,
+            message: err.message,
+            fileUploadId: options.fileUpload,
+          }, function(err2) {
+            if (err2) {
+              console.log('Error creating FileUploadError');
             }
+          }
           );
         }
-      stream.resume();
+        stream.resume();
       });
     });
     stream.on('end', function() {
@@ -184,7 +178,7 @@ module.exports = function(Vehicle) {
       if (err) { return callback(err); }
       fileUpload.status = 'SUCCESS';
       console.log('Success');
-      fileUpload.save(function (err) {
+      fileUpload.save(function(err) {
         if (err) {
           return callback(err);
         }
@@ -199,7 +193,7 @@ module.exports = function(Vehicle) {
       if (err) { return callback(err); }
       fileUpload.status = 'ERROR';
       console.log('Error');
-      fileUpload.save(function (err) {
+      fileUpload.save(function(err) {
         if (err) {
           return callback(err);
         }
@@ -210,17 +204,16 @@ module.exports = function(Vehicle) {
   ;
 
   Vehicle.remoteMethod('upload', {
-      accepts: {
+    accepts: {
       arg: 'req',
       type: 'object',
       http: {
-        source: 'req'
-      }
+        source: 'req',
+      },
     },
-      http: {
-        verb: 'post',
-        path: '/upload'
-      }
+    http: {
+      verb: 'post',
+      path: '/upload',
+    },
   });
-
 };
