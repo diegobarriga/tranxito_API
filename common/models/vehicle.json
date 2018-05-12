@@ -48,6 +48,11 @@
     "trackings": {
       "type": "hasMany",
       "model": "tracking",
+      "foreignKey: ""
+    },
+    "devices": {
+      "type": "hasOne",
+      "model": "device",
       "foreignKey": ""
     }
   },
