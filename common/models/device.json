@@ -1,0 +1,43 @@
+{
+  "name": "device",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "bluetooth_mac": {
+      "type": "string",
+      "required": true
+    },
+    "imei": {
+      "type": "string",
+      "required": true
+    },
+    "state": {
+      "type": "boolean",
+      "required": true
+    },
+    "configuration_script": {
+      "type": "string",
+      "required": true,
+      "postgresql": {
+        "dataType": "text"
+      }
+    },
+    "configuration_status": {
+      "type": "boolean",
+      "required": true,
+    }
+  },
+  "validations": [],
+  "relations": {
+    "vehicle": {
+      "type": "belongsTo",
+      "model": "Vehicle",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

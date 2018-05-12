@@ -2,10 +2,10 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
-  "mixins": { },
   "options": {
     "validateUpsert": true
   },
+  "mixins": {},
   "properties": {
     "vin": {
       "type": "string"
@@ -43,6 +43,16 @@
     "events": {
       "type": "hasMany",
       "model": "Event",
+      "foreignKey": ""
+    },
+    "trackings": {
+      "type": "hasMany",
+      "model": "tracking",
+      "foreignKey": ""
+    },
+    "devices": {
+      "type": "hasOne",
+      "model": "device",
       "foreignKey": ""
     }
   },
@@ -169,6 +179,20 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "upload"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
     }
   ],
   "methods": {}

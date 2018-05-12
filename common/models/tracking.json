@@ -1,0 +1,45 @@
+{
+  "name": "tracking",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "coordinates": {
+      "type": "geopoint",
+      "required": true
+    },
+    "speed": {
+      "type": "number",
+      "required": true
+    },
+    "timestamp": {
+      "type": "date",
+      "required": true
+    },
+    "speed_limit_exceeded": {
+      "type": "boolean",
+      "required": true
+    },
+    "drive_time_exceeded": {
+      "type": "boolean",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "person": {
+      "type": "belongsTo",
+      "model": "Person",
+      "foreignKey": ""
+    },
+    "vehicle": {
+      "type": "belongsTo",
+      "model": "Vehicle",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

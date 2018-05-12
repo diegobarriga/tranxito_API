@@ -109,6 +109,20 @@
       "principalType": "ROLE",
       "principalId": "S",
       "property": "__get__people"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
     }
   ],
   "methods": {}
