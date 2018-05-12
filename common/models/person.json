@@ -2,10 +2,10 @@
   "name": "Person",
   "base": "User",
   "idInjection": true,
-  "mixins": {},
   "options": {
     "validateUpsert": true
   },
+  "mixins": {},
   "properties": {
     "first_name": {
       "type": "string",
