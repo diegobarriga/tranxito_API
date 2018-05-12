@@ -24,6 +24,10 @@
       "postgresql": {
         "dataType": "text"
       }
+    },
+    "configuration_status": {
+      "type": "boolean",
+      "required": true,
     }
   },
   "validations": [],
