@@ -2,10 +2,10 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
-  "mixins": { },
   "options": {
     "validateUpsert": true
   },
+  "mixins": {},
   "properties": {
     "vin": {
       "type": "string"
@@ -43,6 +43,11 @@
     "events": {
       "type": "hasMany",
       "model": "Event",
+      "foreignKey": ""
+    },
+    "devices": {
+      "type": "hasOne",
+      "model": "device",
       "foreignKey": ""
     }
   },
