@@ -27,7 +27,7 @@
     },
     "configuration_status": {
       "type": "boolean",
-      "required": true,
+      "required": true
     }
   },
   "validations": [],
