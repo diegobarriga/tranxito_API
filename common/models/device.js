@@ -13,8 +13,10 @@ module.exports = function(Device) {
       } else {
         device.configuration_script = script;
         device.configuration_status = false;
-        device.save();
-        cb(null, 'Configuration Script set correctly');
+        device.save(function(error, obj) {
+          if (error) cb(error);
+          cb(null, 'Configuration Script set correctly');
+        });
       }
     });
   };
