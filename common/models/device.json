@@ -1,5 +1,5 @@
 {
-  "name": "device",
+  "name": "Device",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {

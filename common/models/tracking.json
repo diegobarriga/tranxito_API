@@ -1,5 +1,5 @@
 {
-  "name": "tracking",
+  "name": "Tracking",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {

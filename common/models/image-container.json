@@ -1,5 +1,5 @@
 {
-  "name": "imageContainer",
+  "name": "ImageContainer",
   "base": "Model",
   "idInjection": true,
   "options": {
