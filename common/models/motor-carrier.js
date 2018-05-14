@@ -66,23 +66,6 @@ module.exports = function(Motorcarrier) {
 
   Motorcarrier.lastTracking = function(id, cb) {
     var lastTrackings = {};
-    /*
-    Motorcarrier.app.models.Vehicle.find({where: {motorCarrierId: id}},
-      function(err, vehicles) {
-        vehicles.forEach(
-          function(vehicle) {
-            vehicle.trackings.findOne(
-              {order: 'timestamp DESC'},
-              function(err, tracking) {
-                if (err) throw err;
-                lastTrackings[vehicle.id] = tracking;
-                console.log(lastTrackings);
-              });
-          });
-        console.log(lastTrackings);
-        cb(err, lastTrackings);
-      });
-      */
     Motorcarrier.app.models.Vehicle.find({where: {motorCarrierId: id}})
         .then(async function(vehicles) {
           await Promise.all(vehicles.map(async (vehicle) => {
