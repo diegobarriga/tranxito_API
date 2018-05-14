@@ -43,8 +43,10 @@ module.exports = function(Device) {
         cb(err, 'Device not found');
       } else {
         device.configuration_status = true;
-        device.save();
-        cb(null, 'Configuration set as valid');
+        device.save(function(error, obj) {
+          if (error) cb(error);
+          cb(null, 'Configuration set as valid');
+        });
       }
     });
   };
