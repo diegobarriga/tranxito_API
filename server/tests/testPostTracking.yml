@@ -1,0 +1,43 @@
+config:
+  # target: 'https://artillery.io'
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 5
+      arrivalRate: 1
+  payload:
+    path: "testPostTrackingConstants.csv"
+    fields:
+      - "email"
+      - "password"
+      - "lat"
+      - "lng"
+      - "speed"
+      - "timestamp"
+      - "speed_limit_exceeded"
+      - "drive_time_exceeded"
+      - "personId"
+      - "vehicleId"
+    order: "sequence"
+
+scenarios:
+  - flow:
+    # - post:
+    #     url: "/api/People/login"
+    #     json:
+    #       email: "{{ email }}"
+    #       password: "{{ password }}"
+    #     capture:
+    #       json: "$.id"
+    #       as: "access_token"
+    - post:
+        url: "/api/Trackings"
+        json:
+          coordinates:
+            lat: -33.3231
+            lng: -70.231
+          speed: 103
+          timestamp: "{{ timestamp }}"
+          speed_limit_exceeded: "{{ speed_limit_exceeded }}"
+          drive_time_exceeded: "{{ drive_time_exceeded }}"
+          personId: "{{ personId }}"
+          vehicleId: "{{ vehicleId }}"
