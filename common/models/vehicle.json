@@ -47,12 +47,12 @@
     },
     "trackings": {
       "type": "hasMany",
-      "model": "tracking",
+      "model": "Tracking",
       "foreignKey": ""
     },
     "devices": {
       "type": "hasOne",
-      "model": "device",
+      "model": "Device",
       "foreignKey": ""
     }
   },

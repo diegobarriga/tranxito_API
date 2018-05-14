@@ -65,15 +65,15 @@
     "dataSource": "postgresDB",
     "public": true
   },
-  "imageContainer": {
+  "ImageContainer": {
     "dataSource": "images-storage",
     "public": true
   },
-  "tracking": {
+  "Tracking": {
     "dataSource": "postgresDB",
     "public": true
-   },
-  "device": {
+  },
+  "Device": {
     "dataSource": "postgresDB",
     "public": true
   }
