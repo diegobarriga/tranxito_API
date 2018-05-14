@@ -72,7 +72,7 @@
     },
     "trackings": {
       "type": "hasMany",
-      "model": "tracking",
+      "model": "Tracking",
       "foreignKey": ""
     }
   },
