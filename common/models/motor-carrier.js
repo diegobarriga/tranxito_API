@@ -93,4 +93,19 @@ module.exports = function(Motorcarrier) {
         'Get the last tracking information of the motor carriers vehicles',
       ],
     });
+
+  Motorcarrier.remoteMethod(
+    'dutyStats',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'interval', type: 'string', required: true},
+      ],
+      http: {path: '/:id/duty_stats', verb: 'path'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the duty-status aggregated times by',
+        'vehicles and drivers for the last <interval> period.',
+      ],
+    });
 };
