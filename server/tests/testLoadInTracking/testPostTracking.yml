@@ -2,7 +2,7 @@ config:
   # target: 'https://artillery.io'
   target: 'http://localhost:3000'
   phases:
-    - duration: 3
+    - duration: 2
       arrivalRate: 1
   payload:
     path: "./testPostTrackingConstants.csv"
@@ -37,7 +37,7 @@ scenarios:
     - post:
         url: "/api/Trackings"
         headers: 
-          access_token: "{{ $.id }}"
+          access_token: "{{ access_token }}"
         json:
           coordinates:
             lat: "{{ lat }}"
