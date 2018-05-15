@@ -1,4 +1,7 @@
 'use strict';
+var FormData = require('form-data');
+var fs = require('fs');
+var faker = require('faker');
 
 module.exports = async function(app) {
   var Role = app.models.Role;
@@ -48,6 +51,14 @@ module.exports = async function(app) {
   });
   events = await events.then(function(res) {
     return res;
+  });
+
+  fakeDrivers(20, function(err) {
+    if (err) throw err;
+  });
+
+  fakeVehicles(4, function(err) {
+    if (err) throw err;
   });
 
   console.log('Database seeded');
@@ -417,5 +428,144 @@ module.exports = async function(app) {
     console.log('Roles created');
 
     return roles;
+  }
+
+  function fakeDrivers(num, cb) {
+    var Person = app.models.Person;
+    var data = [];
+
+    for (var i = 0; i < 20; i++) {
+      var name = faker.name.firstName();
+      var lastname = faker.name.lastName();
+      var driver = {
+        'first_name': name,
+        'last_name': lastname,
+        'email': name + '.' + lastname + '@gmail.com',
+        'account_type': 'D',
+        'username': name + lastname + faker.random.number(),
+        'emailVerified': true,
+        'password': '1234',
+        'driver_license_number': faker.random.number(),
+        'licenses_issuing_state': faker.address.state(),
+        'account_status': true,
+        'exempt_driver_configuration': 'E',
+        'time_zone_offset_utc': randomInt(4, 11), // entre 4 y 11
+        'starting_time_24_hour_period': Date.now(),
+        'move_yards_use': true,
+        'default_use': true,
+        'personal_use': true,
+        'motorCarrierId': 1,
+      };
+      data.push(driver);
+    }
+
+    Person.create(data, function(err) {
+      if (err) throw err;
+      console.log('Drivers created succesfully');
+    });
+
+    cb(null);
+  }
+
+  function fakeVehicles(num, cb) {
+    var Vehicle = app.models.Vehicle;
+    var data = [];
+    var models = ['Truck', 'Bus', 'Car'];
+    var companies = ['BMW', 'Mercedez', 'Chevrolet', 'Toyota', 'Mahindra'];
+
+    for (var i = 0; i < num; i++) {
+      var plaque = '';
+      var vin = '';
+      for (var j = 0; j < 18; j++) {
+        if (j < 6) {
+          plaque += faker.random.alphaNumeric();
+        }
+        vin += faker.random.alphaNumeric();
+      }
+      var driver = {
+        'vin': vin,
+        'CMV_power_unit_number': randomInt(1, 999999999),
+        'model': randomChoice(models),
+        'car_maker': randomChoice(companies),
+        'plaque': plaque,
+        'state': faker.address.state(),
+        'IMEI_ELD': faker.random.number(),
+        'motorCarrierId': 1,
+      };
+      data.push(driver);
+    }
+
+    Vehicle.create(data, function(err) {
+      if (err) throw err;
+      console.log('More vehicles created succesfully');
+    });
+
+    cb(null);
+  }
+
+  function fakeEvents(num, cb) {
+    var Event = app.models.Event;
+    var data = [];
+    var drivers = app.models.Person.find({where: {account_type: 'D',
+      motorCarrierId: 1}}, function(err, drivers) {
+      if (err) throw err;
+      return drivers;
+    });
+    var vehicles = app.models.Vehicle.find({where: {motorCarrierId: 1}},
+      function(err, vehicles) {
+        if (err) throw err;
+        return vehicles;
+      });
+
+    for (var i = 0; i < num; i++) {
+      var event = {
+        'event_sequence_id_number': 0,
+        'event_type': 6,
+        'event_code': 1,
+        'event_timestamp': today.setMinutes(today.getMinutes() + 0),
+        'shipping_doc_number': 'AAEECC1234',
+        'event_record_status': 1,
+        'accumulated_vehicle_miles': 0,
+        'elapsed_engine_hours': 0,
+        'coordinates': {
+          'lat': faker.address.latitude,
+          'lng': faker.address.longitude,
+        },
+        'distance_since_last_valid_coordinates': 4,
+        'malfunction_indicator_status': false,
+        'data_diagnostic_event_indicator_status_for_driver': false,
+        'event_data_check_value': 0,
+        'annotation': 'evento prueba tipo 1',
+        'driver_location_description': 'Avenida Las Condes 324',
+        'total_vehicle_miles': 100,
+        'total_engine_hours': 3.5,
+        'time_zone_offset_utc': 4,
+        'date_of_certified_record': '2018-04-21T23:30:20.660Z',
+        'event_report_status': faker.random.boolean(),
+        'certified': faker.random.boolean(),
+        'driverId': driver.id,
+        'vehicleId': vehicle.id,
+        'motorCarrierId': 1,
+      };
+      data.push(event);
+    }
+
+    console.log(data);
+
+    Event.create(data, function(err) {
+      if (err) throw err;
+      console.log('More vehicles created succesfully');
+    });
+
+    cb(null);
+  }
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+
+  function randomChoice(array) {
+    var index = Math.floor(Math.random() * array.length);
+    return array[index];
   }
 };
