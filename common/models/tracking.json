@@ -16,7 +16,8 @@
     },
     "timestamp": {
       "type": "date",
-      "required": true
+      "required": true,
+      "index": true
     },
     "speed_limit_exceeded": {
       "type": "boolean",
