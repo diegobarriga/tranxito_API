@@ -157,7 +157,16 @@ module.exports = async function(app) {
         'IMEI_ELD': 12,
         'motorCarrierId': carriers[1].id,
       },
-
+      {
+        'vin': 'GHI323ACD123O1WWW4',
+        'CMV_power_unit_number': '00550002',
+        'model': 'Bus',
+        'car_maker': 'Mercedez',
+        'plaque': 'XX1234',
+        'state': 'Santiago',
+        'IMEI_ELD': 11,
+        'motorCarrierId': carriers[1].id,
+      },
     ];
 
     var vehicle = await Vehicle.create(vehicles);

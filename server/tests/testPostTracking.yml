@@ -2,10 +2,11 @@ config:
   # target: 'https://artillery.io'
   target: 'http://localhost:3000'
   phases:
-    - duration: 5
+    - duration: 3
       arrivalRate: 1
   payload:
-    path: "testPostTrackingConstants.csv"
+    path: "./testPostTrackingConstants.csv"
+    # fields: email,password,lat,lng,speed,timestamp,speed_limit_exceeded,drive_time_exceeded,vehicleId
     fields:
       - "email"
       - "password"
@@ -15,29 +16,37 @@ config:
       - "timestamp"
       - "speed_limit_exceeded"
       - "drive_time_exceeded"
-      - "personId"
       - "vehicleId"
     order: "sequence"
+  processor: "./helperFunctions.js"
 
 scenarios:
   - flow:
-    # - post:
-    #     url: "/api/People/login"
-    #     json:
-    #       email: "{{ email }}"
-    #       password: "{{ password }}"
-    #     capture:
-    #       json: "$.id"
-    #       as: "access_token"
+    - post:
+        url: "/api/People/login"
+        json:
+          email: "{{ email }}"
+          password: "{{ password }}"
+        capture:
+          - json: "$.id"
+            as: "access_token"
+          - json: "$.userId"
+            as: "id"
+        afterResponse: "log"
+    - log: "New virtual user running {{ email }}: {{ id }} - {{ access_token }}"
     - post:
         url: "/api/Trackings"
+        headers: 
+          access_token: "{{ $.id }}"
         json:
           coordinates:
-            lat: -33.3231
-            lng: -70.231
-          speed: 103
+            lat: "{{ lat }}"
+            lng: "{{ lng }}"
+          speed: "{{ speed }}"
           timestamp: "{{ timestamp }}"
           speed_limit_exceeded: "{{ speed_limit_exceeded }}"
           drive_time_exceeded: "{{ drive_time_exceeded }}"
-          personId: "{{ personId }}"
+          personId: "{{ id }}"
           vehicleId: "{{ vehicleId }}"
+        afterResponse: "log"
+        beforeRequest: "setVariableTypes"
