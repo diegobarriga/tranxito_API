@@ -94,6 +94,10 @@ module.exports = function(Motorcarrier) {
       ],
     });
 
+  Motorcarrier.dutyStats = function(id, interval, cb) {
+    /* Get the duty-status aggregated times of the last time <interval> */
+  };
+
   Motorcarrier.remoteMethod(
     'dutyStats',
     {
