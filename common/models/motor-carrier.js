@@ -73,11 +73,20 @@ module.exports = function(Motorcarrier) {
               {order: 'timestamp DESC'})
               .then(function(tracking) {
                 lastTrackings[vehicle.id] = tracking;
-                console.log(lastTrackings);
               });
+            await vehicle.events.findOne(
+              {where: {or: [
+                {'event_code': 1},
+                {'event_code': 2},
+                {'event_code': 3},
+                {'event_code': 4},
+              ], vehicleId: vehicle.id},
+                order: 'event_timestamp DESC'}
+            ).then((event) => {
+              lastTrackings[vehicle.id].eventCode = event.event_code;
+            });
           }))
           .then(() => {
-            console.log(lastTrackings);
             cb(null, lastTrackings);
           });
         });
