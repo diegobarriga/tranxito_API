@@ -342,10 +342,54 @@ module.exports = function(Person) {
     });
   };
 
-  Person.remoteMethod('softDelete', {
-    accepts: {arg: 'id', type: 'number', required: true},
-    returns: {arg: 'message', type: 'string', root: true},
-    http: {path: '/:id/', verb: 'delete'},
-    description: ['Soft delete of a model instance'],
-  });
+  Person.remoteMethod(
+    'softDelete',
+    {
+      accepts: {arg: 'id', type: 'number', required: true},
+      returns: {arg: 'message', type: 'string', root: true},
+      http: {path: '/:id/', verb: 'delete'},
+      description: ['Soft delete of a model instance'],
+    });
+
+  Person.dutyStatusChange = function(id, cb) {
+    Person.findById(id, function(err, person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
+        cb(err, 'Person not found');
+      } else if (person.account_type !== 'D') {
+        console.log(person);
+        err = Error('Person found but not a driver.');
+        err.statusCode = '422';
+        cb(err, 'Person is not a driver');
+      } else {
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+        person.events.find(
+          {
+            where: {
+              event_type: 1,
+              event_timestamp: {gt: Date.now() - ONE_DAY},
+            },
+          }, function(error, data) {
+          if (error) cb(error);
+          cb(null, data);
+        });
+      }
+    });
+  };
+
+  Person.remoteMethod(
+    'dutyStatusChange',
+    {
+      accepts: {arg: 'id', type: 'string', required: true},
+      http: {path: '/:id/dutyStatusChange', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the events associated to duty-status change',
+        'for the specified driver from the last 24 hour',
+      ],
+    });
 };
