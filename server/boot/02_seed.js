@@ -300,6 +300,8 @@ module.exports = async function(app) {
       var vehicle = randomChoice(vehicles);
       var type = randomChoice(eventTypes);
       var code = randomInt(dict[type].min, dict[type].max);
+      var accumulated_vehicle_miles = randomInt(0, 9999);
+      var elapsed_engine_hours = randomInt(0, 99)
 
       var event = {
         'event_sequence_id_number': randomInt(0, num),
@@ -308,8 +310,8 @@ module.exports = async function(app) {
         'event_timestamp': faker.date.past(),
         'shipping_doc_number': 'AAEECC1234',
         'event_record_status': randomInt(1, 4),
-        'accumulated_vehicle_miles': randomInt(0, 9999),
-        'elapsed_engine_hours': randomInt(0, 99),
+        'accumulated_vehicle_miles': accumulated_vehicle_miles,
+        'elapsed_engine_hours': elapsed_engine_hours,
         'coordinates': {
           'lat': faker.address.latitude(),
           'lng': faker.address.longitude(),
@@ -321,8 +323,8 @@ module.exports = async function(app) {
         'event_data_check_value': 0,
         'annotation': faker.lorem.words(),
         'driver_location_description': faker.address.streetAddress(),
-        'total_vehicle_miles': randomInt(0, 9999999),
-        'total_engine_hours': randomInt(0, 99999),
+        'total_vehicle_miles': randomInt(accumulated_vehicle_miles, 9999999),
+        'total_engine_hours': randomInt(elapsed_engine_hours, 99999),
         'time_zone_offset_utc': randomInt(4, 11),
         'date_of_certified_record': faker.date.future(),
         'event_report_status': faker.random.boolean(),
