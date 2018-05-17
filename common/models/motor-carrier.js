@@ -75,15 +75,14 @@ module.exports = function(Motorcarrier) {
                 lastTrackings[vehicle.id] = tracking;
               });
             await vehicle.events.findOne(
-              {where: {or: [
-                {'event_code': 1},
-                {'event_code': 2},
-                {'event_code': 3},
-                {'event_code': 4},
-              ], vehicleId: vehicle.id},
+              {where: {
+                'event_type': 1,
+                vehicleId: vehicle.id,
+              },
                 order: 'event_timestamp DESC'}
             ).then((event) => {
-              lastTrackings[vehicle.id].eventCode = event.event_code;
+              if (event)
+                lastTrackings[vehicle.id].eventCode = event.event_code;
             });
           }))
           .then(() => {
