@@ -11,8 +11,11 @@
       "required": true
     },
     "imei": {
-      "type": "string",
-      "required": true
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "dataType": "bigint"
+      }
     },
     "state": {
       "type": "boolean",
