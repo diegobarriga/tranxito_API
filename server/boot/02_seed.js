@@ -240,7 +240,7 @@ module.exports = async function(app) {
         'event_sequence_id_number': 2,
         'event_type': 1,
         'event_code': 3,
-        'event_timestamp': today.setMinutes(today.getMinutes() + 2),
+        'event_timestamp': today.setHours(today.getHours() - 2),
         'shipping_doc_number': 'AAEECC1234',
         'event_record_status': 1,
         'accumulated_vehicle_miles': 0,

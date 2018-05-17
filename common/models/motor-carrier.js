@@ -94,7 +94,75 @@ module.exports = function(Motorcarrier) {
       ],
     });
 
-  Motorcarrier.dutyStats = function(id, interval, cb) {
+  Motorcarrier.driversDutyStats = function(id, span, cb) {
+    var driversStats = {};
+    var nSpan;
+    const TODAY = Date.now();
+    switch (span) {
+      case 'day':
+        nSpan = 24 * 60 * 60 * 1000;
+        break;
+      case 'week':
+        nSpan = 7 * 24 * 60 * 60 * 1000;
+        break;
+      case 'month':
+        nSpan = 30 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        let err = Error('Unrecognized span');
+        err.statusCode = 400;
+        cb(err, 'Unrecognized span');
+        break;
+    }
+    Motorcarrier.app.models.Person.find(
+      {
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'}
+      }).then(async drivers => {
+        await Promise.all(drivers.map(async (driver) => {
+          driversStats[driver.id] = {1: 0, 2: 0, 3: 0, 4: 0};
+          await driver.events.find(
+            {
+              order: 'event_timestamp ASC',
+              where: {
+                event_type: 1,
+                event_timestamp: {gt: TODAY - nSpan},
+              },
+            })
+            .then(events => {
+              events.forEach((event, i) => {
+                if (i < events.length - 1) {
+                  driversStats[driver.id][event.event_code] +=
+                  (events[i + 1].event_timestamp - event.event_timestamp) /
+                  (1000 * 60 * 60);
+                } else {
+                  driversStats[driver.id][event.event_code] +=
+                    (TODAY - event.event_timestamp) / (1000 * 60 * 60);
+                }
+              });
+            });
+        })).then(() => {
+          cb(null, driversStats);
+        });
+      });
+  };
+
+  Motorcarrier.remoteMethod(
+    'driversDutyStats',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'span', type: 'string', required: true},
+      ],
+      http: {path: '/:id/driversDutyStats', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the duty-status aggregated times',
+        'for the drivers from the last <span> period',
+        'span should be "day", "week" or "month"',
+      ],
+    });
+
+  Motorcarrier.dutyStats = function(id, span, cb) {
     /* Get the duty-status aggregated times of the last time <interval> */
   };
 
@@ -103,13 +171,13 @@ module.exports = function(Motorcarrier) {
     {
       accepts: [
         {arg: 'id', type: 'string', required: true},
-        {arg: 'interval', type: 'string', required: true},
+        {arg: 'span', type: 'string', required: true},
       ],
-      http: {path: '/:id/duty_stats', verb: 'path'},
+      http: {path: '/:id/dutyStats', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
-        'Get the duty-status aggregated times by',
-        'vehicles and drivers for the last <interval> period.',
+        'Get the duty-status aggregated times for the motor carrier',
+        'from the last <span> period.',
       ],
     });
 };
