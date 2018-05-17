@@ -4,6 +4,8 @@ var fs = require('fs');
 var faker = require('faker');
 var loopback = require('loopback');
 var GeoPoint = loopback.GeoPoint;
+var IMEI_GenCheck = require('imei_gencheck');
+const imeigc = new IMEI_GenCheck();
 
 module.exports = async function(app) {
   var Role = app.models.Role;
@@ -204,7 +206,8 @@ module.exports = async function(app) {
     for (var i = 0; i < num; i++) {
       var plaque = '';
       var vin = '';
-      var imei = faker.random.number();
+      var imei = imeigc.randomIMEI_fullRandom();
+
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
           plaque += faker.random.alphaNumeric();
