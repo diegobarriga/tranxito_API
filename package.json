@@ -19,6 +19,7 @@
     "fast-csv": "^2.4.1",
     "form-data": "^2.3.2",
     "helmet": "^3.10.0",
+    "imei": "0.0.1",
     "lodash": "^4.17.10",
     "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
