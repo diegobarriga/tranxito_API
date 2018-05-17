@@ -20,7 +20,8 @@
     },
     "event_timestamp": {
       "type": "date",
-      "required": true
+      "required": true,
+      "index": true
     },
     "shipping_doc_number": {
       "type": "string",
