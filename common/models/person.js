@@ -182,7 +182,7 @@ module.exports = function(Person) {
       delimiter: ',',
       headers: true,
       ignoreEmpty: true,
-      objectMode: true
+      objectMode: true,
     });
     stream.on('data', data => {
       stream.pause();
@@ -190,16 +190,14 @@ module.exports = function(Person) {
       console.log(data);
       var context = LoopBackContext.getCurrentContext();
       var currentUser = context && context.get('currentUser');
-      if (currentUser){
-            data.motorCarrierId = currentUser.motorCarrierId;
-      } else {
-        data.motorCarrierId = 1;
+      if (currentUser) {
+        data.motorCarrierId = currentUser.motorCarrierId;
       }
-      data.account_type = 'D'
-      data.account_status = true
-      data.move_yards_use = (data.move_yards_use == '1') ? true : false
-      data.default_use = (data.default_use == '1') ? true : false
-      data.personal_use = (data.personal_use == '1') ? true : false
+      data.account_type = 'D';
+      data.account_status = true;
+      data.move_yards_use = (data.move_yards_use == '1') ? true : false;
+      data.default_use = (data.default_use == '1') ? true : false;
+      data.personal_use = (data.personal_use == '1') ? true : false;
       Person.create(data, function(err) {
         if (err) {
           errors.push(err);
