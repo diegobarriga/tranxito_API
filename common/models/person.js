@@ -370,15 +370,26 @@ module.exports = function(Person) {
         cb(err, 'Person is not a driver');
       } else {
         const ONE_DAY = 24 * 60 * 60 * 1000;
+        const DATE_LIMIT = Date.now() - ONE_DAY;
         person.events.find(
           {
             where: {
               event_type: 1,
-              event_timestamp: {gt: Date.now() - ONE_DAY},
+              event_timestamp: {gt: DATE_LIMIT},
             },
-          }, function(error, data) {
-          if (error) cb(error);
-          cb(null, data);
+          }, function(erro, data) {
+          if (erro) return cb(erro);
+          person.events.findOne(
+            {
+              order: 'event_timestamp DESC',
+              where: {
+                event_type: 1,
+                event_timestamp: {lt: DATE_LIMIT},
+              },
+            }, function(error, first) {
+            if (error) return cb(error);
+            cb(null, [first ? first : {}, data]);
+          });
         });
       }
     });
