@@ -58,6 +58,13 @@
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
       "property": "__get__vehicle"
     },
     {
@@ -80,6 +87,13 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "create"
     },
     {
       "accessType": "EXECUTE",

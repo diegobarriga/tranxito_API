@@ -62,6 +62,13 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
       "property": "find"
     },
     {
