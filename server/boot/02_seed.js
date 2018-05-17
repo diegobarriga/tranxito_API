@@ -6,6 +6,7 @@ var loopback = require('loopback');
 var GeoPoint = loopback.GeoPoint;
 var IMEI_GenCheck = require('imei_gencheck');
 const imeigc = new IMEI_GenCheck();
+var randomMac = require('random-mac');
 
 module.exports = async function(app) {
   var Role = app.models.Role;
@@ -225,7 +226,7 @@ module.exports = async function(app) {
         'motorCarrierId': 1,
       };
       var device = {
-        'bluetooth_mac': 'A1EC3E5FF45',
+        'bluetooth_mac': randomMac(),
         'imei': imei,
         'state': true,
         'configuration_script': 'AAAAAAA',

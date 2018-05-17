@@ -19,8 +19,8 @@
     "fast-csv": "^2.4.1",
     "form-data": "^2.3.2",
     "helmet": "^3.10.0",
-    "imei_gencheck": "^4.0.0",
     "imei": "0.0.1",
+    "imei_gencheck": "^4.0.0",
     "lodash": "^4.17.10",
     "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
@@ -32,6 +32,7 @@
     "loopback-context": "^3.3.0",
     "loopback-import-mixin": "^1.2.2",
     "npm": "^5.8.0",
+    "random-mac": "0.0.4",
     "serve-favicon": "^2.0.1",
     "strong-error-handler": "^2.0.0",
     "validator": "^9.4.1"

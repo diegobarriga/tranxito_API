@@ -6,9 +6,9 @@ function macAddressValidator(err) {
   if (!validator.isMACAddress(String(this.bluetooth_mac))) return err();
 }
 
-function imeiValidator(err) {
-  if (!imei.isValid(String(this.imei))) return err();
-}
+// function imeiValidator(err) {
+//   if (!imei.isValid(String(this.imei))) return err();
+// }
 
 module.exports = function(Device) {
   Device.validatesPresenceOf(
@@ -18,7 +18,7 @@ module.exports = function(Device) {
     {'message': "Can't be blank"}
   );
   Device.validate('bluetooth_mac', macAddressValidator);
-  Device.validate('imei', imeiValidator);
+  //Device.validate('imei', imeiValidator);
 
   Device.newConfig = function(id, script, cb) {
     Device.findById(id, function(err, device) {
