@@ -89,7 +89,8 @@ module.exports = function(Vehicle) {
       // fork(__dirname + '/../../server/scripts/import-people.js', [
       //   JSON.stringify(params)
       // ]);
-      Vehicle.import(params.container, params.file, params, err => console.log(err ? 'Error with csv import' : 'Import process ended correctly'));
+      Vehicle.import(params.container, params.file, params, err =>
+        console.log(err ? 'Error with csv import' : 'Import process ended correctly'));
 
       return callback(null, fileContainer);
     });
@@ -145,7 +146,11 @@ module.exports = function(Vehicle) {
       console.log(data);
       var context = LoopBackContext.getCurrentContext();
       var currentUser = context && context.get('currentUser');
-      data.motorCarrierId = currentUser.motorCarrierId;
+      if (currentUser){
+            data.motorCarrierId = currentUser.motorCarrierId;
+      } else {
+        data.motorCarrierId = 1;
+      }
       Vehicle.create(data, function(err) {
         if (err) {
           errors.push(err);

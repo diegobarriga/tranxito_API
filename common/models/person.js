@@ -100,6 +100,7 @@ module.exports = function(Person) {
     const Container  = Person.app.models.Container;
     const FileUpload  = Person.app.models.FileUpload;
 
+
     // Generate a unique name to the container
     const containerName =
     `Person-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
@@ -204,7 +205,9 @@ module.exports = function(Person) {
       console.log(data);
       var context = LoopBackContext.getCurrentContext();
       var currentUser = context && context.get('currentUser');
-      data.motorCarrierId = currentUser.motorCarrierId;
+      if (currentUser) {
+        data.motorCarrierId = currentUser.motorCarrierId;
+      }
       data.account_type = 'D';
       data.account_status = true;
       data.move_yards_use = (data.move_yards_use == '1') ? true : false;
