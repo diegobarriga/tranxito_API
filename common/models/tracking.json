@@ -108,7 +108,7 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__get__person"
-    },
+    }
   ],
   "methods": {}
 }
