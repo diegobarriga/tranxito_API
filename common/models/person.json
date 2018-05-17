@@ -203,9 +203,37 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$owner",
+      "principalId": "S",
       "permission": "ALLOW",
-      "property": "patchAttributes"
+      "property": "__get__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__findById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__dutyStatusChange"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__findById__trackings"
     },
     {
       "accessType": "EXECUTE",
