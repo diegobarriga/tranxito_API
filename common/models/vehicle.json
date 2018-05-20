@@ -26,7 +26,10 @@
       "type": "string"
     },
     "IMEI_ELD": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "bigint"
+      }
     },
     "image": {
       "type": "string",
@@ -123,6 +126,27 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__get__motorCarrier"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__create__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__update__devices"
     },
     {
       "accessType": "EXECUTE",

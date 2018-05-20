@@ -6,7 +6,7 @@ function eventTypeValidator(err) {
 }
 
 function eventCodeValidator(err) {
-  let eventCodes = [1, 2, 3, 4, 5, 6, 7];
+  let eventTypes = [1, 2, 3, 4, 5, 6, 7];
   let dict = {
     1: {
       min: 1,
@@ -38,7 +38,7 @@ function eventCodeValidator(err) {
     },
   };
   if (!this.event_type ||
-    !eventCodes.includes(this.event_code) ||
+    !eventTypes.includes(this.event_type) ||
     !validator.isInt(String(this.event_code),
      {min: dict[this.event_type].min, max: dict[this.event_type].max}))
     return err();
