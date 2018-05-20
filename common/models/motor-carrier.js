@@ -133,13 +133,13 @@ module.exports = function(MotorCarrier) {
           driversAlerts[driver.id] = {speedLimit: 0, timeLimit: 0};
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true
+              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
             }).then(speedingCount => {
               driversAlerts[driver.id].speedLimit = speedingCount;
             });
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true
+              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
             }).then(driveTimeCount => {
               driversAlerts[driver.id].timeLimit = driveTimeCount;
             });
