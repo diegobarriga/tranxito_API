@@ -101,4 +101,68 @@ module.exports = function(Motorcarrier) {
         'Get the last tracking information of the motor carriers vehicles',
       ],
     });
+
+  Motorcarrier.driverAlerts = function(id, span, cb) {
+    const TODAY = Date.now();
+    var driversAlerts = {};
+    var nSpan;
+    switch (span) {
+      case 'day':
+        nSpan = 24 * 60 * 60 * 1000;
+        break;
+      case 'week':
+        nSpan = 7 * 24 * 60 * 60 * 1000;
+        break;
+      case 'month':
+        nSpan = 30 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        let err = Error('Unrecognized span');
+        err.statusCode = 400;
+        return cb(err, 'Unrecognized span');
+        break;
+    }
+    Motorcarrier.app.models.Person.find(
+      {
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+      }).then(async (drivers, err) => {
+        if (err) {
+          return cb(err);
+        }
+        await Promise.all(drivers.map(async (driver) => {
+          driversAlerts[driver.id] = {speedLimit: 0, timeLimit: 0};
+          await driver.trackings.count(
+            {
+              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true
+            }).then(speedingCount => {
+              driversAlerts[driver.id].speedLimit = speedingCount;
+            });
+          await driver.trackings.count(
+            {
+              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true
+            }).then(driveTimeCount => {
+              driversAlerts[driver.id].timeLimit = driveTimeCount;
+            });
+        }))
+        .then(() => {
+          return cb(null, driversAlerts);
+        });
+      });
+  };
+
+  Motorcarrier.remoteMethod(
+    'driverAlerts',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'span', type: 'string', required: true},
+      ],
+      http: {path: '/:id/driverAlerts', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the number of alerts by type for the motor carriers drivers',
+        'from the last <span> period.',
+        'span should be "day", "week" or "month"',
+      ],
+    });
 };
