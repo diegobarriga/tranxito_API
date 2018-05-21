@@ -19,9 +19,6 @@
       "type": "string",
       "required": true
     },
-    "picture": {
-      "type": "string"
-    },
     "account_type": {
       "type": "string",
       "required": true

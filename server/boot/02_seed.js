@@ -42,22 +42,25 @@ module.exports = async function(app) {
     return res;
   });
 
-  fakeDrivers(30, function(err, drivers) {
+  fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
     fakeVehicles(30, function(err, vehicles) {
       if (err) throw err;
-      fakeEvents(100, drivers, vehicles, function(err, events) {
+      Simulate(drivers, vehicles, function(err) {
         if (err) throw err;
-        console.log('Drivers, vehicles, devices, events created ok');
-        fakeTrackings(100, drivers, vehicles, events, function(err, trackings) {
-          if (err) throw err;
-          console.log('Trackings created');
-          console.log('Database seeded');
-        });
+        console.log('Database seeded');
       });
+    //   fakeEvents(100, drivers, vehicles, function(err, events) {
+    //     if (err) throw err;
+    //     console.log('Drivers, vehicles, devices, events created ok');
+    //     fakeTrackings(drivers, vehicles, events, function(err, trackings) {
+    //       if (err) throw err;
+    //       console.log('Trackings created');
+    //       console.log('Database seeded');
+    //     });
+    //   });
     });
-  }
-  );
+  });
 
   // create carriers
   async function createCarriers(cb) {
@@ -158,7 +161,6 @@ module.exports = async function(app) {
   }
 
   async function fakeDrivers(num, cb) {
-
     var Person = app.models.Person;
     var data = [];
 
@@ -255,126 +257,143 @@ module.exports = async function(app) {
     });
   }
 
-  async function fakeEvents(num, driv, veh, cb) {
-    await postgresDs.automigrate('Event');
-    var Event = app.models.Event;
-    var data = [];
+  // async function fakeEvents(num, driv, veh, cb) {
+  //   await postgresDs.automigrate('Event');
+  //   var Event = app.models.Event;
+  //   var data = [];
 
-    let eventTypes = [1, 2, 3, 4, 5, 6, 7];
-    let dict = {
-      1: {
-        min: 1,
-        max: 4,
-      },
-      2: {
-        min: 1,
-        max: 2,
-      },
-      3: {
-        min: 0,
-        max: 2,
-      },
-      4: {
-        min: 1,
-        max: 9,
-      },
-      5: {
-        min: 1,
-        max: 2,
-      },
-      6: {
-        min: 1,
-        max: 4,
-      },
-      7: {
-        min: 1,
-        max: 4,
-      },
-    };
+  //   let eventTypes = [1, 2, 3, 4, 5, 6, 7];
+  //   let dict = {
+  //     1: {
+  //       min: 1,
+  //       max: 4,
+  //     },
+  //     2: {
+  //       min: 1,
+  //       max: 2,
+  //     },
+  //     3: {
+  //       min: 0,
+  //       max: 2,
+  //     },
+  //     4: {
+  //       min: 1,
+  //       max: 9,
+  //     },
+  //     5: {
+  //       min: 1,
+  //       max: 2,
+  //     },
+  //     6: {
+  //       min: 1,
+  //       max: 4,
+  //     },
+  //     7: {
+  //       min: 1,
+  //       max: 4,
+  //     },
+  //   };
 
-    var drivers = driv.filter(function(elem) {
-      return elem.account_type === 'D' && elem.motorCarrierId === 1;
-    });
-    var vehicles = veh.filter(function(elem) {
-      return elem.motorCarrierId === 1;
-    });
+  //   var drivers = driv.filter(function(elem) {
+  //     return elem.account_type === 'D' && elem.motorCarrierId === 1;
+  //   });
+  //   var vehicles = veh.filter(function(elem) {
+  //     return elem.motorCarrierId === 1;
+  //   });
 
-    for (var i = 0; i < num; i++) {
-      var driver = randomChoice(drivers);
-      var vehicle = randomChoice(vehicles);
-      var type = randomChoice(eventTypes);
-      var code = randomInt(dict[type].min, dict[type].max);
-      var accumulated_vehicle_miles = randomInt(0, 9999);
-      var elapsed_engine_hours = randomInt(0, 99)
+  //   for (var i = 0; i < num; i++) {
+  //     var driver = randomChoice(drivers);
+  //     var vehicle = randomChoice(vehicles);
+  //     var type = randomChoice(eventTypes);
+  //     var code = randomInt(dict[type].min, dict[type].max);
+  //     var accumulatedMiles = randomInt(0, 7000);
+  //     var elapsedHours = randomInt(0, 50);
 
-      var event = {
-        'event_sequence_id_number': randomInt(0, num),
-        'event_type': type,
-        'event_code': code,
-        'event_timestamp': faker.date.past(),
-        'shipping_doc_number': 'AAEECC1234',
-        'event_record_status': randomInt(1, 4),
-        'accumulated_vehicle_miles': accumulated_vehicle_miles,
-        'elapsed_engine_hours': elapsed_engine_hours,
-        'coordinates': {
-          'lat': faker.address.latitude(),
-          'lng': faker.address.longitude(),
-        },
-        'distance_since_last_valid_coordinates': randomInt(0, 6),
-        'malfunction_indicator_status': faker.random.boolean(),
-        'data_diagnostic_event_indicator_status_for_driver':
-        faker.random.boolean(),
-        'event_data_check_value': 0,
-        'annotation': faker.lorem.words(),
-        'driver_location_description': faker.address.streetAddress(),
-        'total_vehicle_miles': randomInt(accumulated_vehicle_miles, 9999999),
-        'total_engine_hours': randomInt(elapsed_engine_hours, 99999),
-        'time_zone_offset_utc': randomInt(4, 11),
-        'date_of_certified_record': faker.date.future(),
-        'event_report_status': faker.random.boolean(),
-        'certified': faker.random.boolean(),
-        'driverId': driver.id,
-        'vehicleId': vehicle.id,
-        'motorCarrierId': 1,
-      };
-      data.push(event);
-    }
+  //     var event = {
+  //       'event_sequence_id_number': randomInt(0, num),
+  //       'event_type': type,
+  //       'event_code': code,
+  //       'event_timestamp': faker.date.past(),
+  //       'shipping_doc_number': 'AAEECC1234',
+  //       'event_record_status': randomInt(1, 4),
+  //       'accumulated_vehicle_miles': accumulatedMiles,
+  //       'elapsed_engine_hours': elapsedHours,
+  //       'coordinates': {
+  //         'lat': faker.address.latitude(),
+  //         'lng': faker.address.longitude(),
+  //       },
+  //       'distance_since_last_valid_coordinates': randomInt(0, 6),
+  //       'malfunction_indicator_status': faker.random.boolean(),
+  //       'data_diagnostic_event_indicator_status_for_driver':
+  //       faker.random.boolean(),
+  //       'event_data_check_value': 0,
+  //       'annotation': faker.lorem.words(),
+  //       'driver_location_description': faker.address.streetAddress(),
+  //       'total_vehicle_miles': randomInt(accumulatedMiles, 9999000),
+  //       'total_engine_hours': randomInt(elapsedHours, 99000),
+  //       'time_zone_offset_utc': randomInt(4, 11),
+  //       'date_of_certified_record': faker.date.future(),
+  //       'event_report_status': faker.random.boolean(),
+  //       'certified': faker.random.boolean(),
+  //       'driverId': driver.id,
+  //       'vehicleId': vehicle.id,
+  //       'motorCarrierId': driver.motorCarrierId,
+  //     };
+  //     data.push(event);
+  //   }
 
-    Event.create(data, function(err, events) {
-      if (err) {
-        console.log('Error creating events');
-        console.log(err);
-        throw err;
-      };
-      console.log('More events created succesfully');
-      cb(null, events);
-    });
-  }
+  //   Event.create(data, function(err, events) {
+  //     if (err) {
+  //       console.log('Error creating events');
+  //       console.log(err);
+  //       throw err;
+  //     };
+  //     console.log('More events created succesfully');
+  //     cb(null, events);
+  //   });
+  // }
 
-  async function fakeTrackings(num, drivers, vehicles, events, cb) {
-    await postgresDs.automigrate('Tracking');
-    var data = [];
-    var Tracking = app.models.Tracking;
-    for (var i = 0; i < num; i++) {
-      var driver = randomChoice(drivers);
-      var vehicle = randomChoice(vehicles);
-      var track = {
-        'coordinates':
-        GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
-        'speed': randomInt(0, 100),
-        'timestamp': Date.now(),
-        'speed_limit_exceeded': faker.random.boolean(),
-        'drive_time_exceeded': faker.random.boolean(),
-        'personId': driver.id,
-        'vehicleId': vehicle.id,
-      };
-      data.push(track);
-    };
-    Tracking.create(data, function(err, trackings) {
-      if (err) throw err;
-      cb(null, trackings);
-    });
-  }
+  // async function fakeTrackings(drivers, vehicles, events, cb) {
+  //   await postgresDs.automigrate('Tracking');
+  //   var data = [];
+  //   var Tracking = app.models.Tracking;
+
+  //   vehicles.forEach(function(car) {
+  //     var driver = randomChoice(drivers);
+  //     var latitude = randomInt(25, 49);
+  //     var longitude = randomInt(-124, -66);
+  //     var dateStart = new Date(Date.now());
+  //     var speed, x, y;
+  //     dateStart.setMonth(dateStart.getMonth() - 1);
+  //     for (var i = 0; i < 40; i++) {
+  //       dateStart.setMinutes(dateStart.getMinutes() + 10);
+  //       x = randomInt(-10, 10);
+  //       y = randomInt(-10, 10);
+  //       latitude = (25 < latitude + x && latitude + x < 49) ?
+  //       latitude + x : latitude;
+  //       longitude = (-124 < longitude + y && longitude + y < -66) ?
+  //       longitude + y : longitude;
+  //       speed = randomInt(0, 100);
+  //       var track = {
+  //         'coordinates':
+  //         GeoPoint({lat: latitude,
+  //           lng: longitude}),
+  //         'speed': speed,
+  //         'timestamp': dateStart,
+  //         'speed_limit_exceeded': (speed > 60), // if speed is greater than 60 limit is exceeded
+  //         'drive_time_exceeded': (i % 700 == 0 && i != 0), // drive time exceeded every 700 minutes
+  //         'personId': driver.id,
+  //         'vehicleId': car.id,
+  //       };
+  //       data.push(track);
+  //     }
+  //   });
+
+  //   Tracking.create(data, function(err, trackings) {
+  //     if (err) throw err;
+  //     cb(null, trackings);
+  //   });
+  // }
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -383,5 +402,116 @@ module.exports = async function(app) {
   function randomChoice(array) {
     var index = Math.floor(Math.random() * array.length);
     return array[index];
+  }
+
+  // Simulate events and trackings
+  async function Simulate(drivers, vehicles, cb) {
+    await postgresDs.automigrate('Tracking');
+    await postgresDs.automigrate('Event');
+    var Event = app.models.Event;
+    var Tracking = app.models.Tracking;
+    var dateStart = new Date(Date.now());
+    dateStart.setMonth(dateStart.getMonth() - 1);
+    var dataEvents = [];
+    var dataTrackings = [];
+    // 30 day simulation
+    for (var i = 0; i < 30; i++) {
+      vehicles.forEach(function(element) {
+        var driver = randomChoice(drivers);
+        var today = new Date(dateStart);
+        var counter = 0;
+        var x, y;
+        var latitude = randomInt(25, 49);
+        var longitude = randomInt(-124, -66);
+        // 600 minutes driving periods
+        // tracking every 3 minutes
+        for (var i = 0; i < 200; i++) {
+          x = randomInt(-10, 10);
+          y = randomInt(-10, 10);
+          latitude = (25 < latitude + x && latitude + x < 49) ?
+          latitude + x : latitude;
+          longitude = (-124 < longitude + y && longitude + y < -66) ?
+          longitude + y : longitude;
+          if (i % 20 == 0) { // every hour duty status changes
+            var event = changeDutyStatusEvent(driver, element,
+             counter, new Date(today), latitude, longitude);
+            counter += 1;
+            dataEvents.push(event);
+          }
+          if (i != 0) {
+            today.setMinutes(today.getMinutes() + 3);
+            var tracking = fakeTrack(driver, element, new Date(today),
+             latitude, longitude, i);
+            dataTrackings.push(tracking);
+          }
+        }
+      });
+      dateStart.setDate(dateStart.getDate() + 1);
+    }
+    Event.create(dataEvents, function(err) {
+      if (err) {
+        cb(err);
+      } else {
+        console.log('Events simulated');
+        Tracking.create(dataTrackings, function(err) {
+          if (err) {
+            cb(err);
+          } else {
+            console.log('Trackings simulated');
+            cb(null);
+          }
+        });
+      }
+    });
+  }
+
+  function fakeTrack(driver, car, today, lat, lng, minutes) {
+    var speed = randomInt(0, 100);
+    var track = {
+      'coordinates': GeoPoint({lat: lat, lng: lng}),
+      'speed': speed,
+      'timestamp': today,
+      'speed_limit_exceeded': (speed > 60), // if speed is greater than 60 limit is exceeded
+      'drive_time_exceeded': (minutes % 100 == 0 && minutes != 0), // drive time exceeded every 100 minutes
+      'personId': driver.id,
+      'vehicleId': car.id,
+    };
+    return track;
+  }
+
+  function changeDutyStatusEvent(driver, vehicle, sequence, today, lat, lng) {
+    var accumulatedMiles = randomInt(0, 7000);
+    var elapsedHours = randomInt(0, 50);
+    var event = {
+      'event_sequence_id_number': sequence,
+      'event_type': 1,
+      'event_code': randomInt(1, 4),
+      'event_timestamp': today,
+      'shipping_doc_number': 'AAEECC1234',
+      'event_record_status': randomInt(1, 4),
+      'accumulated_vehicle_miles': accumulatedMiles,
+      'elapsed_engine_hours': elapsedHours,
+      'coordinates': {
+        'lat': lat,
+        'lng': lng,
+      },
+      'distance_since_last_valid_coordinates': randomInt(0, 6),
+      'malfunction_indicator_status': faker.random.boolean(),
+      'data_diagnostic_event_indicator_status_for_driver':
+      faker.random.boolean(),
+      'event_data_check_value': 0,
+      'annotation': faker.lorem.words(),
+      'driver_location_description': faker.address.streetAddress(),
+      'total_vehicle_miles': randomInt(accumulatedMiles, 9999000),
+      'total_engine_hours': randomInt(elapsedHours, 99000),
+      'time_zone_offset_utc': randomInt(4, 11),
+      'date_of_certified_record': faker.date.future(),
+      'event_report_status': faker.random.boolean(),
+      'certified': faker.random.boolean(),
+      'driverId': driver.id,
+      'vehicleId': vehicle.id,
+      'motorCarrierId': driver.motorCarrierId,
+    };
+    return event;
   }
 };
