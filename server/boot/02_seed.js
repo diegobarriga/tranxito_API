@@ -42,9 +42,9 @@ module.exports = async function(app) {
     return res;
   });
 
-  fakeDrivers(30, function(err, drivers) {
+  fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
-    fakeVehicles(50, function(err, vehicles) {
+    fakeVehicles(30, function(err, vehicles) {
       if (err) throw err;
       Simulate(drivers, vehicles, function(err) {
         if (err) throw err;
