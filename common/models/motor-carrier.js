@@ -341,7 +341,6 @@ module.exports = function(MotorCarrier) {
             },
           })
           .then((events) => {
-            console.log(events);
             events.forEach((event, i) => {
               if (i < events.length - 1) {
                 carrierStats[event.event_code] +=
@@ -351,7 +350,6 @@ module.exports = function(MotorCarrier) {
                 carrierStats[event.event_code] +=
                   (TODAY - event.event_timestamp) / (1000 * 60 * 60);
               }
-              console.log(carrierStats);
             });
             return cb(null, carrierStats);
           });
