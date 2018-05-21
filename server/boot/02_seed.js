@@ -161,7 +161,6 @@ module.exports = async function(app) {
   }
 
   async function fakeDrivers(num, cb) {
-
     var Person = app.models.Person;
     var data = [];
 
