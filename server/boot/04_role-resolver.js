@@ -24,13 +24,15 @@ module.exports = function(app) {
         if (context.modelName === 'MotorCarrier' &&
           user.motorCarrierId === modelInstance.id) {
           return cb(null, true);
-        } else if (context.modelName === 'Person' &&
+        } else if ((context.modelName === 'Person' ||
+            context.modelName === 'Vehicle') &&
             user.motorCarrierId === modelInstance.motorCarrierId) {
           return cb(null, true);
-        } else if (context.modelName === 'Vehicle') {
-          console.log(modelInstance);
-          return cb(null, true);
         }
+        // else if (context.modelName === 'Vehicle') {
+        //   console.log(modelInstance);
+        //   return cb(null, true);
+        // }
         return process.nextTick(() => cb(null, false));
       });
     });
