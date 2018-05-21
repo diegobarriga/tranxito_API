@@ -158,7 +158,6 @@ module.exports = async function(app) {
   }
 
   async function fakeDrivers(num, cb) {
-
     var Person = app.models.Person;
     var data = [];
 
@@ -223,7 +222,7 @@ module.exports = async function(app) {
         'plaque': plaque,
         'state': faker.address.state(),
         'IMEI_ELD': imei,
-        'motorCarrierId': 1,
+        'motorCarrierId': randomChoice([1, 2]),
       };
       var device = {
         'bluetooth_mac': randomMac(),
@@ -335,7 +334,7 @@ module.exports = async function(app) {
         'certified': faker.random.boolean(),
         'driverId': driver.id,
         'vehicleId': vehicle.id,
-        'motorCarrierId': 1,
+        'motorCarrierId': vehicle.motorCarrierId,
       };
       data.push(event);
     }
