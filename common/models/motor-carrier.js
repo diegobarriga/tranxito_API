@@ -26,7 +26,7 @@ module.exports = function(MotorCarrier) {
     MotorCarrier.app.models.Person.find(
       {where: {MotorCarrierId: id, account_status: true, account_type: 'S'}},
        function(err, data) {
-         cb(err, data);
+         return cb(err, data);
        });
   };
 
@@ -47,7 +47,7 @@ module.exports = function(MotorCarrier) {
     MotorCarrier.app.models.Person.find(
       {where: {MotorCarrierId: id, account_status: true, account_type: 'D'}},
        function(err, data) {
-         cb(err, data);
+         return cb(err, data);
        });
   };
 
@@ -86,7 +86,7 @@ module.exports = function(MotorCarrier) {
             });
           }))
           .then(() => {
-            cb(null, lastTrackings);
+            return cb(null, lastTrackings);
           });
         });
   };
@@ -122,7 +122,7 @@ module.exports = function(MotorCarrier) {
         return cb(err, 'Unrecognized span');
         break;
     }
-        Motorcarrier.app.models.Person.find(
+    MotorCarrier.app.models.Person.find(
       {
         where: {motorCarrierId: id, account_status: true, account_type: 'D'},
       }).then(async (drivers) => {
@@ -149,12 +149,12 @@ module.exports = function(MotorCarrier) {
               });
             });
         })).then(() => {
-          cb(null, driversStats);
+          return cb(null, driversStats);
         });
       });
   };
 
-  Motorcarrier.remoteMethod(
+  MotorCarrier.remoteMethod(
     'driversDutyStats',
     {
       accepts: [
@@ -170,7 +170,7 @@ module.exports = function(MotorCarrier) {
       ],
     });
 
-  Motorcarrier.vehiclesDutyStats = function(id, span, cb) {
+  MotorCarrier.vehiclesDutyStats = function(id, span, cb) {
     var vehiclesStats = {};
     var nSpan;
     const TODAY = Date.now();
@@ -218,7 +218,26 @@ module.exports = function(MotorCarrier) {
             });
         })).then(() => {
           return cb(null, vehiclesStats);
-          
+        });
+      });
+  };
+
+  MotorCarrier.remoteMethod(
+    'vehiclesDutyStats',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'span', type: 'string', required: 'true'},
+      ],
+      http: {path: '/:id/vehiclesDutyStats', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the duty-status aggregated times',
+        'for the vehicles from the las <span> period',
+        'span should be "day", "week" or "month"',
+      ],
+    });
+
   MotorCarrier.driverAlerts = function(id, span, cb) {
     const TODAY = Date.now();
     var driversAlerts = {};
@@ -267,23 +286,23 @@ module.exports = function(MotorCarrier) {
       });
   };
 
-  Motorcarrier.remoteMethod(
-    'vehiclesDutyStats',
+  MotorCarrier.remoteMethod(
+    'driverAlerts',
     {
       accepts: [
         {arg: 'id', type: 'string', required: true},
-        {arg: 'span', type: 'string', required: 'true'},
+        {arg: 'span', type: 'string', required: true},
       ],
-      http: {path: '/:id/vehiclesDutyStats', verb: 'get'},
+      http: {path: '/:id/driverAlerts', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
-        'Get the duty-status aggregated times',
-        'for the vehicles from the las <span> period',
+        'Get the number of alerts by type for the motor carriers drivers',
+        'from the last <span> period.',
         'span should be "day", "week" or "month"',
       ],
     });
 
-  Motorcarrier.dutyStats = function(id, span, cb) {
+  MotorCarrier.dutyStats = function(id, span, cb) {
     /* Get the duty-status aggregated times of the last time <interval> */
     var carrierStats = {1: 0, 2: 0, 3: 0, 4: 0};
     var nSpan;
@@ -304,7 +323,7 @@ module.exports = function(MotorCarrier) {
         return cb(err, 'Unrecognized span');
         break;
     }
-    Motorcarrier.findById(id).then((motorCarrier, err) => {
+    MotorCarrier.findById(id).then((motorCarrier, err) => {
       if (err) {
         return cb(err);
       }
@@ -322,6 +341,7 @@ module.exports = function(MotorCarrier) {
             },
           })
           .then((events) => {
+            console.log(events);
             events.forEach((event, i) => {
               if (i < events.length - 1) {
                 carrierStats[event.event_code] +=
@@ -331,6 +351,7 @@ module.exports = function(MotorCarrier) {
                 carrierStats[event.event_code] +=
                   (TODAY - event.event_timestamp) / (1000 * 60 * 60);
               }
+              console.log(carrierStats);
             });
             return cb(null, carrierStats);
           });
@@ -338,9 +359,9 @@ module.exports = function(MotorCarrier) {
     });
   };
 
-  Motorcarrier.remoteMethod(
+  MotorCarrier.remoteMethod(
     'dutyStats',
-       {
+    {
       accepts: [
         {arg: 'id', type: 'string', required: true},
         {arg: 'span', type: 'string', required: true},
@@ -350,22 +371,6 @@ module.exports = function(MotorCarrier) {
       description: [
         'Get the duty-status aggregated times for the motor carrier',
         'from the last <span> period.',
-        ],
-       });
-
-  MotorCarrier.remoteMethod(
-    'driverAlerts',
-    {
-      accepts: [
-        {arg: 'id', type: 'string', required: true},
-        {arg: 'span', type: 'string', required: true},
-      ],
-      http: {path: '/:id/driverAlerts', verb: 'get'},
-      returns: {arg: 'data', type: 'string'},
-      description: [
-        'Get the number of alerts by type for the motor carriers drivers',
-        'from the last <span> period.',
-        'span should be "day", "week" or "month"',
       ],
     });
 };
