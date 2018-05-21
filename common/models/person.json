@@ -1,4 +1,4 @@
-s{
+{
   "name": "Person",
   "base": "User",
   "idInjection": true,

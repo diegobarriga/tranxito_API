@@ -408,7 +408,6 @@ module.exports = async function(app) {
   async function Simulate(drivers, vehicles, cb) {
     await postgresDs.automigrate('Tracking');
     await postgresDs.automigrate('Event');
-    console.log('Simulando');
     var Event = app.models.Event;
     var Tracking = app.models.Tracking;
     var dateStart = new Date(Date.now());
@@ -440,9 +439,7 @@ module.exports = async function(app) {
             dataEvents.push(event);
           }
           if (i != 0) {
-            console.log(today);
             today.setMinutes(today.getMinutes() + 3);
-            console.log(today);
             var tracking = fakeTrack(driver, element, new Date(today),
              latitude, longitude, i);
             dataTrackings.push(tracking);
