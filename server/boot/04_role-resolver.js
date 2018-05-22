@@ -19,8 +19,6 @@ module.exports = function(app) {
       var Person = app.models.Person;
       Person.findById(userId, function(err, user) {
         if (err) return cb(err);
-        console.log(user);
-        console.log(modelInstance.id);
         if (context.modelName === 'MotorCarrier' &&
           user.motorCarrierId === modelInstance.id) {
           return cb(null, true);
