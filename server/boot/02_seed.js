@@ -349,6 +349,7 @@ module.exports = async function(app) {
       console.log('More events created succesfully');
       cb(null, events);
     });
+
   }
 
   async function fakeTrackings(num, drivers, vehicles, events, cb) {
