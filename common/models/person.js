@@ -213,7 +213,7 @@ module.exports = function(Person) {
       data.move_yards_use = (data.move_yards_use == '1') ? true : false;
       data.default_use = (data.default_use == '1') ? true : false;
       data.personal_use = (data.personal_use == '1') ? true : false;
-      Person.create(data, function(err) {
+      Person.create(data, {transaction: ctx.transaction}, function(err) {
         if (err) {
           errors.push(err);
           Person.app.models.FileUploadError.create({
