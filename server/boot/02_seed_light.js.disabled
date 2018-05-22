@@ -42,9 +42,9 @@ module.exports = async function(app) {
     return res;
   });
 
-  fakeDrivers(50, function(err, drivers) {
+  fakeDrivers(10, function(err, drivers) {
     if (err) throw err;
-    fakeVehicles(30, function(err, vehicles) {
+    fakeVehicles(20, function(err, vehicles) {
       if (err) throw err;
       Simulate(drivers, vehicles, function(err) {
         if (err) throw err;
@@ -424,22 +424,22 @@ module.exports = async function(app) {
         dataEvents = [];
         dataTrackings = [];
         // 600 minutes driving periods
-        // tracking every 3 minutes
-        for (var i = 0; i < 200; i++) {
+        // tracking every 10 minutes
+        for (var i = 0; i < 60; i++) {
           x = randomInt(-10, 10);
           y = randomInt(-10, 10);
           latitude = (25 < latitude + x && latitude + x < 49) ?
           latitude + x : latitude;
           longitude = (-124 < longitude + y && longitude + y < -66) ?
           longitude + y : longitude;
-          if (i % 20 == 0) { // every hour duty status changes
+          if (i % 6 == 0) { // every hour duty status changes
             var event = changeDutyStatusEvent(driver, element,
              counter, new Date(today), latitude, longitude);
             counter += 1;
             dataEvents.push(event);
           }
           if (i != 0) {
-            today.setMinutes(today.getMinutes() + 3);
+            today.setMinutes(today.getMinutes() + 10);
             var tracking = fakeTrack(driver, element, new Date(today),
              latitude, longitude, i);
             dataTrackings.push(tracking);
