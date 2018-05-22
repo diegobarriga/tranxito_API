@@ -180,7 +180,7 @@ module.exports = function(Person) {
   Person.import_preprocess = function(ctx, container, file, options, callback) {
     // initialize the SQL transaction
     Person.beginTransaction(
-      {isolationLevel: Person.Transaction.READ_UNCOMMITTED}
+      {isolationLevel: Person.Transaction.READ_COMMITTED}
     , function(err, transaction) {
       ctx.transaction = transaction;
       console.log('Transaction begun');
@@ -189,7 +189,7 @@ module.exports = function(Person) {
   };
 
   Person.import_process = function(ctx, container, file, options, callback) {
-    const errors = [];
+    let errors = [];
     let i = -1;
     const filename = path.join(
       Person.app.datasources.container.settings.root, container, file);
@@ -199,6 +199,7 @@ module.exports = function(Person) {
       ignoreEmpty: true,
       objectMode: true,
     });
+    let peopleData = []
     stream.on('data', data => {
       stream.pause();
       i++;
@@ -213,28 +214,50 @@ module.exports = function(Person) {
       data.move_yards_use = (data.move_yards_use == '1') ? true : false;
       data.default_use = (data.default_use == '1') ? true : false;
       data.personal_use = (data.personal_use == '1') ? true : false;
-      Person.create(data, {transaction: ctx.transaction}, function(err) {
-        if (err) {
-          errors.push(err);
-          Person.app.models.FileUploadError.create({
-            line: i + 2,
-            message: err.message,
-            fileUploadId: options.fileUpload,
-          }, function(err2) {
-            if (err2) {
-              console.log('Error creating FileUploadError');
-            }
-          });
-        }
-        stream.resume();
-      });
+      data.line = i + 2;
+      peopleData.push(data);
+      stream.resume();
     });
+
+    
     stream.on('end', function() {
-      if (errors) {
-        callback(errors[0]);
-      } else {
-        callback(null);
+      if (peopleData.length === 0) {
+        return callback(null);
       }
+
+      let transactionOptions = { transaction: ctx.transaction };
+      function recursiveTransactionCreatePeople(index) {
+        console.log(`recursiveTransactionCreatePeople: ${index} `)
+        if (index > peopleData.length - 1) {
+          console.log(`peopleData.length reached ${index} - ${errors}`);
+          if (errors.length > 0) {
+            return callback(errors[0]);
+          } else {
+            return callback(null);
+          }          
+        }
+
+        Person.create(peopleData[index], transactionOptions, function(err) {
+          if (err) {
+            errors.push(err);
+            Person.app.models.FileUploadError.create({
+              line: peopleData[index].line,
+              message: err.message,
+              fileUploadId: options.fileUpload,
+            }, function(err2) {
+              if (err2) {
+                console.log('Error creating FileUploadError');
+              }
+            });
+          }
+          return recursiveTransactionCreatePeople(index + 1);
+        });
+      }
+
+      return recursiveTransactionCreatePeople(0)
+
+
+
     });
     return fs.createReadStream(filename).pipe(stream);
   };
