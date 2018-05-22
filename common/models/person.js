@@ -61,7 +61,6 @@ module.exports = function(Person) {
   Person.validate(
     'email', emailValidator, {message: 'Must provide a valid email'}
   );
-  Person.validatesUniquenessOf('email', {message: 'Email already exists'});
   Person.validatesInclusionOf('account_type', {'in': ['A', 'D', 'S']});
   Person.validate('driver_license_number', validateDriverLiceseNumber,
     {'message': "Can't be blank when account_type is D"});
