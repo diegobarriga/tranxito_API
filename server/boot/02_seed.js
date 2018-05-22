@@ -291,7 +291,7 @@ module.exports = async function(app) {
           }
           if (i != 0) {
             today.setMinutes(today.getMinutes() + 3);
-            var tracking = fakeTrackings(driver, element, new Date(today),
+            var tracking = fakeTrack(driver, element, new Date(today),
              latitude, longitude, i);
             dataTrackings.push(tracking);
           }
@@ -312,30 +312,44 @@ module.exports = async function(app) {
     cb(null);
   }
 
-  async function fakeTrackings(num, drivers, vehicles, events, cb) {
-    await postgresDs.automigrate('Tracking');
-    var data = [];
-    var Tracking = app.models.Tracking;
-    for (var i = 0; i < num; i++) {
-      var driver = randomChoice(drivers);
-      var vehicle = randomChoice(vehicles);
-      var track = {
-        'coordinates':
-        GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
-        'speed': randomInt(0, 100),
-        'timestamp': Date.now(),
-        'speed_limit_exceeded': faker.random.boolean(),
-        'drive_time_exceeded': faker.random.boolean(),
-        'personId': driver.id,
-        'vehicleId': vehicle.id,
-      };
-      data.push(track);
+  function fakeTrack(driver, car, today, lat, lng, minutes) {
+    var speed = randomInt(0, 100);
+    var track = {
+      'coordinates': GeoPoint({lat: lat, lng: lng}),
+      'speed': speed,
+      'timestamp': today,
+      'speed_limit_exceeded': (speed > 60), // if speed is greater than 60 limit is exceeded
+      'drive_time_exceeded': (minutes % 100 == 0 && minutes != 0), // drive time exceeded every 100 minutes
+      'personId': driver.id,
+      'vehicleId': car.id,
     };
-    Tracking.create(data, function(err, trackings) {
-      if (err) throw err;
-      cb(null, trackings);
-    });
+    return track;
   }
+
+  // async function fakeTrackings(num, drivers, vehicles, events, cb) {
+  //   await postgresDs.automigrate('Tracking');
+  //   var data = [];
+  //   var Tracking = app.models.Tracking;
+  //   for (var i = 0; i < num; i++) {
+  //     var driver = randomChoice(drivers);
+  //     var vehicle = randomChoice(vehicles);
+  //     var track = {
+  //       'coordinates':
+  //       GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
+  //       'speed': randomInt(0, 100),
+  //       'timestamp': Date.now(),
+  //       'speed_limit_exceeded': faker.random.boolean(),
+  //       'drive_time_exceeded': faker.random.boolean(),
+  //       'personId': driver.id,
+  //       'vehicleId': vehicle.id,
+  //     };
+  //     data.push(track);
+  //   };
+  //   Tracking.create(data, function(err, trackings) {
+  //     if (err) throw err;
+  //     cb(null, trackings);
+  //   });
+  // }
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
