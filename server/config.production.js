@@ -2,5 +2,5 @@
 
 module.exports = {
   host: process.env.HOST,
-  port: process.env.HTTP_PLATFORM_PORT,
+  port: process.env.PORT || 3000,
 };
