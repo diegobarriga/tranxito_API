@@ -5,9 +5,11 @@ module.exports = {
 
   function setVariableTypes(requestParams, context, ee, next) {
     // Change type of variables so the server wont return an error
-    context.vars['lat'] = parseFloat(context.vars['lat']);
-    context.vars['lng'] = parseFloat(context.vars['lng']);
+    context.vars['lat'] = parseFloat(context.vars['lat']) + Math.random()/100;
+    context.vars['lng'] = parseFloat(context.vars['lng']) + Math.random()/100;
     context.vars['speed'] = parseFloat(context.vars['speed']);
+    var d = new Date();
+    context.vars['timestamp'] = d.toString();
     
     // console.log(requestParams);
     // console.log(context);

@@ -2,8 +2,9 @@ config:
   # target: 'https://artillery.io'
   target: 'http://localhost:3000'
   phases:
-    - duration: 2
-      arrivalRate: 1
+    - duration: 20
+      # arrivalRate: 1
+      arrivalCount: 2
   payload:
     path: "./testPostTrackingConstants.csv"
     # fields: email,password,lat,lng,speed,timestamp,speed_limit_exceeded,drive_time_exceeded,vehicleId
@@ -21,32 +22,87 @@ config:
   processor: "./helperFunctions.js"
 
 scenarios:
-  - flow:
-    - post:
-        url: "/api/People/login"
-        json:
-          email: "{{ email }}"
-          password: "{{ password }}"
-        capture:
-          - json: "$.id"
-            as: "access_token"
-          - json: "$.userId"
-            as: "id"
-        afterResponse: "log"
-    - log: "New virtual user running {{ email }}: {{ id }} - {{ access_token }}"
-    - post:
-        url: "/api/Trackings"
-        headers: 
-          access_token: "{{ access_token }}"
-        json:
-          coordinates:
-            lat: "{{ lat }}"
-            lng: "{{ lng }}"
-          speed: "{{ speed }}"
-          timestamp: "{{ timestamp }}"
-          speed_limit_exceeded: "{{ speed_limit_exceeded }}"
-          drive_time_exceeded: "{{ drive_time_exceeded }}"
-          personId: "{{ id }}"
-          vehicleId: "{{ vehicleId }}"
-        afterResponse: "log"
-        beforeRequest: "setVariableTypes"
+    - flow:
+
+        # Login to the app
+        - post:
+            url: "/api/People/login"
+            json:
+              email: "{{ email }}"
+              password: "{{ password }}"
+            capture:
+              - json: "$.id"
+                as: "access_token"
+              - json: "$.userId"
+                as: "id"
+            # afterResponse: "log"
+
+        # Get driver information
+        - get:
+            url: "/api/People/{{ id }}?access_token={{ access_token }}"
+            # afterResponse: "log"       
+
+        # Log user details
+        - log: "New virtual user running {{ email }}: {{ id }} - {{ access_token }}"
+
+        # Post trackings
+        - loop:
+            - think: 1
+            - post:
+                url: "/api/People/{{ id }}/trackings?access_token={{ access_token }}"
+                json:
+                  coordinates:
+                    lat: "{{ lat }}"
+                    lng: "{{ lng }}"
+                  speed: "{{ speed }}"
+                  timestamp: "{{ timestamp }}"
+                  speed_limit_exceeded: "{{ speed_limit_exceeded }}"
+                  drive_time_exceeded: "{{ drive_time_exceeded }}"
+                  personId: "{{ id }}"
+                  vehicleId: "{{ vehicleId }}"
+                afterResponse: "log"
+                beforeRequest: "setVariableTypes"
+          count: 10
+
+
+
+  # - flow:
+    # - post:
+    #     url: "/api/People/login"
+    #     json:
+    #       email: "{{ email }}"
+    #       password: "{{ password }}"
+    #     capture:
+    #       - json: "$.id"
+    #         as: "access_token"
+    #       - json: "$.userId"
+    #         as: "id"
+    #     afterResponse: "log"
+  #   - log: "New virtual user running {{ email }}: {{ id }} - {{ access_token }}"
+  #   - get:
+  #       headers:
+  #         access_token: "{{ access_token }}"
+  #       url: "/api/People/{{ id }}?access_token={{ access_token }}"
+  #       afterResponse: "log"
+  #   - loop:
+  #     # - think: 5
+  #       - get:
+  #         url: "/api/People/1"
+  #     count: 10
+
+    # - post:
+    #     url: "/api/Trackings"
+    #     headers: 
+    #       access_token: "{{ access_token }}"
+        # json:
+        #   coordinates:
+        #     lat: "{{ lat }}"
+        #     lng: "{{ lng }}"
+        #   speed: "{{ speed }}"
+        #   timestamp: "{{ timestamp }}"
+        #   speed_limit_exceeded: "{{ speed_limit_exceeded }}"
+        #   drive_time_exceeded: "{{ drive_time_exceeded }}"
+        #   personId: "{{ id }}"
+        #   vehicleId: "{{ vehicleId }}"
+        # afterResponse: "log"
+        # beforeRequest: "setVariableTypes"
