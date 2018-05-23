@@ -398,4 +398,92 @@ module.exports = function(MotorCarrier) {
         'from the last <span> period.',
       ],
     });
+
+  MotorCarrier.topDrivers = function(id, span, cb) {
+    const TODAY = Date.now();
+    var topDrivers = {speedLimit: [], timeLimit: []};
+    var speedAlerts = {};
+    var timeAlerts = {};
+    var top5speed = [0, 0, 0, 0, 0];
+    var top5time = [0, 0, 0, 0, 0];
+    var candidateDrivers = new Set();
+    var nSpan;
+    switch (span) {
+      case 'day':
+        nSpan = 24 * 60 * 60 * 1000;
+        break;
+      case 'week':
+        nSpan = 7 * 24 * 60 * 60 * 1000;
+        break;
+      case 'month':
+        nSpan = 30 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        let err = Error('Unrecognized span');
+        err.statusCode = 400;
+        return cb(err, 'Unrecognized span');
+        break;
+    }
+    MotorCarrier.app.models.Person.find(
+      {
+        where: {MotorCarrierId: id, account_status: true, account_type: 'D'},
+      }).then(async (drivers, err) => {
+        if (err) {
+          return cb(err);
+        }
+        await Promise.all(drivers.map(async (driver) => {
+          speedAlerts[driver.id] = 0;
+          timeAlerts[driver.id] = 0;
+          await driver.trackings.count(
+            {
+              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
+            }).then(speedingCount => {
+              speedAlerts[driver.id] = speedingCount;
+              if (speedingCount >= top5speed[4]) {
+                top5speed[4] = speedingCount;
+                top5speed.sort((x, y) => { return y - x; });
+                candidateDrivers.add(driver.id);
+              }
+            });
+          await driver.trackings.count(
+            {
+              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
+            }).then(driveTimeCount => {
+              timeAlerts[driver.id] = driveTimeCount;
+              if (driveTimeCount >= top5time[4]) {
+                top5time[4] = driveTimeCount;
+                top5time.sort((x, y) => { return y - x; });
+                candidateDrivers.add(driver.id);
+              }
+            });
+        }))
+        .then(() => {
+          candidateDrivers.forEach((driverId) => {
+            if (speedAlerts[driverId] >= top5speed[4]) {
+              topDrivers.speedLimit.push(driverId);
+            }
+            if (timeAlerts[driverId] >= top5time[4]) {
+              topDrivers.timeLimit.push(driverId);
+            }
+          });
+          return cb(null, topDrivers);
+        });
+      });
+  };
+
+  MotorCarrier.remoteMethod(
+    'topDrivers',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'span', type: 'string', required: true},
+      ],
+      http: {path: '/:id/topDrivers', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get the top-5 drivers with most alerts',
+        'from the last <span>.',
+      ],
+    }
+  );
 };
