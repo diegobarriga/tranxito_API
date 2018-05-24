@@ -355,7 +355,7 @@ module.exports = async function(app) {
   // }
 
   function randomInt(min, max) {
-    return Math.round(Math.random() * (max - min + 1) + min);
+    return Math.round(Math.random() * (max - min) + min);
   }
 
   function randomChoice(array) {
