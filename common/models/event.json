@@ -188,6 +188,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "updateById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "certifyEvents"
     }
   ],
   "methods": {}
