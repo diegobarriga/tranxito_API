@@ -273,18 +273,18 @@ module.exports = async function(app) {
         let driver = randomChoice(sameCarrierDrivers);
         let today = new Date(dateStart);
         counter = 0;
-        latitude = randomInt(25, 49);
-        longitude = randomInt(-124, -66);
+        latitude = randomInt(35, 40);
+        longitude = randomInt(-115, -80);
         dataEvents = [];
         dataTrackings = [];
         // 600 minutes driving periods
         // tracking every 3 minutes
         for (var i = 0; i < 200; i++) {
-          x = randomInt(-10, 10);
-          y = randomInt(-10, 10);
-          latitude = (25 < latitude + x && latitude + x < 49) ?
+          x = randomStep(-0.01, 0.01);
+          y = randomStep(-0.01, 0.01);
+          latitude = (35 < latitude + x && latitude + x < 40) ?
           latitude + x : latitude;
-          longitude = (-124 < longitude + y && longitude + y < -66) ?
+          longitude = (-115 < longitude + y && longitude + y < -80) ?
           longitude + y : longitude;
           if (i % 20 == 0) { // every hour duty status changes
             var event = changeDutyStatusEvent(driver, vehicle,
@@ -355,7 +355,11 @@ module.exports = async function(app) {
   // }
 
   function randomInt(min, max) {
-    return Math.round(Math.random() * (max - min) + min);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  function randomStep(min, max) {
+    return Math.random() * (max - min) + min;
   }
 
   function randomChoice(array) {
