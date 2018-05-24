@@ -20,11 +20,12 @@ function CMV_power_unit_numberValidator(err) {
 }
 
 module.exports = function(Vehicle) {
-  // Vehicle.validate('vin', vinValidator);
+  Vehicle.validate('vin', vinValidator);
   Vehicle.validatesNumericalityOf('IMEI_ELD', {int: true});
   Vehicle.validatesLengthOf('CMV_power_unit_number', {min: 1, max: 10});
   Vehicle.validate('CMV_power_unit_number', CMV_power_unit_numberValidator,
     {'message': "Can't be blank if connected to ELD"});
+
   Vehicle.setImage = function(id, image, cb) {
     Vehicle.findById(id, function(err, vehicle) {
       if (err) {
@@ -146,8 +147,8 @@ module.exports = function(Vehicle) {
       console.log(data);
       var context = LoopBackContext.getCurrentContext();
       var currentUser = context && context.get('currentUser');
-      if (currentUser){
-            data.motorCarrierId = currentUser.motorCarrierId;
+      if (currentUser) {
+        data.motorCarrierId = currentUser.motorCarrierId;
       } else {
         data.motorCarrierId = 1;
       }

@@ -8,7 +8,12 @@
   },
   "properties": {
     "id": {
-      "type": "number"
+      "type": "number",
+      "id": true,
+      "generated": true,
+      "index": {
+        "unique": true
+      }
     },
     "date": {
       "type": "date",

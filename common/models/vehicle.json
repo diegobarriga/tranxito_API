@@ -5,10 +5,24 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "plaqueStateIndex": {
+      "keys": {
+        "plaque": 1,
+        "state": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "mixins": {},
   "properties": {
     "vin": {
-      "type": "string"
+      "type": "string",
+      "index": {
+        "unique": true
+      }
     },
     "CMV_power_unit_number": {
       "type": "string"
