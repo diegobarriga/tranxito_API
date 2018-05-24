@@ -68,7 +68,6 @@ module.exports = function(MotorCarrier) {
     var lastTrackings = {};
     MotorCarrier.app.models.Vehicle.find({where: {motorCarrierId: id}})
         .then(async function(vehicles) {
-          console.log(vehicles);
           await Promise.all(vehicles.map(async (vehicle) => {
             await vehicle.trackings.findOne(
               {order: 'timestamp DESC'})

@@ -429,6 +429,7 @@ module.exports = function(Person) {
       ],
     });
 
+  // Certify all the uncertified events for a driver
   Person.certifyEvents = function(req, id, cb) {
     Person.findById(id, function(err, person) {
       if (!person) {
@@ -445,9 +446,17 @@ module.exports = function(Person) {
             where: {
               certified: false,
             },
-          }, function(err, events) {
-            if (err) { return cb(err);}
+          }, function(error, events) {
+          if (error) {
+            return cb(error);
+          }
+          events.forEach(function(event) {
+            event.certified = true;
+            event.date_of_certified_record = Date.now();
+            event.save();
           });
+          cb(null); // revisar que respuesta se debe enviar
+        });
       }
     });
   };
@@ -462,7 +471,7 @@ module.exports = function(Person) {
       http: {path: '/:id/certifyEvents', verb: 'patch'},
       returns: {arg: 'message', type: 'string'},
       description: [
-        'Certify all events during last for a Driver',
+        'Certify all the uncertified events for a driver',
       ],
     }
     );
