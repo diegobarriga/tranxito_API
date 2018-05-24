@@ -8,15 +8,11 @@
   "properties": {
     "bluetooth_mac": {
       "type": "string",
-      "required": true,
-      "id": true,
-      "generated": false
+      "required": true
     },
     "imei": {
       "type": "number",
       "required": true,
-      "id": true,
-      "generated": false,
       "postgresql": {
         "dataType": "bigint"
       }
