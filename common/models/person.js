@@ -197,7 +197,7 @@ module.exports = function(Person) {
       ignoreEmpty: true,
       objectMode: true,
     });
-    let peopleData = []
+    let peopleData = [];
     stream.on('data', data => {
       stream.pause();
       i++;
@@ -217,15 +217,14 @@ module.exports = function(Person) {
       stream.resume();
     });
 
-
     stream.on('end', function() {
       if (peopleData.length === 0) {
         return callback(null);
       }
 
-      let transactionOptions = { transaction: ctx.transaction };
+      let transactionOptions = {transaction: ctx.transaction};
       function recursiveTransactionCreatePeople(index) {
-        console.log(`recursiveTransactionCreatePeople: ${index} `)
+        console.log(`recursiveTransactionCreatePeople: ${index}`);
         if (index > peopleData.length - 1) {
           console.log(`peopleData.length reached ${index} - ${errors}`);
           if (errors.length > 0) {
@@ -252,10 +251,7 @@ module.exports = function(Person) {
         });
       }
 
-      return recursiveTransactionCreatePeople(0)
-
-
-
+      return recursiveTransactionCreatePeople(0);
     });
     return fs.createReadStream(filename).pipe(stream);
   };
@@ -290,28 +286,6 @@ module.exports = function(Person) {
         console.log('Container Deleted');
         Person.app.models.Container.destroyContainer(container, callback);
       });
-
-  Person.import_handleLine = function(ctx, line, options, callback) {
-    var context = LoopBackContext.getCurrentContext();
-    var currentUser = context && context.get('currentUser');
-    line.motorCarrierId = currentUser.motorCarrierId;
-    line.account_type = 'D';
-    line.account_status = true;
-    line.move_yards_use = (line.move_yards_use == '1') ? true : false;
-    line.default_use = (line.default_use == '1') ? true : false;
-    line.personal_use = (line.personal_use == '1') ? true : false;
-    return Person.create(line, callback);
-  };
-
-  Person.rejectLine =
-    function(columnName, cellData, customErrorMessage, callback) {
-      const err = new Error(
-        `Unprocessable entity in column ${columnName}\
-         where data = ${cellData}: ${customErrorMessage}`
-       );
-      err.status = 422;
-      return callback(err);
-    };
 
   Person.remoteMethod(
     'upload',
