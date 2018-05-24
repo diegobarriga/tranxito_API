@@ -160,7 +160,7 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "deleteById"
+      "property": "softDelete"
     },
     {
       "accessType": "EXECUTE",
@@ -217,6 +217,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__get__dutyStatusChange"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "dutyStatusChange"
     },
     {
       "accessType": "EXECUTE",
