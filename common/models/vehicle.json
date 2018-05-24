@@ -20,6 +20,8 @@
   "properties": {
     "vin": {
       "type": "string",
+      "id": true,
+      "generated": false,
       "index": {
         "unique": true
       }
