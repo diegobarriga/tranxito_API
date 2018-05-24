@@ -7,14 +7,6 @@
     "promisify": true
   },
   "properties": {
-    "id": {
-      "type": "number",
-      "id": true,
-      "generated": true,
-      "index": {
-        "unique": true
-      }
-    },
     "date": {
       "type": "date",
       "required": true,

@@ -8,17 +8,11 @@
   "properties": {
     "name": {
       "type": "string",
-      "required": true,
-      "index": {
-        "unique": true
-      }
+      "required": true
     },
     "USDOT_number": {
       "type": "number",
-      "required": true,
-      "index": {
-        "unique": true
-      }
+      "required": true
     },
     "multiday_basis_used": {
       "type": "number",

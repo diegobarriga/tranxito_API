@@ -19,10 +19,7 @@
   "mixins": {},
   "properties": {
     "vin": {
-      "type": "string",
-      "index": {
-        "unique": true
-      }
+      "type": "string"
     },
     "CMV_power_unit_number": {
       "type": "string"
