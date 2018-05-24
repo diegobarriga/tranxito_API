@@ -473,6 +473,5 @@ module.exports = function(Person) {
       description: [
         'Certify all the uncertified events for a driver',
       ],
-    }
-    );
+    });
 };
