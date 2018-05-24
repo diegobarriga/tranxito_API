@@ -9,16 +9,14 @@
     "bluetooth_mac": {
       "type": "string",
       "required": true,
-      "index": {
-        "unique": true
-      }
+      "id": true,
+      "generated": false
     },
     "imei": {
       "type": "number",
       "required": true,
-      "index": {
-        "unique": true
-      },
+      "id": true,
+      "generated": false,
       "postgresql": {
         "dataType": "bigint"
       }

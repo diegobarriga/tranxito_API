@@ -21,6 +21,7 @@ function CMV_power_unit_numberValidator(err) {
 
 module.exports = function(Vehicle) {
   Vehicle.validate('vin', vinValidator);
+  Vehicle.validatesUniquenessOf('vin', {message: 'VIN already exists'});
   Vehicle.validatesNumericalityOf('IMEI_ELD', {int: true});
   Vehicle.validatesLengthOf('CMV_power_unit_number', {min: 1, max: 10});
   Vehicle.validate('CMV_power_unit_number', CMV_power_unit_numberValidator,

@@ -8,6 +8,9 @@ function usdotValidator(err) {
 }
 
 module.exports = function(MotorCarrier) {
+  MotorCarrier.validatesUniquenessOf('name', {message: 'Name already exists'});
+  MotorCarrier.validatesUniquenessOf('USDOT_number',
+   {message: 'USDOT number already exists'});
   MotorCarrier.validatesPresenceOf(
     'name', 'USDOT_number', 'multiday_basis_used',
     {'message': "Can't be blank"}

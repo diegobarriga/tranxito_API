@@ -11,6 +11,10 @@ function macAddressValidator(err) {
 // }
 
 module.exports = function(Device) {
+  Device.validatesUniquenessOf('imei', {message: 'Imei already exists'});
+  Device.validatesUniquenessOf('bluetooth_mac',
+  {message: 'Bluetooth MAC already exists'}
+  );
   Device.validatesPresenceOf(
     'bluetooth_mac',
     'imei',
@@ -18,8 +22,7 @@ module.exports = function(Device) {
     {'message': "Can't be blank"}
   );
   Device.validate('bluetooth_mac', macAddressValidator);
-  //Device.validate('imei', imeiValidator);
-
+  // Device.validate('imei', imeiValidator);
   Device.newConfig = function(id, script, cb) {
     Device.findById(id, function(err, device) {
       if (err) {
