@@ -159,8 +159,7 @@ module.exports = function(Event) {
     if (!currentUser) {
       let er = Error('No Current User');
       er.statusCode = '404';
-      cb(er, 'currentUser not found');
-      return cb(er);
+      return cb(er, 'currentUser not found');
     } else {
       Event.app.models.Person.findById(currentUser.id, function(err, person) {
         if (err) {
@@ -169,11 +168,11 @@ module.exports = function(Event) {
         if (!person) {
           err = Error('Person not found');
           err.statusCode = '404';
-          cb(err, 'Person not found');
+          return cb(err, 'Person not found');
         } else if (person.account_type != 'D') {
           err = Error('Person found but not a driver.');
           err.statusCode = '422';
-          cb(err, 'Person is not a driver');
+          return cb(err, 'Person is not a driver');
         } else {
           person.events.find(
             {
@@ -198,7 +197,7 @@ module.exports = function(Event) {
               event.save();
             });
             console.log(usefulEvents.length + ' events certified');
-            cb(null, {'message': usefulEvents.length + ' events certified'}); // revisar que respuesta se debe enviar
+            return cb(null, {'message': usefulEvents.length + ' events certified'}); // revisar que respuesta se debe enviar
           });
         }
       });
