@@ -192,7 +192,6 @@ module.exports = function(Event) {
             } else {
               usefulEvents = events;
             }
-            console.log(usefulEvents);
             usefulEvents.forEach(function(event) {
               event.certified = true;
               event.date_of_certified_record = Date.now();
