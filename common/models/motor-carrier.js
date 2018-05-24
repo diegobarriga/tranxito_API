@@ -24,7 +24,7 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.getSupervisors = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {MotorCarrierId: id, account_status: true, account_type: 'S'}},
+      {where: {motorCarrierId: id, account_status: true, account_type: 'S'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -45,7 +45,7 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.getDrivers = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {MotorCarrierId: id, account_status: true, account_type: 'D'}},
+      {where: {motorCarrierId: id, account_status: true, account_type: 'D'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -66,8 +66,9 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.lastTracking = function(id, cb) {
     var lastTrackings = {};
-    MotorCarrier.app.models.Vehicle.find({where: {MotorCarrierId: id}})
+    MotorCarrier.app.models.Vehicle.find({where: {motorCarrierId: id}})
         .then(async function(vehicles) {
+          console.log(vehicles);
           await Promise.all(vehicles.map(async (vehicle) => {
             await vehicle.trackings.findOne(
               {order: 'timestamp DESC'})
@@ -260,7 +261,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {MotorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);
@@ -307,7 +308,7 @@ module.exports = function(MotorCarrier) {
     var nonAuthEvents = {};
     MotorCarrier.app.models.Event.find(
       {
-        where: {MotorCarrierId: id, driverId: null},
+        where: {motorCarrierId: id, driverId: null},
       }).then(async (nonAuthEvents, err) => {
         if (err) {
           return cb(err);
@@ -426,7 +427,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {MotorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);
