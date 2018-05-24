@@ -300,7 +300,34 @@ module.exports = function(MotorCarrier) {
         'from the last <span> period.',
         'span should be "day", "week" or "month"',
       ],
-    });
+    }
+  );
+
+  MotorCarrier.nonAuthEvents = function(id, cb) {
+    var nonAuthEvents = {};
+    MotorCarrier.app.models.Event.find(
+      {
+        where: {MotorCarrierId: id, driverId: null},
+      }).then(async (nonAuthEvents, err) => {
+        if (err) {
+          return cb(err);
+        }
+        return cb(null, nonAuthEvents);
+      });
+  };
+
+  MotorCarrier.remoteMethod(
+    'nonAuthEvents',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+      ],
+      http: {path: '/:id/nonAuthEvents', verb: 'get'},
+      description: [
+        'Get motor carrier events with no authenticated driver',
+      ],
+    }
+  );
 
   MotorCarrier.dutyStats = function(id, span, cb) {
     /* Get the duty-status aggregated times of the last time <interval> */
