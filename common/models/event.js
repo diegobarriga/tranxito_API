@@ -185,7 +185,7 @@ module.exports = function(Event) {
               return cb(error);
             }
             let usefulEvents;
-            if (req.eventsIds && (req.eventsIds.length > 0)) {
+            if (req && req.eventsIds && (req.eventsIds.length > 0)) {
               usefulEvents = events.filter(function(element) {
                 return req.eventsIds.indexOf(element.id) != -1;
               });
@@ -198,7 +198,7 @@ module.exports = function(Event) {
               event.save();
             });
             console.log(usefulEvents.length + ' events certified');
-            cb(null); // revisar que respuesta se debe enviar
+            cb(null, {'message': usefulEvents.length + ' events certified'}); // revisar que respuesta se debe enviar
           });
         }
       });
