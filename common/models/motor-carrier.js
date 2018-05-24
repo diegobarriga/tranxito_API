@@ -27,7 +27,7 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.getSupervisors = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {MotorCarrierId: id, account_status: true, account_type: 'S'}},
+      {where: {motorCarrierId: id, account_status: true, account_type: 'S'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -48,7 +48,7 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.getDrivers = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {MotorCarrierId: id, account_status: true, account_type: 'D'}},
+      {where: {motorCarrierId: id, account_status: true, account_type: 'D'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -69,7 +69,7 @@ module.exports = function(MotorCarrier) {
 
   MotorCarrier.lastTracking = function(id, cb) {
     var lastTrackings = {};
-    MotorCarrier.app.models.Vehicle.find({where: {MotorCarrierId: id}})
+    MotorCarrier.app.models.Vehicle.find({where: {motorCarrierId: id}})
         .then(async function(vehicles) {
           await Promise.all(vehicles.map(async (vehicle) => {
             await vehicle.trackings.findOne(
@@ -106,9 +106,9 @@ module.exports = function(MotorCarrier) {
     });
 
   MotorCarrier.driversDutyStats = function(id, span, cb) {
+    const TODAY = Date.now();
     var driversStats = {};
     var nSpan;
-    const TODAY = Date.now();
     switch (span) {
       case 'day':
         nSpan = 24 * 60 * 60 * 1000;
@@ -263,7 +263,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {MotorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);
@@ -310,7 +310,7 @@ module.exports = function(MotorCarrier) {
     var nonAuthEvents = {};
     MotorCarrier.app.models.Event.find(
       {
-        where: {MotorCarrierId: id, driverId: null},
+        where: {motorCarrierId: id, driverId: null},
       }).then(async (nonAuthEvents, err) => {
         if (err) {
           return cb(err);
@@ -333,10 +333,10 @@ module.exports = function(MotorCarrier) {
   );
 
   MotorCarrier.dutyStats = function(id, span, cb) {
-    /* Get the duty-status aggregated times of the last time <interval> */
+    /* Get the duty-status aggregated times of the last time <span> */
+    const TODAY = Date.now();
     var carrierStats = {1: 0, 2: 0, 3: 0, 4: 0};
     var nSpan;
-    const TODAY = Date.now();
     switch (span) {
       case 'day':
         nSpan = 24 * 60 * 60 * 1000;
@@ -353,38 +353,35 @@ module.exports = function(MotorCarrier) {
         return cb(err, 'Unrecognized span');
         break;
     }
-    MotorCarrier.findById(id).then((motorCarrier, err) => {
-      if (err) {
-        return cb(err);
-      }
-      if (!motorCarrier) {
-        let err = Error('Motor Carrier not found');
-        err.statusCode = '404';
-        return cb(err, 'Motor Carrier not found');
-      } else {
-        motorCarrier.events.find(
-          {
-            order: 'event_timestamp ASC',
-            where: {
-              event_type: 1,
-              event_timestamp: {gt: TODAY - nSpan},
-            },
-          })
-          .then((events) => {
-            events.forEach((event, i) => {
-              if (i < events.length - 1) {
-                carrierStats[event.event_code] +=
-                  (events[i + 1].event_timestamp - event.event_timestamp) /
-                    (1000 * 60 * 60);
-              } else {
-                carrierStats[event.event_code] +=
-                  (TODAY - event.event_timestamp) / (1000 * 60 * 60);
-              }
+    MotorCarrier.app.models.Person.find(
+      {
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+      }).then(async (drivers) => {
+        await Promise.all(drivers.map(async (driver) => {
+          await driver.events.find(
+            {
+              order: 'event_timestamp ASC',
+              where: {
+                event_type: 1,
+                event_timestamp: {gt: TODAY - nSpan},
+              },
+            })
+            .then((events) => {
+              events.forEach((event, i) => {
+                if (i < events.length - 1) {
+                  carrierStats[event.event_code] +=
+                    (events[i + 1].event_timestamp - event.event_timestamp) /
+                      (1000 * 60 * 60);
+                } else {
+                  carrierStats[event.event_code] +=
+                    (TODAY - event.event_timestamp) / (1000 * 60 * 60);
+                }
+              });
             });
-            return cb(null, carrierStats);
-          });
-      }
-    });
+        })).then(() => {
+          return cb(null, carrierStats);
+        });
+      });
   };
 
   MotorCarrier.remoteMethod(
@@ -429,7 +426,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {MotorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);

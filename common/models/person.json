@@ -136,6 +136,13 @@
       "permission": "ALLOW"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "A",
+      "permission": "DENY",
+      "property": "deleteById"
+    },
+    {
       "accessType": "*",
       "principalType": "ROLE",
       "principalId": "$owner",
@@ -174,7 +181,7 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "deleteById"
+      "property": "softDelete"
     },
     {
       "accessType": "EXECUTE",
@@ -230,7 +237,7 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "__get__dutyStatusChange"
+      "property": "dutyStatusChange"
     },
     {
       "accessType": "EXECUTE",
