@@ -122,6 +122,13 @@
       "permission": "ALLOW"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "A",
+      "permission": "DENY",
+      "property": "deleteById"
+    },
+    {
       "accessType": "*",
       "principalType": "ROLE",
       "principalId": "$owner",
@@ -210,13 +217,6 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__findById__events"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__dutyStatusChange"
     },
     {
       "accessType": "EXECUTE",

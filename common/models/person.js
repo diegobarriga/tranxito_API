@@ -99,7 +99,6 @@ module.exports = function(Person) {
     const Container  = Person.app.models.Container;
     const FileUpload  = Person.app.models.FileUpload;
 
-
     // Generate a unique name to the container
     const containerName =
     `Person-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
@@ -218,7 +217,7 @@ module.exports = function(Person) {
       stream.resume();
     });
 
-    
+
     stream.on('end', function() {
       if (peopleData.length === 0) {
         return callback(null);
@@ -233,7 +232,7 @@ module.exports = function(Person) {
             return callback(errors[0]);
           } else {
             return callback(null);
-          }          
+          }
         }
 
         Person.create(peopleData[index], transactionOptions, function(err) {
