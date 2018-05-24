@@ -255,10 +255,6 @@ module.exports = async function(app) {
     });
   }
 
-  function sameCarrierId(motorCarrierId) {
-
-  }
-
   // Simulate events and trackings
   async function Simulate(drivers, vehicles, cb) {
     await postgresDs.automigrate('Tracking');
@@ -359,7 +355,7 @@ module.exports = async function(app) {
   // }
 
   function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.round(Math.random() * (max - min + 1) + min);
   }
 
   function randomChoice(array) {
