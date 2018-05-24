@@ -428,42 +428,4 @@ module.exports = function(Person) {
         'for the specified driver from the last 24 hour',
       ],
     });
-
-  Person.certifyEvents = function(req, id, cb) {
-    Person.findById(id, function(err, person) {
-      if (!person) {
-        err = Error('Person not found');
-        err.statusCode = '404';
-        cb(err, 'Person not found');
-      } else if (person.account_type != 'D') {
-        err = Error('Person found but not a driver.');
-        err.statusCode = '422';
-        cb(err, 'Person is not a driver');
-      } else {
-        person.events.find(
-          {
-            where: {
-              certified: false,
-            },
-          }, function(err, events) {
-            if (err) { return cb(err);}
-          });
-      }
-    });
-  };
-
-  Person.remoteMethod(
-    'certifyEvents',
-    {
-      accepts: [
-        {arg: 'req', type: 'object', required: true},
-        {arg: 'id', type: 'string', required: true},
-      ],
-      http: {path: '/:id/certifyEvents', verb: 'patch'},
-      returns: {arg: 'message', type: 'string'},
-      description: [
-        'Certify all events during last for a Driver',
-      ],
-    }
-    );
 };
