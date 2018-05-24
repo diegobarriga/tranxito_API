@@ -20,8 +20,6 @@
   "properties": {
     "vin": {
       "type": "string",
-      "id": true,
-      "generated": false,
       "index": {
         "unique": true
       }
@@ -163,6 +161,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__update__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__destroy__devices"
     },
     {
       "accessType": "EXECUTE",

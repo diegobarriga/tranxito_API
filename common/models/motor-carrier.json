@@ -9,14 +9,16 @@
     "name": {
       "type": "string",
       "required": true,
-      "id": true,
-      "generated": false
+      "index": {
+        "unique": true
+      }
     },
     "USDOT_number": {
       "type": "number",
       "required": true,
-      "id": true,
-      "generated": false
+      "index": {
+        "unique": true
+      }
     },
     "multiday_basis_used": {
       "type": "number",

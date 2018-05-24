@@ -5,17 +5,6 @@
   "options": {
     "validateUpsert": true
   },
-  "indexes": {
-    "licenseStateIndex": {
-      "keys": {
-        "driver_license_number": 1,
-        "licenses_issuing_state": -1
-      },
-      "options": {
-        "unique": true
-      }
-    }
-  },
   "mixins": {},
   "properties": {
     "first_name": {
@@ -28,10 +17,7 @@
     },
     "email": {
       "type": "string",
-      "required": true,
-      "index": {
-        "unique": true
-      }
+      "required": true
     },
     "account_type": {
       "type": "string",
