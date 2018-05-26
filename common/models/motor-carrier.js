@@ -735,5 +735,3 @@ module.exports = function(MotorCarrier) {
       ]
     });
 };
-
-
