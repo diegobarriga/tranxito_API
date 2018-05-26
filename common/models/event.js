@@ -1,5 +1,7 @@
 'use strict';
 var validator = require('validator');
+var loopback  = require('loopback');
+var LoopBackContext = require('loopback-context');
 
 function eventTypeValidator(err) {
   if (!validator.isInt(String(this.event_type), {min: 1, max: 7})) return err();
@@ -206,4 +208,71 @@ module.exports = function(Event) {
     description: ['Soft patch attributes for a model instance and persist it ' +
    'into the data source.'],
   });
+
+  // Certify all the uncertified events for a driver
+  Event.certifyEvents = function(req, cb) {
+    var context = LoopBackContext.getCurrentContext();
+    var currentUser = context && context.get('currentUser');
+    if (!currentUser) {
+      let er = Error('No Current User');
+      er.statusCode = '404';
+      return cb(er, 'currentUser not found');
+    } else {
+      Event.app.models.Person.findById(currentUser.id, function(err, person) {
+        if (err) {
+          return cb(err);
+        }
+        if (!person) {
+          err = Error('Person not found');
+          err.statusCode = '404';
+          return cb(err, 'Person not found');
+        } else if (person.account_type != 'D') {
+          err = Error('Person found but not a driver.');
+          err.statusCode = '422';
+          return cb(err, 'Person is not a driver');
+        } else {
+          person.events.find(
+            {
+              where: {
+                certified: false,
+              },
+            }, function(error, events) {
+            if (error) {
+              return cb(error);
+            }
+            let usefulEvents;
+            if (req && req.eventsIds && (req.eventsIds.length > 0)) {
+              usefulEvents = events.filter(function(element) {
+                return req.eventsIds.indexOf(element.id) != -1;
+              });
+            } else {
+              usefulEvents = events;
+            }
+            usefulEvents.forEach(function(event) {
+              event.certified = true;
+              event.date_of_certified_record = Date.now();
+              event.save();
+            });
+            console.log(usefulEvents.length + ' events certified');
+            return cb(null, {'message': usefulEvents.length +
+            ' events certified'}); // revisar que respuesta se debe enviar
+          });
+        }
+      });
+    }
+  };
+
+  Event.remoteMethod(
+    'certifyEvents',
+    {
+      accepts: [
+        {arg: 'req', type: 'object'},
+      ],
+      http: {path: '/certifyEvents', verb: 'patch'},
+      returns: {arg: 'message', type: 'string'},
+      description: [
+        'Certify all the uncertified events for a driver.',
+        'If req is given, certify only the records given by eventsIds',
+      ],
+    });
 };
