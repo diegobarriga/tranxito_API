@@ -1,6 +1,10 @@
 'use strict';
 var validator = require('validator');
 var async = require('async');
+var LoopBackContext = require('loopback-context');
+var path = require('path');
+var csv = require('fast-csv');
+var fs = require('fs');
 
 function usdotValidator(err) {
   if (!validator.isInt(String(this.USDOT_number), {min: 0, max: 999999999}))
@@ -76,7 +80,7 @@ module.exports = function(MotorCarrier) {
               {order: 'timestamp DESC'})
               .then(function(tracking) {
                 lastTrackings[vehicle.id] = tracking;
-              });
+              }).catch(err => { throw err; });
             await vehicle.events.findOne(
               {where: {
                 'event_type': 1,
@@ -86,12 +90,12 @@ module.exports = function(MotorCarrier) {
             ).then((event) => {
               if (event)
                 lastTrackings[vehicle.id].eventCode = event.event_code;
-            });
+            }).catch(err => { throw err; });
           }))
           .then(() => {
             return cb(null, lastTrackings);
-          });
-        });
+          }).catch(err => { throw err; });
+        }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -150,11 +154,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, driversStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -218,11 +222,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, vehiclesStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -275,7 +279,7 @@ module.exports = function(MotorCarrier) {
               timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
             }).then(speedingCount => {
               driversAlerts[driver.id].speedLimit = speedingCount;
-            });
+            }).catch(err => { throw err; });
           await driver.trackings.count(
             {
               timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
@@ -285,8 +289,8 @@ module.exports = function(MotorCarrier) {
         }))
         .then(() => {
           return cb(null, driversAlerts);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -316,7 +320,7 @@ module.exports = function(MotorCarrier) {
           return cb(err);
         }
         return cb(null, nonAuthEvents);
-      });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -377,11 +381,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, carrierStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -444,7 +448,7 @@ module.exports = function(MotorCarrier) {
                 top5speed.sort((x, y) => { return y - x; });
                 candidateDrivers.add(driver.id);
               }
-            });
+            }).catch(err => { throw err; });
           await driver.trackings.count(
             {
               timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
@@ -455,7 +459,7 @@ module.exports = function(MotorCarrier) {
                 top5time.sort((x, y) => { return y - x; });
                 candidateDrivers.add(driver.id);
               }
-            });
+            }).catch(err => { throw err; });
         }))
         .then(() => {
           candidateDrivers.forEach((driverId) => {
@@ -467,8 +471,8 @@ module.exports = function(MotorCarrier) {
             }
           });
           return cb(null, topDrivers);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -486,4 +490,251 @@ module.exports = function(MotorCarrier) {
       ],
     }
   );
+
+  MotorCarrier.createContainerName = function(modelName) {
+    return `${modelName}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+  }
+
+  MotorCarrier.peopleCsvUpload = function(id, req, callback) {
+    return this.csvUpload(req, 'Person', callback);
+  }
+
+  MotorCarrier.vehiclesCsvUpload = function(id, req, callback) {
+    return this.csvUpload(req, 'Vehicle', callback);
+  }
+
+  MotorCarrier.csvUpload = function(req, modelName, callback) {
+    const Container  = MotorCarrier.app.models.Container;
+    const FileUpload  = MotorCarrier.app.models.FileUpload;
+
+    // Generate a unique name to the container
+    const containerName = this.createContainerName(modelName);
+
+    // async.waterfall is like a waterfall of functions applied one after the other
+    return async.waterfall([
+      function(done) {
+        // Create the container (the directory where the file will be stored)
+        Container.createContainer({name: containerName}, done);
+      },
+      function(container, done) {
+        req.params.container = containerName;
+        // Upload one or more files into the specified container. The request body must use multipart/form-data which the file input type for HTML uses.
+        Container.upload(req, {}, done);
+      },
+      function(fileContainer, done) {
+        // Store the state of the import process in the database
+        var context = LoopBackContext.getCurrentContext();
+        var currentUser = context && context.get('currentUser');
+        FileUpload.create({
+          date: new Date(),
+          fileType: MotorCarrier.modelName,
+          status: 'PENDING',
+          personId: currentUser.id,
+        }, function(err, fileUpload) {
+          done(err, fileContainer, fileUpload);
+        });
+      },
+    ], function(err, fileContainer, fileUpload) {
+      if (err) { return callback(err); }
+      const params = {
+        fileUpload: fileUpload.id,
+        root: MotorCarrier.app.datasources.container.settings.root,
+        container: fileContainer.files.file[0].container,
+        file: fileContainer.files.file[0].name,
+      };
+
+      MotorCarrier.import(
+        params.container, params.file, params, modelName, err => console.log(
+          err ? 'Error with csv import' : 'Import process ended correctly'));
+
+      return callback(null, {
+        "fileUploadId": fileUpload.id,
+        "message": `make a get request to /api/file-uploads/${fileUpload.id} to access the status`
+      });
+    });
+  };
+
+  MotorCarrier.import = function(container, file, options, modelName, callback) {
+    // Initialize a context object that will hold the transaction
+    const ctx = {};
+    console.log('Started import process');
+
+    // The import_preprocess is used to initialize the sql transaction
+    MotorCarrier.import_preprocess(
+      ctx, container, file, options, function(err, transaction) {
+        MotorCarrier.import_process(
+          ctx, container, file, options, modelName, function(importError) {
+            if (importError) {
+              async.waterfall([
+                done => ctx.transaction.rollback(done),
+                done => MotorCarrier.import_postprocess_error(
+                  ctx, container, file, options, done),
+              ], () => callback(importError));
+            } else {
+              async.waterfall([
+                done => ctx.transaction.commit(done),
+                done => MotorCarrier.import_postprocess_success(
+                  ctx, container, file, options, done),
+              ], () => callback(null));
+            }
+          });
+      });
+  };
+
+  MotorCarrier.import_preprocess = function(ctx, container, file, options, callback) {
+    // initialize the SQL transaction
+    MotorCarrier.beginTransaction(
+      {isolationLevel: MotorCarrier.Transaction.READ_COMMITTED},
+      function(err, transaction) {
+        ctx.transaction = transaction;
+        console.log('Transaction begun');
+        callback(err, transaction);
+      }
+    );
+  };
+
+  MotorCarrier.import_process = function(ctx, container, file, options, modelName, callback) {
+    let errors = [];
+    let i = -1;
+    const filename = path.join(
+      MotorCarrier.app.datasources.container.settings.root, container, file);
+    const stream = csv({
+      delimiter: ',',
+      headers: true,
+      ignoreEmpty: true,
+      objectMode: true,
+      discardUnmappedColumns: true,
+    });
+    let dataList = []
+    stream.on('data', data => {
+      stream.pause();
+      i++;
+      console.log(data);
+      var context = LoopBackContext.getCurrentContext();
+      var currentUser = context && context.get('currentUser');
+      if (currentUser) {
+        data.motorCarrierId = currentUser.motorCarrierId;
+      }
+
+      if (modelName === 'Person') {
+        data.account_type = 'D';
+        data.account_status = true;
+        data.move_yards_use = (data.move_yards_use == '1') ? true : false;
+        data.default_use = (data.default_use == '1') ? true : false;
+        data.personal_use = (data.personal_use == '1') ? true : false;
+      }
+
+      data.line = i + 2;
+      dataList.push(data);
+      stream.resume();
+    });
+
+
+    stream.on('end', function() {
+      if (dataList.length === 0) {
+        return callback(null);
+      }
+
+      let transactionOptions = { transaction: ctx.transaction };
+      function recursiveTransactionCreateInstance(index) {
+        console.log(`recursiveTransactionCreateInstance: ${index} `)
+        if (index > dataList.length - 1) {
+          console.log(`dataList.length reached ${index} - ${errors}`);
+          if (errors.length > 0) {
+            return callback(errors[0]);
+          } else {
+            return callback(null);
+          }
+        }
+
+        let model;
+        if (modelName === 'Person') {
+          model = MotorCarrier.app.models.Person;
+        } else {
+          model = MotorCarrier.app.models.Vehicle;
+        }
+        model.create(dataList[index], transactionOptions, function(err) {
+          if (err) {
+            errors.push(err);
+            MotorCarrier.app.models.FileUploadError.create({
+              line: dataList[index].line,
+              message: err.message,
+              fileUploadId: options.fileUpload,
+            }, function(err2) {
+              if (err2) {
+                console.log('Error creating FileUploadError');
+              }
+            });
+          }
+          return recursiveTransactionCreateInstance(index + 1);
+        });
+      }
+
+      return recursiveTransactionCreateInstance(0)
+    });
+    return fs.createReadStream(filename).pipe(stream);
+  };
+
+  MotorCarrier.import_postprocess_success = (ctx, container, file, options, callback) =>
+    MotorCarrier.app.models.FileUpload.findById(
+      options.fileUpload, function(err, fileUpload) {
+        if (err) { return callback(err); }
+        fileUpload.status = 'SUCCESS';
+        console.log('Success');
+        fileUpload.save(function(err) {
+          if (err) {
+            return callback(err);
+          }
+        });
+        console.log('Container Deleted');
+        MotorCarrier.app.models.Container.destroyContainer(container, callback);
+      });
+
+  MotorCarrier.import_postprocess_error = (ctx, container, file, options, callback) =>
+    MotorCarrier.app.models.FileUpload.findById(
+      options.fileUpload, function(err, fileUpload) {
+        if (err) { return callback(err); }
+        fileUpload.status = 'ERROR';
+        console.log('Error');
+        fileUpload.save(function(err) {
+          if (err) {
+            return callback(err);
+          }
+        });
+        console.log('Container Deleted');
+        MotorCarrier.app.models.Container.destroyContainer(container, callback);
+      });
+
+  MotorCarrier.remoteMethod(
+    'peopleCsvUpload',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'req', type: 'object', http: {source: 'req'}, required: true},
+      ],
+      // http: {verb: 'post', path: '/people/csvUpload'},
+      http: {verb: 'post', path: '/:id/people/csvUpload'},
+      returns: [
+        {arg: 'message', type: 'string', root: true},
+      ],
+      description: [
+        "Create múltiple people through a csv"
+      ]
+    });
+
+  MotorCarrier.remoteMethod(
+    'vehiclesCsvUpload',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'req', type: 'object', http: {source: 'req'}, required: true},
+      ],
+      http: {verb: 'post', path: '/:id/vehicles/csvUpload'},
+      returns: [
+        {arg: 'message', type: 'string', root: true},
+      ],
+      description: [
+        "Create múltiple vehicles through a csv"
+      ]
+    });
 };

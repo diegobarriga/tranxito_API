@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "async": "^2.6.0",
+    "body-parser": "^1.18.3",
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "faker": "^4.1.0",
