@@ -2,12 +2,7 @@
 var validator = require('validator');
 var app = require('../../server/server.js');
 var _         = require('lodash');
-var async     = require('async');
-var csv       = require('fast-csv');
-var fs        = require('fs');
-var path      = require('path');
 var loopback  = require('loopback');
-var LoopBackContext = require('loopback-context');
 
 function emailValidator(err) {
   if (!validator.isEmail(String(this.email))) return err();
