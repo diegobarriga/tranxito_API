@@ -295,7 +295,7 @@ module.exports = async function(app) {
           latitude + x : latitude;
           longitude = (-115 < longitude + y && longitude + y < -80) ?
           longitude + y : longitude;
-          if (i % EventTime * 60 / TrackingTime == 0) {
+          if (i % (EventTime * 60 / TrackingTime) == 0) {
             var event = changeDutyStatusEvent(driver, vehicle,
              counter, new Date(today), latitude, longitude);
             counter += 1;
