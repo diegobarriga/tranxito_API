@@ -170,25 +170,27 @@ module.exports = function(Event) {
         err.statusCode = '404';
         cb(err, 'Event not found');
       } else {
-        // Duplicate data
-        let duplicatedData = data;
-        duplicatedData.delete('id');
+        // Duplicate datal
+        console.log(originalEvent.__data);
+        let duplicatedData = Object.assign({}, originalEvent.__data);
+        delete duplicatedData.id;
         // Create Referece with original event and update data
-        duplicatedData['referenceId'] = data['id'];
-        duplicatedData['recordOrigin'] = 2;
+        duplicatedData.referenceId = originalEvent.__data.id;
+        duplicatedData.recordOrigin = 2;
+        console.log(duplicatedData);
         // Set original event to updated status
         originalEvent.updateAttribute('event_record_status', 2,
-          function(err, origEvent) {
-            if (err) {
-              return cb(err);
-            }
-            origEvent.save();
-          });
+         function(err, _) {
+           if (err) throw err;
+         });
         // Create a new duplicated instance from original event
-        Event.create(duplicatedData, function(err, duplicatedEvent) {
-          if (err) {
-            return cb(err);
-          }
+        Event.create(duplicatedData, function(err, instance) {
+          if (err) cb(err);
+          console.log(instance);
+          instance.updateAttributes(data, function(err, _) {
+            if (err) throw err;
+          });
+          cb(null, instance);
         });
       }
     });
@@ -197,9 +199,9 @@ module.exports = function(Event) {
   Event.remoteMethod('softPatch', {
     accepts: [
       {arg: 'id', type: 'number', required: true},
-      {arg: 'data', type: 'Object', required: true},
+      {arg: 'data', type: 'object', required: true},
     ],
-    returns: {arg: 'message', type: 'string', root: true},
+    returns: {arg: 'event', type: 'object', root: true},
     http: {path: '/:id/', verb: 'patch'},
     description: ['Soft patch attributes for a model instance and persist it ' +
    'into the data source.'],

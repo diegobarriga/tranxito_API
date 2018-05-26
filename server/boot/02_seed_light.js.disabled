@@ -24,7 +24,7 @@ module.exports = async function(app) {
 
   await roles.then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   var carriers = createCarriers(function(err) {
     if (err) throw err;
@@ -32,7 +32,7 @@ module.exports = async function(app) {
   });
   carriers = await carriers.then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
@@ -40,7 +40,7 @@ module.exports = async function(app) {
   });
   people = await people.then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   fakeDrivers(10, function(err, drivers) {
     if (err) throw err;

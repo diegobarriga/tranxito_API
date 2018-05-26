@@ -121,8 +121,8 @@
     },
     "event": {
       "type": "belongsTo",
-      "model": "Customer",
-      "foreignKey": "referenceId",
+      "model": "Event",
+      "foreignKey": "referenceId"
     }
   },
   "acls": [
@@ -199,6 +199,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "updateById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "softPatch"
     },
     {
       "accessType": "EXECUTE",

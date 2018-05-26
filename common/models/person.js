@@ -251,11 +251,7 @@ module.exports = function(Person) {
           return recursiveTransactionCreatePeople(index + 1);
         });
       }
-
-      return recursiveTransactionCreatePeople(0)
-
-
-
+      return recursiveTransactionCreatePeople(0);
     });
     return fs.createReadStream(filename).pipe(stream);
   };
