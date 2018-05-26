@@ -600,6 +600,7 @@ module.exports = function(MotorCarrier) {
       headers: true,
       ignoreEmpty: true,
       objectMode: true,
+      discardUnmappedColumns: true,
     });
     let dataList = []
     stream.on('data', data => {
