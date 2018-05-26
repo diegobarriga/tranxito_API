@@ -10,6 +10,10 @@ var randomMac = require('random-mac');
 const TrackingTime = 30; // every TrackingTime minutes generate a new tracking
 const EventTime = 1; // every EventTime hours generate a new DutyStatusEvent
 const DailyHours = 2; // daily hours for simulation
+// trackings = DailyHours*60/TrackingTime
+// events = DailyHours*60/EventTime
+
+// process.on('unhandledRejection', r => console.log(r));
 
 module.exports = async function(app) {
   var Role = app.models.Role;
@@ -25,9 +29,10 @@ module.exports = async function(app) {
     console.log('> roles created sucessfully');
   });
 
-  await roles.then(function(res) {
+  await roles
+  .then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   var carriers = createCarriers(function(err) {
     if (err) throw err;
@@ -35,7 +40,7 @@ module.exports = async function(app) {
   });
   carriers = await carriers.then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   var people = createPeople(carriers, function(err) {
     if (err) throw err;
@@ -43,7 +48,7 @@ module.exports = async function(app) {
   });
   people = await people.then(function(res) {
     return res;
-  });
+  }).catch(err => { throw err; });
 
   fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
@@ -399,6 +404,7 @@ module.exports = async function(app) {
       'event_timestamp': today,
       'shipping_doc_number': 'AAEECC1234',
       'event_record_status': randomInt(1, 4),
+      'recordOrigin': randomInt(1, 4),
       'accumulated_vehicle_miles': accumulatedMiles,
       'elapsed_engine_hours': elapsedHours,
       'coordinates': {

@@ -51,6 +51,11 @@ function eventRecordStatusValidator(err) {
     return err();
 }
 
+function recordOriginValidator(err) {
+  if (!validator.isInt(String(this.recordOrigin), {min: 1, max: 4}))
+    return err();
+}
+
 function accumulatedVehicleMilesValidator(err) {
   if (
     !validator.isInt(
@@ -118,14 +123,18 @@ module.exports = function(Event) {
   Event.validatesPresenceOf(
     'event_sequence_id_number',
     'event_type',
+    'event_record_status',
+    'recordOrigin',
     'event_timestamp',
     'event_code',
+    'event_data_check_value',
     'shipping_doc_number',
     {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
     'event_sequence_id_number',
     'event_record_status',
+    'recordOrigin',
     'event_type',
     'event_code',
     'accumulated_vehicle_miles',
@@ -139,6 +148,7 @@ module.exports = function(Event) {
   Event.validate('event_type', eventTypeValidator);
   Event.validate('event_code', eventCodeValidator);
   Event.validate('event_record_status', eventRecordStatusValidator);
+  Event.validate('recordOrigin', recordOriginValidator);
   Event.validate('accumulated_vehicle_miles', accumulatedVehicleMilesValidator);
   Event.validate('elapsed_engine_hours', elapsedEngineHoursValidator);
   Event.validate('distance_since_last_valid_coordinates',
@@ -151,6 +161,53 @@ module.exports = function(Event) {
   Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
   Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
   Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
+
+  Event.softPatch = function(id, data, cb) {
+    Event.findById(id, function(err, originalEvent) {
+      if (err) {
+        return cb(err);
+      }
+      if (!originalEvent) {
+        err = Error('Event not found');
+        err.statusCode = '404';
+        cb(err, 'Event not found');
+      } else {
+        // Duplicate datal
+        console.log(originalEvent.__data);
+        let duplicatedData = Object.assign({}, originalEvent.__data);
+        delete duplicatedData.id;
+        // Create Referece with original event and update data
+        duplicatedData.referenceId = originalEvent.__data.id;
+        duplicatedData.recordOrigin = 2;
+        console.log(duplicatedData);
+        // Set original event to updated status
+        originalEvent.updateAttribute('event_record_status', 2,
+         function(err, _) {
+           if (err) throw err;
+         });
+        // Create a new duplicated instance from original event
+        Event.create(duplicatedData, function(err, instance) {
+          if (err) cb(err);
+          console.log(instance);
+          instance.updateAttributes(data, function(err, _) {
+            if (err) throw err;
+          });
+          cb(null, instance);
+        });
+      }
+    });
+  };
+
+  Event.remoteMethod('softPatch', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true},
+      {arg: 'data', type: 'object', required: true},
+    ],
+    returns: {arg: 'event', type: 'object', root: true},
+    http: {path: '/:id/', verb: 'patch'},
+    description: ['Soft patch attributes for a model instance and persist it ' +
+   'into the data source.'],
+  });
 
   // Certify all the uncertified events for a driver
   Event.certifyEvents = function(req, cb) {
@@ -197,7 +254,8 @@ module.exports = function(Event) {
               event.save();
             });
             console.log(usefulEvents.length + ' events certified');
-            return cb(null, {'message': usefulEvents.length + ' events certified'}); // revisar que respuesta se debe enviar
+            return cb(null, {'message': usefulEvents.length +
+            ' events certified'}); // revisar que respuesta se debe enviar
           });
         }
       });

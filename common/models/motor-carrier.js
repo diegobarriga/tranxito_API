@@ -77,7 +77,7 @@ module.exports = function(MotorCarrier) {
               {order: 'timestamp DESC'})
               .then(function(tracking) {
                 lastTrackings[vehicle.id] = tracking;
-              });
+              }).catch(err => { throw err; });
             await vehicle.events.findOne(
               {where: {
                 'event_type': 1,
@@ -87,12 +87,12 @@ module.exports = function(MotorCarrier) {
             ).then((event) => {
               if (event)
                 lastTrackings[vehicle.id].eventCode = event.event_code;
-            });
+            }).catch(err => { throw err; });
           }))
           .then(() => {
             return cb(null, lastTrackings);
-          });
-        });
+          }).catch(err => { throw err; });
+        }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -151,11 +151,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, driversStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -219,11 +219,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, vehiclesStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -276,7 +276,7 @@ module.exports = function(MotorCarrier) {
               timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
             }).then(speedingCount => {
               driversAlerts[driver.id].speedLimit = speedingCount;
-            });
+            }).catch(err => { throw err; });
           await driver.trackings.count(
             {
               timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
@@ -286,8 +286,8 @@ module.exports = function(MotorCarrier) {
         }))
         .then(() => {
           return cb(null, driversAlerts);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -317,7 +317,7 @@ module.exports = function(MotorCarrier) {
           return cb(err);
         }
         return cb(null, nonAuthEvents);
-      });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -378,11 +378,11 @@ module.exports = function(MotorCarrier) {
                     (TODAY - event.event_timestamp) / (1000 * 60 * 60);
                 }
               });
-            });
+            }).catch(err => { throw err; });
         })).then(() => {
           return cb(null, carrierStats);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -445,7 +445,7 @@ module.exports = function(MotorCarrier) {
                 top5speed.sort((x, y) => { return y - x; });
                 candidateDrivers.add(driver.id);
               }
-            });
+            }).catch(err => { throw err; });
           await driver.trackings.count(
             {
               timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
@@ -456,7 +456,7 @@ module.exports = function(MotorCarrier) {
                 top5time.sort((x, y) => { return y - x; });
                 candidateDrivers.add(driver.id);
               }
-            });
+            }).catch(err => { throw err; });
         }))
         .then(() => {
           candidateDrivers.forEach((driverId) => {
@@ -468,8 +468,8 @@ module.exports = function(MotorCarrier) {
             }
           });
           return cb(null, topDrivers);
-        });
-      });
+        }).catch(err => { throw err; });
+      }).catch(err => { throw err; });
   };
 
   MotorCarrier.remoteMethod(
@@ -735,5 +735,3 @@ module.exports = function(MotorCarrier) {
       ]
     });
 };
-
-
