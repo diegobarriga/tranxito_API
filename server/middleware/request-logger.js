@@ -10,9 +10,11 @@ module.exports = function() {
       ', Headers: ' + JSON.stringify(req.headers) +
       ', Body: ' + JSON.stringify(req.body) +
       ', Params: ' + JSON.stringify(req.params) +
-      ', Query: ' + JSON.stringify(req.query) + '\n', (err) => {
-        if (err) throw err;
-      });
+      ', Query: ' + JSON.stringify(req.query) +
+      ', Timestamp: ' + Date(Date.now()) + '\n',
+        (err) => {
+          if (err) throw err;
+        });
     next();
   };
 };
