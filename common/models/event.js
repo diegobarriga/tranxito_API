@@ -1,7 +1,5 @@
 'use strict';
 var validator = require('validator');
-var loopback  = require('loopback');
-var LoopBackContext = require('loopback-context');
 
 function eventTypeValidator(err) {
   if (!validator.isInt(String(this.event_type), {min: 1, max: 7})) return err();
@@ -48,6 +46,11 @@ function eventCodeValidator(err) {
 
 function eventRecordStatusValidator(err) {
   if (!validator.isInt(String(this.event_record_status), {min: 1, max: 4}))
+    return err();
+}
+
+function recordOriginValidator(err) {
+  if (!validator.isInt(String(this.recordOrigin), {min: 1, max: 4}))
     return err();
 }
 
@@ -118,14 +121,18 @@ module.exports = function(Event) {
   Event.validatesPresenceOf(
     'event_sequence_id_number',
     'event_type',
+    'event_record_status',
+    'recordOrigin',
     'event_timestamp',
     'event_code',
+    'event_data_check_value',
     'shipping_doc_number',
     {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
     'event_sequence_id_number',
     'event_record_status',
+    'recordOrigin',
     'event_type',
     'event_code',
     'accumulated_vehicle_miles',
@@ -139,6 +146,7 @@ module.exports = function(Event) {
   Event.validate('event_type', eventTypeValidator);
   Event.validate('event_code', eventCodeValidator);
   Event.validate('event_record_status', eventRecordStatusValidator);
+  Event.validate('recordOrigin', recordOriginValidator);
   Event.validate('accumulated_vehicle_miles', accumulatedVehicleMilesValidator);
   Event.validate('elapsed_engine_hours', elapsedEngineHoursValidator);
   Event.validate('distance_since_last_valid_coordinates',
@@ -152,69 +160,48 @@ module.exports = function(Event) {
   Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
   Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
 
-  // Certify all the uncertified events for a driver
-  Event.certifyEvents = function(req, cb) {
-    var context = LoopBackContext.getCurrentContext();
-    var currentUser = context && context.get('currentUser');
-    if (!currentUser) {
-      let er = Error('No Current User');
-      er.statusCode = '404';
-      return cb(er, 'currentUser not found');
-    } else {
-      Event.app.models.Person.findById(currentUser.id, function(err, person) {
-        if (err) {
-          return cb(err);
-        }
-        if (!person) {
-          err = Error('Person not found');
-          err.statusCode = '404';
-          return cb(err, 'Person not found');
-        } else if (person.account_type != 'D') {
-          err = Error('Person found but not a driver.');
-          err.statusCode = '422';
-          return cb(err, 'Person is not a driver');
-        } else {
-          person.events.find(
-            {
-              where: {
-                certified: false,
-              },
-            }, function(error, events) {
-            if (error) {
-              return cb(error);
+  Event.softPatch = function(id, data, cb) {
+    Event.findById(id, function(err, originalEvent) {
+      if (err) {
+        return cb(err);
+      }
+      if (!originalEvent) {
+        err = Error('Event not found');
+        err.statusCode = '404';
+        cb(err, 'Event not found');
+      } else {
+        // Duplicate data
+        let duplicatedData = data;
+        duplicatedData.delete('id');
+        // Create Referece with original event and update data
+        duplicatedData['referenceId'] = data['id'];
+        duplicatedData['recordOrigin'] = 2;
+        // Set original event to updated status
+        originalEvent.updateAttribute('event_record_status', 2,
+          function(err, origEvent) {
+            if (err) {
+              return cb(err);
             }
-            let usefulEvents;
-            if (req && req.eventsIds && (req.eventsIds.length > 0)) {
-              usefulEvents = events.filter(function(element) {
-                return req.eventsIds.indexOf(element.id) != -1;
-              });
-            } else {
-              usefulEvents = events;
-            }
-            usefulEvents.forEach(function(event) {
-              event.certified = true;
-              event.date_of_certified_record = Date.now();
-              event.save();
-            });
-            console.log(usefulEvents.length + ' events certified');
-            return cb(null, {'message': usefulEvents.length + ' events certified'}); // revisar que respuesta se debe enviar
+            origEvent.save();
           });
-        }
-      });
-    }
+        // Create a new duplicated instance from original event
+        Event.create(duplicatedData, function(err, duplicatedEvent) {
+          if (err) {
+            return cb(err);
+          }
+        });
+      }
+    });
   };
 
-  Event.remoteMethod(
-    'certifyEvents',
-    {
-      accepts: [
-        {arg: 'req', type: 'object'},
-      ],
-      http: {path: '/certifyEvents', verb: 'patch'},
-      returns: {arg: 'message', type: 'string'},
-      description: [
-        'Certify all the uncertified events for a driver.',
-        'If req is given, certify only the records given by eventsIds',
-      ],
-    });
+  Event.remoteMethod('softPatch', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true},
+      {arg: 'data', type: 'Object', required: true},
+    ],
+    returns: {arg: 'message', type: 'string', root: true},
+    http: {path: '/:id/', verb: 'patch'},
+    description: ['Soft patch attributes for a model instance and persist it ' +
+   'into the data source.'],
+  });
 };

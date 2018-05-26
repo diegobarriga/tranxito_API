@@ -28,7 +28,12 @@
       "required": true
     },
     "event_record_status": {
-      "type": "number"
+      "type": "number",
+      "required": true
+    },
+    "recordOrigin": {
+      "type":  "number",
+      "required": true
     },
     "accumulated_vehicle_miles": {
       "type": "number",
@@ -61,7 +66,8 @@
       "type": "string"
     },
     "event_data_check_value": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "driver_location_description": {
       "type": "string"
@@ -112,6 +118,11 @@
       "type": "belongsTo",
       "model": "MotorCarrier",
       "foreignKey": ""
+    },
+    "event": {
+      "type": "belongsTo",
+      "model": "Customer",
+      "foreignKey": "referenceId",
     }
   },
   "acls": [
