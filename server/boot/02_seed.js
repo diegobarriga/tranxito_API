@@ -303,7 +303,7 @@ module.exports = async function(app) {
           }
           today.setMinutes(today.getMinutes() + TrackingTime);
           let tracking = fakeTrack(driver, vehicle, new Date(today),
-           latitude, longitude, i);
+           latitude, longitude);
           dataTrackings.push(tracking);
         }
         lastDayData[vehicle.id].lat = latitude;
@@ -325,14 +325,20 @@ module.exports = async function(app) {
     cb(null);
   }
 
-  function fakeTrack(driver, car, today, lat, lng, minutes) {
+  function fakeTrack(driver, car, today, lat, lng) {
     let speed = randomInt(0, 100);
+    let driveTimeBoolean;
+    if (Math.random() < 0.05) {
+      driveTimeBoolean = true;
+    } else {
+      driveTimeBoolean = false;
+    }
     let track = {
       'coordinates': GeoPoint({lat: lat, lng: lng}),
       'speed': speed,
       'timestamp': today,
-      'speed_limit_exceeded': (speed > 60), // if speed is greater than 60 limit is exceeded
-      'drive_time_exceeded': (minutes % 100 == 0 && minutes != 0), // drive time exceeded every 100 minutes
+      'speed_limit_exceeded': (speed > 80), // if speed is greater than 80 limit is exceeded
+      'drive_time_exceeded': driveTimeBoolean,
       'personId': driver.id,
       'vehicleId': car.id,
     };
