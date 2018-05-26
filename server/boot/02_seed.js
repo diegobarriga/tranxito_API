@@ -7,6 +7,9 @@ var GeoPoint = loopback.GeoPoint;
 var IMEI_GenCheck = require('imei_gencheck');
 const imeigc = new IMEI_GenCheck();
 var randomMac = require('random-mac');
+const TrackingTime = 30; // every TrackingTime minutes generate a new tracking
+const EventTime = 1; // every EventTime hours generate a new DutyStatusEvent
+const DailyHours = 2; // daily hours for simulation
 
 module.exports = async function(app) {
   var Role = app.models.Role;
@@ -264,41 +267,48 @@ module.exports = async function(app) {
     let dateStart = new Date(Date.now());
     dateStart.setMonth(dateStart.getMonth() - 1);
     let dataEvents, dataTrackings, x, y, counter, latitude, longitude;
+    let lastDayData = {};
     // 30 day simulation
     for (var i = 0; i < 30; i++) {
       vehicles.forEach(function(vehicle) {
+        if (!lastDayData[vehicle.id]) {
+          lastDayData[vehicle.id] = {};
+          latitude = randomInt(35, 40);
+          longitude = randomInt(-115, -80);
+        } else {
+          latitude = lastDayData[vehicle.id].lat;
+          longitude = lastDayData[vehicle.id].lng;
+        }
         let sameCarrierDrivers = drivers.filter((driver) => {
           return driver.motorCarrierId === vehicle.motorCarrierId;
         });
         let driver = randomChoice(sameCarrierDrivers);
         let today = new Date(dateStart);
         counter = 0;
-        latitude = randomInt(35, 40);
-        longitude = randomInt(-115, -80);
         dataEvents = [];
         dataTrackings = [];
-        // 600 minutes driving periods
-        // tracking every 3 minutes
-        for (var i = 0; i < 200; i++) {
+
+        for (var i = 0; i < DailyHours * 60 / TrackingTime; i++) {
           x = randomStep(-0.01, 0.01);
           y = randomStep(-0.01, 0.01);
           latitude = (35 < latitude + x && latitude + x < 40) ?
           latitude + x : latitude;
           longitude = (-115 < longitude + y && longitude + y < -80) ?
           longitude + y : longitude;
-          if (i % 20 == 0) { // every hour duty status changes
+          if (i % (EventTime * 60 / TrackingTime) == 0) {
             var event = changeDutyStatusEvent(driver, vehicle,
              counter, new Date(today), latitude, longitude);
             counter += 1;
             dataEvents.push(event);
           }
-          if (i != 0) {
-            today.setMinutes(today.getMinutes() + 3);
-            let tracking = fakeTrack(driver, vehicle, new Date(today),
-             latitude, longitude, i);
-            dataTrackings.push(tracking);
-          }
+          today.setMinutes(today.getMinutes() + TrackingTime);
+          let tracking = fakeTrack(driver, vehicle, new Date(today),
+           latitude, longitude);
+          dataTrackings.push(tracking);
         }
+        lastDayData[vehicle.id].lat = latitude;
+        lastDayData[vehicle.id].lng = longitude;
+
         Event.create(dataEvents, function(err) {
           if (err) {
             cb(err);
@@ -315,14 +325,20 @@ module.exports = async function(app) {
     cb(null);
   }
 
-  function fakeTrack(driver, car, today, lat, lng, minutes) {
+  function fakeTrack(driver, car, today, lat, lng) {
     let speed = randomInt(0, 100);
+    let driveTimeBoolean;
+    if (Math.random() < 0.05) {
+      driveTimeBoolean = true;
+    } else {
+      driveTimeBoolean = false;
+    }
     let track = {
       'coordinates': GeoPoint({lat: lat, lng: lng}),
       'speed': speed,
       'timestamp': today,
-      'speed_limit_exceeded': (speed > 60), // if speed is greater than 60 limit is exceeded
-      'drive_time_exceeded': (minutes % 100 == 0 && minutes != 0), // drive time exceeded every 100 minutes
+      'speed_limit_exceeded': (speed > 80), // if speed is greater than 80 limit is exceeded
+      'drive_time_exceeded': driveTimeBoolean,
       'personId': driver.id,
       'vehicleId': car.id,
     };
@@ -363,13 +379,19 @@ module.exports = async function(app) {
   }
 
   function randomChoice(array) {
-    var index = Math.floor(Math.random() * array.length);
+    let index = Math.floor(Math.random() * array.length);
     return array[index];
   }
 
   function changeDutyStatusEvent(driver, vehicle, sequence, today, lat, lng) {
-    var accumulatedMiles = randomInt(0, 7000);
-    var elapsedHours = randomInt(0, 50);
+    let accumulatedMiles = randomInt(0, 7000);
+    let elapsedHours = randomInt(0, 50);
+    let driverId;
+    if (Math.random() < 0.05) {
+      driverId = null;
+    } else {
+      driverId = driver.id;
+    }
     var event = {
       'event_sequence_id_number': sequence,
       'event_type': 1,
@@ -396,7 +418,7 @@ module.exports = async function(app) {
       'date_of_certified_record': faker.date.future(),
       'event_report_status': faker.random.boolean(),
       'certified': faker.random.boolean(),
-      'driverId': driver.id,
+      'driverId': driverId,
       'vehicleId': vehicle.id,
       'motorCarrierId': driver.motorCarrierId,
     };
