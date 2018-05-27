@@ -241,7 +241,7 @@ module.exports = function(MotorCarrier) {
         'span should be "day", "week" or "month"',
       ],
     });
-
+/*
   MotorCarrier.driverAlerts = function(id, span, cb) {
     const TODAY = Date.now();
     var driversAlerts = {};
@@ -306,6 +306,7 @@ module.exports = function(MotorCarrier) {
       ],
     }
   );
+*/
 
   MotorCarrier.nonAuthEvents = function(id, cb) {
     var nonAuthEvents = {};
@@ -400,8 +401,9 @@ module.exports = function(MotorCarrier) {
       ],
     });
 
-  MotorCarrier.topDrivers = function(id, span, cb) {
+  MotorCarrier.driverAlerts = function(id, span, cb) {
     const TODAY = Date.now();
+    var driversAlerts = {};
     var topDrivers = {speedLimit: [], timeLimit: []};
     var speedAlerts = {};
     var timeAlerts = {};
@@ -433,6 +435,7 @@ module.exports = function(MotorCarrier) {
           return cb(err);
         }
         await Promise.all(drivers.map(async (driver) => {
+          driversAlerts[driver.id] = {speedLimit: 0, timeLimit: 0};
           speedAlerts[driver.id] = 0;
           timeAlerts[driver.id] = 0;
           await driver.trackings.count(
@@ -440,6 +443,7 @@ module.exports = function(MotorCarrier) {
               timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
             }).then(speedingCount => {
               speedAlerts[driver.id] = speedingCount;
+              driversAlerts[driver.id].speedLimit = speedingCount;
               if (speedingCount >= top5speed[4]) {
                 top5speed[4] = speedingCount;
                 top5speed.sort((x, y) => { return y - x; });
@@ -451,6 +455,7 @@ module.exports = function(MotorCarrier) {
               timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
             }).then(driveTimeCount => {
               timeAlerts[driver.id] = driveTimeCount;
+              driversAlerts[driver.id].timeLimit = driveTimeCount;
               if (driveTimeCount >= top5time[4]) {
                 top5time[4] = driveTimeCount;
                 top5time.sort((x, y) => { return y - x; });
@@ -467,7 +472,9 @@ module.exports = function(MotorCarrier) {
               topDrivers.timeLimit.push(driverId);
             }
           });
-          return cb(null, topDrivers);
+          return cb(
+            null, {'topDrivers': topDrivers, 'driversAlerts': driversAlerts}
+          );
         }).catch(err => { throw err; });
       }).catch(err => { throw err; });
   };
@@ -489,16 +496,17 @@ module.exports = function(MotorCarrier) {
   );
 
   MotorCarrier.createContainerName = function(modelName) {
-    return `${modelName}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
-  }
+    return `${modelName}-${Math.round(Date.now())}-
+      ${Math.round(Math.random() * 1000)}`;
+  };
 
   MotorCarrier.peopleCsvUpload = function(id, req, callback) {
     return this.csvUpload(req, 'Person', callback);
-  }
+  };
 
   MotorCarrier.vehiclesCsvUpload = function(id, req, callback) {
     return this.csvUpload(req, 'Vehicle', callback);
-  }
+  };
 
   MotorCarrier.csvUpload = function(req, modelName, callback) {
     const Container  = MotorCarrier.app.models.Container;
@@ -545,8 +553,9 @@ module.exports = function(MotorCarrier) {
           err ? 'Error with csv import' : 'Import process ended correctly'));
 
       return callback(null, {
-        "fileUploadId": fileUpload.id,
-        "message": `make a get request to /api/file-uploads/${fileUpload.id} to access the status`
+        'fileUploadId': fileUpload.id,
+        'message': 'make a get request to' +
+         `/api/file-uploads/${fileUpload.id} to access the status`,
       });
     });
   };
@@ -602,7 +611,7 @@ module.exports = function(MotorCarrier) {
       objectMode: true,
       discardUnmappedColumns: true,
     });
-    let dataList = []
+    let dataList = [];
     stream.on('data', data => {
       stream.pause();
       i++;
@@ -626,15 +635,14 @@ module.exports = function(MotorCarrier) {
       stream.resume();
     });
 
-
     stream.on('end', function() {
       if (dataList.length === 0) {
         return callback(null);
       }
 
-      let transactionOptions = { transaction: ctx.transaction };
+      let transactionOptions = {transaction: ctx.transaction};
       function recursiveTransactionCreateInstance(index) {
-        console.log(`recursiveTransactionCreateInstance: ${index} `)
+        console.log(`recursiveTransactionCreateInstance: ${index} `);
         if (index > dataList.length - 1) {
           console.log(`dataList.length reached ${index} - ${errors}`);
           if (errors.length > 0) {
@@ -667,7 +675,7 @@ module.exports = function(MotorCarrier) {
         });
       }
 
-      return recursiveTransactionCreateInstance(0)
+      return recursiveTransactionCreateInstance(0);
     });
     return fs.createReadStream(filename).pipe(stream);
   };
@@ -715,8 +723,8 @@ module.exports = function(MotorCarrier) {
         {arg: 'message', type: 'string', root: true},
       ],
       description: [
-        "Create múltiple people through a csv"
-      ]
+        'Create múltiple people through a csv',
+      ],
     });
 
   MotorCarrier.remoteMethod(
@@ -731,7 +739,7 @@ module.exports = function(MotorCarrier) {
         {arg: 'message', type: 'string', root: true},
       ],
       description: [
-        "Create múltiple vehicles through a csv"
-      ]
+        'Create múltiple vehicles through a csv',
+      ],
     });
 };
