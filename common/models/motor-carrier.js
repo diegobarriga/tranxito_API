@@ -480,17 +480,18 @@ module.exports = function(MotorCarrier) {
   };
 
   MotorCarrier.remoteMethod(
-    'topDrivers',
+    'driverAlerts',
     {
       accepts: [
         {arg: 'id', type: 'string', required: true},
         {arg: 'span', type: 'string', required: true},
       ],
-      http: {path: '/:id/topDrivers', verb: 'get'},
+      http: {path: '/:id/driverAlerts', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
-        'Get the top-5 drivers with most alerts',
-        'from the last <span>.',
+        'Get the number of alerts by type for the motor carriers drivers',
+        'and get the top-5 drivers with most alerts',
+        'both from the last <span>.',
       ],
     }
   );
