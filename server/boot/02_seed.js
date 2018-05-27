@@ -169,6 +169,13 @@ module.exports = async function(app) {
   async function fakeDrivers(num, cb) {
     let Person = app.models.Person;
     var data = [];
+    let images = [
+      'personDefault1.jpeg',
+      'personDefault2.jpeg',
+      'personDefault3.jpeg',
+      'personDefault4.jpeg',
+      'personDefault5.jpeg',
+    ]
 
     for (var i = 0; i < 20; i++) {
       let name = faker.name.firstName();
@@ -191,6 +198,7 @@ module.exports = async function(app) {
         'default_use': true,
         'personal_use': true,
         'motorCarrierId': randomInt(1, 2),
+        'image': randomChoice(images),
       };
       data.push(driver);
     }
@@ -211,6 +219,14 @@ module.exports = async function(app) {
     let dataDevice = [];
     let models = ['Truck', 'Bus', 'Car'];
     let companies = ['BMW', 'Mercedez', 'Chevrolet', 'Toyota', 'Mahindra'];
+    let images = [
+      'vehicleDefault1.jpeg',
+      'vehicleDefault2.jpeg',
+      'vehicleDefault3.jpeg',
+      'vehicleDefault4.jpeg',
+      'vehicleDefault5.jpeg',
+      'vehicleDefault6.jpeg',
+    ]
 
     for (var i = 0; i < num; i++) {
       let plaque = '';
@@ -232,6 +248,7 @@ module.exports = async function(app) {
         'state': faker.address.state(),
         'IMEI_ELD': Number(imei),
         'motorCarrierId': randomInt(1, 2),
+        'image': randomChoice(images),
       };
       let device = {
         'bluetooth_mac': randomMac(),
