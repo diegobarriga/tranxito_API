@@ -22,6 +22,6 @@ module.exports = {
     // console.log(requestParams)
     // console.log(context)
     // console.log(response.headers);
-    console.log(response.body);
+    // console.log(response.body);
     return next(); // MUST be called for the scenario to continue
   }

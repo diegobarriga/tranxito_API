@@ -1,10 +1,12 @@
 config:
   # target: 'https://artillery.io'
-  target: 'http://localhost:3000'
+  target: 'https://eld-test.azurewebsites.net'
   phases:
-    - duration: 20
-      # arrivalRate: 1
-      arrivalCount: 2
+    - duration: 27
+      arrivalRate: 3
+      # arrivalCount: 1
+    - duration: 300
+      arrivalRate: 0
   payload:
     path: "./testPostTrackingConstants.csv"
     # fields: email,password,lat,lng,speed,timestamp,speed_limit_exceeded,drive_time_exceeded,vehicleId
@@ -47,7 +49,7 @@ scenarios:
 
         # Post trackings
         - loop:
-            - think: 1
+            - think: 5
             - post:
                 url: "/api/People/{{ id }}/trackings?access_token={{ access_token }}"
                 json:
@@ -62,7 +64,7 @@ scenarios:
                   vehicleId: "{{ vehicleId }}"
                 afterResponse: "log"
                 beforeRequest: "setVariableTypes"
-          count: 10
+          count: 60
 
 
 
