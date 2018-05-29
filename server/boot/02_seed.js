@@ -99,13 +99,14 @@ module.exports = async function(app) {
         'first_name': 'Andres', 'last_name': 'Flores',
         'email': 'aflores@gmail.com', 'account_type': 'A',
         'username': 'aflores', 'emailVerified': true,
-        'password': '1234',
+        'password': '1234', 'account_status': true,
       },
       {
         'first_name': 'Fernando', 'last_name': 'Diaz',
         'email': 'fdiaz@gmail.com', 'account_type': 'S',
         'username': 'fdiaz', 'emailVerified': true,
         'motorCarrierId': carriers[0].id, 'password': '1234',
+        'account_status': true,
       },
       {
         'first_name': 'Pablo', 'last_name': 'Sanchez',
@@ -123,13 +124,14 @@ module.exports = async function(app) {
         'first_name': 'Andrea', 'last_name': 'Fernandez',
         'email': 'afdez@gmail.com', 'account_type': 'A',
         'username': 'afdez', 'emailVerified': true,
-        'password': '1234',
+        'password': '1234', 'account_status': true,
       },
       {
         'first_name': 'Bernardo', 'last_name': 'Perez',
         'email': 'bperez@gmail.com', 'account_type': 'S',
         'username': 'bperez', 'emailVerified': true,
         'motorCarrierId': carriers[1].id, 'password': '1234',
+        'account_status': true,
       },
       {
         'first_name': 'Pedro', 'last_name': 'Lopez',
@@ -311,8 +313,8 @@ module.exports = async function(app) {
         dataTrackings = [];
 
         for (var i = 0; i < DailyHours * 60 / TrackingTime; i++) {
-          x = randomStep(-0.01, 0.01);
-          y = randomStep(-0.01, 0.01);
+          x = randomStep(-0.1, 0.1);
+          y = randomStep(-0.1, 0.1);
           latitude = (35 < latitude + x && latitude + x < 40) ?
           latitude + x : latitude;
           longitude = (-115 < longitude + y && longitude + y < -80) ?
