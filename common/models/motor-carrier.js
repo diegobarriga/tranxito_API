@@ -12,6 +12,9 @@ function usdotValidator(err) {
 }
 
 module.exports = function(MotorCarrier) {
+  MotorCarrier.validatesUniquenessOf('name', {message: 'Name already exists'});
+  MotorCarrier.validatesUniquenessOf('USDOT_number',
+   {message: 'USDOT number already exists'});
   MotorCarrier.validatesPresenceOf(
     'name', 'USDOT_number', 'multiday_basis_used',
     {'message': "Can't be blank"}
@@ -322,9 +325,8 @@ module.exports = function(MotorCarrier) {
   MotorCarrier.remoteMethod(
     'nonAuthEvents',
     {
-      accepts: [
-        {arg: 'id', type: 'string', required: true},
-      ],
+      accepts: {arg: 'id', type: 'string', required: true},
+      returns: {arg: 'data', type: '[object]', root: true},
       http: {path: '/:id/nonAuthEvents', verb: 'get'},
       returns: {arg: 'data', type: 'string', root: true},
 

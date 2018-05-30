@@ -5,6 +5,17 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "plaqueStateIndex": {
+      "keys": {
+        "plaque": 1,
+        "state": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "mixins": {},
   "properties": {
     "vin": {
@@ -147,6 +158,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__update__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__destroy__devices"
     },
     {
       "accessType": "EXECUTE",

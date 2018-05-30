@@ -5,6 +5,26 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "timestampVehicleIndex": {
+      "keys": {
+        "timestamp": 1,
+        "vehicleId": -1
+      },
+      "options": {
+        "unique": true
+      }
+    },
+    "timestampDriverIndex": {
+      "keys": {
+        "timestamp": 1,
+        "personId": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "properties": {
     "coordinates": {
       "type": "geopoint",
