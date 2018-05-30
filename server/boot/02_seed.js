@@ -75,12 +75,15 @@ module.exports = async function(app) {
     await postgresDs.automigrate('MotorCarrier');
 
     let Carrier = app.models.MotorCarrier;
-    var motorCarriers = await Carrier.create([
-      {'name': 'E2EGroup', 'USDOT_number': 0, 'multiday_basis_used': 7},
-      {'name': 'DCCGroup', 'USDOT_number': 12, 'multiday_basis_used': 8},
-    ]);
+    let motorCarriers = []
+    let carrier
+    carrier = await Carrier.create({'name': 'E2EGroup', 'USDOT_number': 0, 'multiday_basis_used': 7})
+    motorCarriers.push(carrier)
+    carrier = await Carrier.create({'name': 'DCCGroup', 'USDOT_number': 12, 'multiday_basis_used': 8})
+    motorCarriers.push(carrier)
+      
 
-    console.log('motor carrier created!');
+    console.log(`motor carrier created! ${JSON.stringify(motorCarriers)}`);
     return motorCarriers;
   }
 
