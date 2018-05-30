@@ -38,18 +38,13 @@ module.exports = function(app) {
               context.modelName === 'Vehicle') &&
               user.motorCarrierId === modelInstance.motorCarrierId) {
             return cb(null, true);
+          } else {
+            return process.nextTick(() => cb(null, false));
           }
-          // else if (context.modelName === 'Vehicle') {
-          //   console.log(modelInstance);
-          //   return cb(null, true);
-          // }
-          return process.nextTick(() => cb(null, false));
         });
       });
+    } else {
+      return process.nextTick(() => cb(null, false));
     }
-    return process.nextTick(() => cb(null, false));
-    // if requires id:
-    //  use findById
-    // else bla
   });
 };
