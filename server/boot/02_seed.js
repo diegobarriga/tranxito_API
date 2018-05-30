@@ -233,7 +233,8 @@ module.exports = async function(app) {
     for (var i = 0; i < num; i++) {
       let plaque = '';
       let vin = '';
-      let imei = imeigc.randomIMEI_fullRandom();
+      let imei = i === 0 ? 357042063084165 : imeigc.randomIMEI_fullRandom();
+      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2)
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
@@ -249,7 +250,7 @@ module.exports = async function(app) {
         'plaque': plaque,
         'state': faker.address.state(),
         'IMEI_ELD': Number(imei),
-        'motorCarrierId': randomInt(1, 2),
+        'motorCarrierId': motorCarrierId,
         'image': randomChoice(images),
       };
       let device = {
