@@ -298,6 +298,10 @@ module.exports = async function(app) {
     let lastDayData = {};
     // 30 day simulation
     for (var i = 0; i < 30; i++) {
+      let driverQueue = [];
+      drivers.forEach(function(driver) {
+        driverQueue.push(driver);
+      });
       vehicles.forEach(function(vehicle) {
         if (!lastDayData[vehicle.id]) {
           lastDayData[vehicle.id] = {};
@@ -307,46 +311,49 @@ module.exports = async function(app) {
           latitude = lastDayData[vehicle.id].lat;
           longitude = lastDayData[vehicle.id].lng;
         }
-        let sameCarrierDrivers = drivers.filter((driver) => {
+        let sameCarrierDrivers = driverQueue.filter((driver) => {
           return driver.motorCarrierId === vehicle.motorCarrierId;
         });
         let driver = randomChoice(sameCarrierDrivers);
+        let index = driverQueue.indexOf(driver);
+        driverQueue.splice(index, 1);
         let today = new Date(dateStart);
         counter = 0;
         dataEvents = [];
         dataTrackings = [];
+        if (driver) {
+          for (var i = 0; i < DailyHours * 60 / TrackingTime; i++) {
+            x = randomStep(-0.1, 0.1);
+            y = randomStep(-0.1, 0.1);
+            latitude = (35 < latitude + x && latitude + x < 40) ?
+            latitude + x : latitude;
+            longitude = (-115 < longitude + y && longitude + y < -80) ?
+            longitude + y : longitude;
+            if (i % (EventTime * 60 / TrackingTime) == 0) {
+              var event = changeDutyStatusEvent(driver, vehicle,
+               counter, new Date(today), latitude, longitude);
+              counter += 1;
+              dataEvents.push(event);
+            }
+            today.setMinutes(today.getMinutes() + TrackingTime);
+            let tracking = fakeTrack(driver, vehicle, new Date(today),
+             latitude, longitude);
+            dataTrackings.push(tracking);
+          }
+          lastDayData[vehicle.id].lat = latitude;
+          lastDayData[vehicle.id].lng = longitude;
 
-        for (var i = 0; i < DailyHours * 60 / TrackingTime; i++) {
-          x = randomStep(-0.1, 0.1);
-          y = randomStep(-0.1, 0.1);
-          latitude = (35 < latitude + x && latitude + x < 40) ?
-          latitude + x : latitude;
-          longitude = (-115 < longitude + y && longitude + y < -80) ?
-          longitude + y : longitude;
-          if (i % (EventTime * 60 / TrackingTime) == 0) {
-            var event = changeDutyStatusEvent(driver, vehicle,
-             counter, new Date(today), latitude, longitude);
-            counter += 1;
-            dataEvents.push(event);
-          }
-          today.setMinutes(today.getMinutes() + TrackingTime);
-          let tracking = fakeTrack(driver, vehicle, new Date(today),
-           latitude, longitude);
-          dataTrackings.push(tracking);
-        }
-        lastDayData[vehicle.id].lat = latitude;
-        lastDayData[vehicle.id].lng = longitude;
-
-        Event.create(dataEvents, function(err) {
-          if (err) {
-            cb(err);
-          }
-        });
-        Tracking.create(dataTrackings, function(err) {
-          if (err) {
-            cb(err);
-          }
-        });
+          Event.create(dataEvents, function(err) {
+            if (err) {
+              cb(err);
+            }
+          });
+          Tracking.create(dataTrackings, function(err) {
+            if (err) {
+              cb(err);
+            }
+          });
+        };
       });
       dateStart.setDate(dateStart.getDate() + 1);
     }
