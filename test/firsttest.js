@@ -175,3 +175,38 @@ describe('GET MotorCarriers/:id/drivers', function() {
     });
   });
 });
+
+describe('GET MotorCarriers/:id/tracking', function() {
+  it('Should get last trackings of the motor carrier' +
+    ' specified', function(done) {
+    authenticatedSupport.get('/api/MotorCarriers/' +
+      currentSupport.motorCarrierId + '/tracking/?access_token=' +
+      currentSupport.accessToken)
+    .set('Accept', 'application/json')
+    .expect(200)
+    .end(function(err, response) {
+      if (err) throw err;
+      Object.keys(response.body.data).forEach(
+        function(key) {
+          app.models.Vehicle.findById(Number(key), function(err, car) {
+            if (err) throw err;
+            assert.equal(car.motorCarrierId, currentSupport.motorCarrierId);
+          });
+        });
+      done();
+    });
+  });
+
+  it('Should not get last trackings of the motor carrier specified if' +
+    ' accessToken is invalid', function(done) {
+    authenticatedSupport.get('/api/MotorCarriers/' +
+      currentSupport.motorCarrierId + '/tracking/?access_token=' +
+      '1314kfs4j1')
+    .set('Accept', 'application/json')
+    .expect(401)
+    .end(function(err, response) {
+      if (err) throw err;
+      done();
+    });
+  });
+});

@@ -10,7 +10,7 @@
     "start": "node .",
     "posttest": "npm run lint && nsp check",
     "console": "loopback-console",
-    "test": "mocha --recursive \"./test/firsttest.js\""
+    "test": "mocha --recursive \"./test/\""
   },
   "dependencies": {
     "async": "^2.6.0",
