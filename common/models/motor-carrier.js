@@ -307,18 +307,16 @@ module.exports = function(MotorCarrier) {
     }
   );
 */
-
   MotorCarrier.nonAuthEvents = function(id, cb) {
-    var nonAuthEvents = {};
     MotorCarrier.app.models.Event.find(
-      {
-        where: {motorCarrierId: id, driverId: null},
-      }).then(async (nonAuthEvents, err) => {
-        if (err) {
-          return cb(err);
-        }
-        return cb(null, nonAuthEvents);
-      }).catch(err => { throw err; });
+      {where: {motorCarrierId: id, driverId: null}},
+       function(err, data) {
+         if (err) {
+           return cb(err)
+         }
+         data = data.filter(event => event.driverId === null);
+         return cb(err, data);
+       });
   };
 
   MotorCarrier.remoteMethod(
@@ -328,6 +326,8 @@ module.exports = function(MotorCarrier) {
         {arg: 'id', type: 'string', required: true},
       ],
       http: {path: '/:id/nonAuthEvents', verb: 'get'},
+      returns: {arg: 'data', type: 'string', root: true},
+
       description: [
         'Get motor carrier events with no authenticated driver',
       ],
