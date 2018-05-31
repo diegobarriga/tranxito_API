@@ -73,7 +73,8 @@ module.exports = function(app) {
           } else if (user.account_type == 'D' &&
               context.modelName === 'Event' &&
               (user.id === modelInstance.driverId ||
-              user.id === modelInstance.codriverId)) {
+              user.id === modelInstance.codriverId ||
+              modelInstance.driverId == null)) {
             return cb(null, true);
           } else if (user.account_type == 'D' &&
               context.modelName === 'Tracking' &&
