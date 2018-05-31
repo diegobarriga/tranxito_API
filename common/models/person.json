@@ -363,6 +363,13 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
+      "property": "__create__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
       "property": "__get__events"
     },
     {
