@@ -84,6 +84,17 @@ module.exports = function(app) {
           }
         });
       });
+    } else if (context.modelName === 'Event' &&
+        context.method === 'certifyEvents') {
+      // TODO cambiar endpoint PATCH Event/certifyEvents por PATCH People/{id}/certifyEvents
+      Person.findById(userId, function(err, user) {
+        if (err) return cb(err);
+        if (user.account_type == 'D') {
+          return cb(null, true);
+        } else {
+          return process.nextTick(() => cb(null, false));
+        }
+      });
     } else {
       return process.nextTick(() => cb(null, false));
     }

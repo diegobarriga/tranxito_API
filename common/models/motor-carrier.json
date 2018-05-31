@@ -26,6 +26,11 @@
       "model": "Vehicle",
       "foreignKey": ""
     },
+    "devices": {
+      "type": "hasMany",
+      "model": "Device",
+      "foreignKey": ""
+    },
     "people": {
       "type": "hasMany",
       "model": "Person",
@@ -165,6 +170,34 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
     }
   ],
   "methods": {}
