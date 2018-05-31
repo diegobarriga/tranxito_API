@@ -47,4 +47,45 @@ module.exports = function(app) {
       return process.nextTick(() => cb(null, false));
     }
   });
+
+  // TODO agregar ACLs
+  Role.registerResolver('D', function(role, context, cb) {
+    var userId = context.accessToken.userId;
+    if (!userId) {
+      return process.nextTick(() => cb(null, false));
+    }
+    var Person = app.models.Person;
+    if (context.modelId) {
+      context.model.findById(context.modelId, function(err, modelInstance) {
+        if (err) return cb(err);
+        if (!modelInstance) return cb(new Error('Model instance not found'));
+        var Person = app.models.Person;
+        Person.findById(userId, function(err, user) {
+          if (err) return cb(err);
+          if (user.account_type == 'D' &&
+            context.modelName === 'MotorCarrier' &&
+            user.motorCarrierId === modelInstance.id) {
+            return cb(null, true);
+          } else if (user.account_type == 'D' &&
+              context.modelName === 'Person' &&
+              user.id == modelInstance.id) {
+            return cb(null, true);
+          } else if (user.account_type == 'D' &&
+              context.modelName === 'Event' &&
+              (user.id === modelInstance.driverId ||
+              user.id === modelInstance.codriverId)) {
+            return cb(null, true);
+          } else if (user.account_type == 'D' &&
+              context.modelName === 'Tracking' &&
+              user.id === modelInstance.personId) {
+            return cb(null, true);
+          } else {
+            return process.nextTick(() => cb(null, false));
+          }
+        });
+      });
+    } else {
+      return process.nextTick(() => cb(null, false));
+    }
+  });
 };

@@ -144,6 +144,27 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
     }
   ],
   "methods": {}
