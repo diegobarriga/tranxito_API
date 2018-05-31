@@ -39,6 +39,11 @@
       "type": "belongsTo",
       "model": "Vehicle",
       "foreignKey": ""
+    },
+    "motorCarrier": {
+      "type": "belongsTo",
+      "model": "MotorCarrier",
+      "foreignKey": ""
     }
   },
   "acls": [
@@ -86,7 +91,7 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "__get__valid_config"
+      "property": "validConfig"
     },
     {
       "accessType": "EXECUTE",
@@ -129,6 +134,34 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "exists"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "exists"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicle"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "validConfig"
     }
   ],
   "methods": {}
