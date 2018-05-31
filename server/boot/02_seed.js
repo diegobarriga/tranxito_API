@@ -81,7 +81,7 @@ module.exports = async function(app) {
     motorCarriers.push(carrier)
     carrier = await Carrier.create({'name': 'DCCGroup', 'USDOT_number': 12, 'multiday_basis_used': 8})
     motorCarriers.push(carrier)
-      
+
 
     console.log(`motor carrier created! ${JSON.stringify(motorCarriers)}`);
     return motorCarriers;
@@ -421,11 +421,15 @@ module.exports = async function(app) {
   function changeDutyStatusEvent(driver, vehicle, sequence, today, lat, lng) {
     let accumulatedMiles = randomInt(0, 7000);
     let elapsedHours = randomInt(0, 50);
-    let driverId;
+    let driverId, certifiedEvent, dateCertified;
     if (Math.random() < 0.05) {
       driverId = null;
+      certifiedEvent = false;
+      dateCertified = null;
     } else {
       driverId = driver.id;
+      certifiedEvent = faker.random.boolean();
+      if (certifiedEvent) dateCertified = faker.date.future();
     }
     var event = {
       'event_sequence_id_number': sequence,
@@ -451,9 +455,9 @@ module.exports = async function(app) {
       'total_vehicle_miles': randomInt(accumulatedMiles, 9999000),
       'total_engine_hours': randomInt(elapsedHours, 99000),
       'time_zone_offset_utc': randomInt(4, 11),
-      'date_of_certified_record': faker.date.future(),
+      'date_of_certified_record': dateCertified,
       'event_report_status': faker.random.boolean(),
-      'certified': faker.random.boolean(),
+      'certified': certifiedEvent,
       'driverId': driverId,
       'vehicleId': vehicle.id,
       'motorCarrierId': driver.motorCarrierId,
