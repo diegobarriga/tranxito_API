@@ -226,7 +226,7 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
-      "property": "patchAttributes"
+      "property": "softPatch"
     },
     {
       "accessType": "EXECUTE",
