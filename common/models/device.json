@@ -126,6 +126,13 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
+      "property": "replaceById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
       "property": "count"
     },
     {

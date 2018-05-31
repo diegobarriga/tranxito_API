@@ -233,6 +233,13 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
+      "property": "replaceById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
       "property": "updateById"
     }
   ],
