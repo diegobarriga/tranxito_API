@@ -15,16 +15,16 @@ function vinValidator(err) {
     return err();
 }
 
-function CMV_power_unit_numberValidator(err) {
-  if (this.IMEI_ELD && !this.CMV_power_unit_number) return err();
+function CmvPowerUnitNumberValidator(err) {
+  if (this.ImeiEld && !this.CmvPowerUnitNumber) return err();
 }
 
 module.exports = function(Vehicle) {
   Vehicle.validate('vin', vinValidator);
   Vehicle.validatesUniquenessOf('vin', {message: 'VIN already exists'});
-  Vehicle.validatesNumericalityOf('IMEI_ELD', {int: true});
-  Vehicle.validatesLengthOf('CMV_power_unit_number', {min: 1, max: 10});
-  Vehicle.validate('CMV_power_unit_number', CMV_power_unit_numberValidator,
+  Vehicle.validatesNumericalityOf('ImeiEld', {int: true});
+  Vehicle.validatesLengthOf('CmvPowerUnitNumber', {min: 1, max: 10});
+  Vehicle.validate('CmvPowerUnitNumber', CmvPowerUnitNumberValidator,
     {'message': "Can't be blank if connected to ELD"});
 
   Vehicle.setImage = function(id, image, cb) {
@@ -53,7 +53,8 @@ module.exports = function(Vehicle) {
     const FileUpload  = Vehicle.app.models.FileUpload;
 
     // Generate a unique name to the container
-    const containerName = `Vehicle-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+    const containerName =
+      `Vehicle-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
 
     // async.waterfall is like a waterfall of functions applied one after the other
     return async.waterfall([
@@ -92,7 +93,8 @@ module.exports = function(Vehicle) {
       //   JSON.stringify(params)
       // ]);
       Vehicle.import(params.container, params.file, params, err =>
-        console.log(err ? 'Error with csv import' : 'Import process ended correctly'));
+        console.log(
+          err ? 'Error with csv import' : 'Import process ended correctly'));
 
       return callback(null, fileContainer);
     });
@@ -103,25 +105,29 @@ module.exports = function(Vehicle) {
     const ctx = {};
     console.log('Started import process');
 
-    // The import_preprocess is used to initialize the sql transaction
-    Vehicle.import_preprocess(ctx, container, file, options, function(err, transaction) {
-      Vehicle.import_process(ctx, container, file, options, function(importError) {
+    // The importPreprocess is used to initialize the sql transaction
+    Vehicle.importPreprocess(ctx, container, file, options,
+    function(err, transaction) {
+      Vehicle.importProcess(ctx, container, file, options,
+      function(importError) {
         if (importError) {
           async.waterfall([
             done => ctx.transaction.rollback(done),
-            done => Vehicle.import_postprocess_error(ctx, container, file, options, done),
+            done => Vehicle.importPostprocessError(
+              ctx, container, file, options, done),
           ], () => callback(importError));
         } else {
           async.waterfall([
             done => ctx.transaction.commit(done),
-            done => Vehicle.import_postprocess_success(ctx, container, file, options, done),
+            done => Vehicle.importPostprocessSuccess(
+              ctx, container, file, options, done),
           ], () => callback(null));
         }
       });
     });
   };
 
-  Vehicle.import_preprocess = function(ctx, container, file, options, callback) {
+  Vehicle.importPreprocess = function(ctx, container, file, options, callback) {
     // initialize the SQL transaction
     Vehicle.beginTransaction(
       {isolationLevel: Vehicle.Transaction.READ_UNCOMMITTED}
@@ -129,18 +135,19 @@ module.exports = function(Vehicle) {
       ctx.transaction = transaction;
       console.log('Transaction begun');
       callback(err, transaction);
-    })
+    });
   };
 
-  Vehicle.import_process = function(ctx, container, file, options, callback) {
+  Vehicle.importProcess = function(ctx, container, file, options, callback) {
     const errors = [];
     let i = -1;
-    const filename = path.join(Vehicle.app.datasources.container.settings.root, container, file);
+    const filename = path.join(
+      Vehicle.app.datasources.container.settings.root, container, file);
     const stream = csv({
       delimiter: ',',
       headers: true,
       ignoreEmpty: true,
-      objectMode: true
+      objectMode: true,
     });
     stream.on('data', data => {
       i++;
@@ -180,8 +187,10 @@ module.exports = function(Vehicle) {
     return fs.createReadStream(filename).pipe(stream);
   };
 
-  Vehicle.import_postprocess_success = (ctx, container, file, options, callback) =>
-    Vehicle.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
+  Vehicle.importPostprocessSuccess =
+  (ctx, container, file, options, callback) =>
+    Vehicle.app.models.FileUpload.findById(options.fileUpload,
+    function(err, fileUpload) {
       if (err) { return callback(err); }
       fileUpload.status = 'SUCCESS';
       console.log('Success');
@@ -195,8 +204,9 @@ module.exports = function(Vehicle) {
     })
   ;
 
-  Vehicle.import_postprocess_error = (ctx, container, file, options, callback) =>
-    Vehicle.app.models.FileUpload.findById(options.fileUpload, function(err, fileUpload) {
+  Vehicle.importPostprocessError = (ctx, container, file, options, callback) =>
+    Vehicle.app.models.FileUpload.findById(options.fileUpload,
+    function(err, fileUpload) {
       if (err) { return callback(err); }
       fileUpload.status = 'ERROR';
       console.log('Error');

@@ -21,13 +21,13 @@
     "vin": {
       "type": "string"
     },
-    "CMV_power_unit_number": {
+    "CmvPowerUnitNumber": {
       "type": "string"
     },
     "model": {
       "type": "string"
     },
-    "car_maker": {
+    "carMaker": {
       "type": "string"
     },
     "plaque": {
@@ -36,7 +36,7 @@
     "state": {
       "type": "string"
     },
-    "IMEI_ELD": {
+    "ImeiEld": {
       "type": "number",
       "postgresql": {
         "dataType": "bigint"

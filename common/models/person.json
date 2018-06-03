@@ -7,11 +7,11 @@
   },
   "mixins": {},
   "properties": {
-    "first_name": {
+    "firstName": {
       "type": "string",
       "required": true
     },
-    "last_name": {
+    "lastName": {
       "type": "string",
       "required": true
     },
@@ -19,35 +19,35 @@
       "type": "string",
       "required": true
     },
-    "account_type": {
+    "accountType": {
       "type": "string",
       "required": true
     },
-    "driver_license_number": {
+    "driverLicenseNumber": {
       "type": "string"
     },
-    "licenses_issuing_state": {
+    "licensesIssuingState": {
       "type": "string"
     },
-    "account_status": {
+    "accountStatus": {
       "type": "Boolean"
     },
-    "exempt_driver_configuration": {
+    "exemptDriverConfiguration": {
       "type": "string"
     },
-    "time_zone_offset_utc": {
+    "timeZoneOffsetUtc": {
       "type": "number"
     },
-    "starting_time_24_hour_period": {
+    "startingTime24HourPeriod": {
       "type": "date"
     },
-    "move_yards_use": {
+    "moveYardsUse": {
       "type": "Boolean"
     },
-    "default_use": {
+    "defaultUse": {
       "type": "Boolean"
     },
-    "personal_use": {
+    "personalUse": {
       "type": "Boolean"
     },
     "image": {
