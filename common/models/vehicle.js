@@ -27,6 +27,17 @@ module.exports = function(Vehicle) {
   Vehicle.validate('CmvPowerUnitNumber', CmvPowerUnitNumberValidator,
     {'message': "Can't be blank if connected to ELD"});
 
+  Vehicle.observe('after save', function(context, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      if (err) throw (err);
+      LastMod.vehicles = Date.now();
+      LastMod.save(function(error, LM) {
+        if (error) throw (error);
+        next();
+      });
+    });
+  });
+
   Vehicle.setImage = function(id, image, cb) {
     Vehicle.findById(id, function(err, vehicle) {
       if (err) {

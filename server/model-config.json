@@ -76,5 +76,9 @@
   "Device": {
     "dataSource": "postgresDB",
     "public": true
+  },
+  "LastMod": {
+    "dataSource": "postgresDB",
+    "public": true
   }
 }

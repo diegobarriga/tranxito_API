@@ -8,7 +8,7 @@ module.exports = function(app) {
   var lbtables = [
     'User', 'AccessToken', 'ACL', 'RoleMapping', 'Role', 'Person',
     'MotorCarrier', 'Vehicle', 'Event', 'FileUpload', 'FileUploadError',
-    'Tracking', 'Device',
+    'Tracking', 'Device', 'LastMod',
   ];
   lbtables.forEach(function(model) {
     console.log('Cheking if table for model ' +

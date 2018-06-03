@@ -90,6 +90,17 @@ module.exports = function(Person) {
     });
   });
 
+  Person.observe('after save', function(context, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      if (err) throw (err);
+      LastMod.people = Date.now();
+      LastMod.save(function(error, LM) {
+        if (error) throw (error);
+        next();
+      });
+    });
+  });
+
   Person.setImage = function(id, image, cb) {
     Person.findById(id, function(err, person) {
       if (err) {

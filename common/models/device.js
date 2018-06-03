@@ -1,6 +1,7 @@
 'use strict';
 var validator = require('validator');
 var imei = require('imei');
+var app = require('../../server/server.js');
 
 function macAddressValidator(err) {
   if (!validator.isMACAddress(String(this.bluetoothMac))) return err();
@@ -23,6 +24,18 @@ module.exports = function(Device) {
   );
   Device.validate('bluetoothMac', macAddressValidator);
   // Device.validate('imei', imeiValidator);
+
+  Device.observe('after save', function(context, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      if (err) throw (err);
+      LastMod.devices = Date.now();
+      LastMod.save(function(error, LM) {
+        if (error) throw (error);
+        next();
+      });
+    });
+  });
+
   Device.newConfig = function(id, script, cb) {
     Device.findById(id, function(err, device) {
       if (err) {

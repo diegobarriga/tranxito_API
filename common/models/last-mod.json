@@ -1,0 +1,23 @@
+{
+  "name": "LastMod",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "people": {
+      "type": "date"
+    },
+    "vehicles": {
+      "type": "date"
+    },
+    "devices": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
