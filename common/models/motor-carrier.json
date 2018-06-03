@@ -14,7 +14,7 @@
       "type": "number",
       "required": true
     },
-    "multiday_basis_used": {
+    "multidayBasisUsed": {
       "type": "number",
       "required": true
     }
