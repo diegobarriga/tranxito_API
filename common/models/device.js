@@ -50,7 +50,7 @@ module.exports = function(Device) {
         {arg: 'id', type: 'number', required: true},
         {arg: 'script', type: 'string', required: true},
       ],
-      http: {path: '/:id/new_config', verb: 'post'},
+      http: {path: '/:id/newConfig', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
     });
 
@@ -77,7 +77,7 @@ module.exports = function(Device) {
     'validConfig',
     {
       accepts: {arg: 'id', type: 'number', required: true},
-      http: {path: '/:id/valid_config', verb: 'get'},
+      http: {path: '/:id/validConfig', verb: 'get'},
       returns: {arg: 'message', type: 'string'},
     });
 };

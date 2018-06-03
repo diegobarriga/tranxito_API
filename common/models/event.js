@@ -226,7 +226,7 @@ module.exports = function(Event) {
           err = Error('Person not found');
           err.statusCode = '404';
           return cb(err, 'Person not found');
-        } else if (person.account_type != 'D') {
+        } else if (person.accountType != 'D') {
           err = Error('Person found but not a driver.');
           err.statusCode = '422';
           return cb(err, 'Person is not a driver');

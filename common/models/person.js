@@ -170,7 +170,7 @@ module.exports = function(Person) {
           if (erro) return cb(erro);
           person.events.findOne(
             {
-              order: 'event_timestamp DESC',
+              order: 'timestamp DESC',
               where: {
                 type: 1,
                 timestamp: {lt: DATE_LIMIT},
