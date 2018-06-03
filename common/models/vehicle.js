@@ -16,13 +16,13 @@ function vinValidator(err) {
 }
 
 function CmvPowerUnitNumberValidator(err) {
-  if (this.imeiELD && !this.CmvPowerUnitNumber) return err();
+  if (this.imeiEld && !this.CmvPowerUnitNumber) return err();
 }
 
 module.exports = function(Vehicle) {
   Vehicle.validate('vin', vinValidator);
   Vehicle.validatesUniquenessOf('vin', {message: 'VIN already exists'});
-  Vehicle.validatesNumericalityOf('imeiELD', {int: true});
+  Vehicle.validatesNumericalityOf('imeiEld', {int: true});
   Vehicle.validatesLengthOf('CmvPowerUnitNumber', {min: 1, max: 10});
   Vehicle.validate('CmvPowerUnitNumber', CmvPowerUnitNumberValidator,
     {'message': "Can't be blank if connected to ELD"});
