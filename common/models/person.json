@@ -26,7 +26,7 @@
     "driverLicenseNumber": {
       "type": "string"
     },
-    "licensesIssuingState": {
+    "licenseIssuingState": {
       "type": "string"
     },
     "accountStatus": {

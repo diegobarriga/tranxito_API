@@ -14,7 +14,7 @@ function validateDriverLiceseNumber(err) {
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType === 'D' && this.licensesIssuingState === undefined)
+  if (this.accountType === 'D' && this.licenseIssuingState === undefined)
     err();
 }
 
@@ -59,7 +59,7 @@ module.exports = function(Person) {
   Person.validatesInclusionOf('accountType', {'in': ['A', 'D', 'S']});
   Person.validate('driverLicenseNumber', validateDriverLiceseNumber,
     {'message': "Can't be blank when accountType is D"});
-  Person.validate('licensesIssuingState', validateLicensesIssuingState,
+  Person.validate('licenseIssuingState', validateLicensesIssuingState,
     {'message': "Can't be blank when accountType is D"});
   Person.validate('accountStatus', validateAccountStatus,
     {'message': "Can't be blank when accountType is D"});
