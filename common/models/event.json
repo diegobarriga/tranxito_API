@@ -95,6 +95,9 @@
     },
     "certified": {
       "type": "Boolean"
+    },
+    "reportStatus": {
+      "type": "Boolean"
     }
   },
   "validations": [],

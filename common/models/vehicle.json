@@ -36,7 +36,7 @@
     "state": {
       "type": "string"
     },
-    "ImeiEld": {
+    "imeiEld": {
       "type": "number",
       "postgresql": {
         "dataType": "bigint"

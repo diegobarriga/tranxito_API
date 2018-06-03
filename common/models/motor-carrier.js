@@ -7,25 +7,25 @@ var csv = require('fast-csv');
 var fs = require('fs');
 
 function usdotValidator(err) {
-  if (!validator.isInt(String(this.UsdotNumber), {min: 0, max: 999999999}))
+  if (!validator.isInt(String(this.usdotNumber), {min: 0, max: 999999999}))
     err();
 }
 
 module.exports = function(MotorCarrier) {
   MotorCarrier.validatesUniquenessOf('name', {message: 'Name already exists'});
-  MotorCarrier.validatesUniquenessOf('UsdotNumber',
+  MotorCarrier.validatesUniquenessOf('usdotNumber',
    {message: 'USDOT number already exists'});
   MotorCarrier.validatesPresenceOf(
-    'name', 'UsdotNumber', 'multidayBasisUsed',
+    'name', 'usdotNumber', 'multidayBasisUsed',
     {'message': "Can't be blank"}
   );
   MotorCarrier.validatesLengthOf('name', {min: 4, max: 120});
   MotorCarrier.validatesNumericalityOf(
-    'UsdotNumber', 'multidayBasisUsed', {int: true}
+    'usdotNumber', 'multidayBasisUsed', {int: true}
   );
   MotorCarrier.validatesInclusionOf('multidayBasisUsed', {in: [7, 8]});
   MotorCarrier.validate(
-    'UsdotNumber', usdotValidator,
+    'usdotNumber', usdotValidator,
      {message: 'USDOT number not in range 0 - 999,999,999'}
    );
 
