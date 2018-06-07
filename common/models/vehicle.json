@@ -5,6 +5,17 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "plaqueStateIndex": {
+      "keys": {
+        "plaque": 1,
+        "state": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "mixins": {},
   "properties": {
     "vin": {
@@ -26,7 +37,10 @@
       "type": "string"
     },
     "IMEI_ELD": {
-      "type": "number"
+      "type": "number",
+      "postgresql": {
+        "dataType": "bigint"
+      }
     },
     "image": {
       "type": "string",
@@ -129,6 +143,34 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
+      "property": "__get__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__create__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__update__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__destroy__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
       "property": "create"
     },
     {
@@ -144,6 +186,20 @@
       "principalId": "S",
       "permission": "DENY",
       "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__events"
     },
     {
       "accessType": "EXECUTE",
@@ -193,6 +249,146 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__findById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__findById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__count__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__count__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "DENY",
+      "property": "__updateById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__create__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__updateById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "DENY",
+      "property": "__delete__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "DENY",
+      "property": "__destroyById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__motorCarrier"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__devices"
     }
   ],
   "methods": {}

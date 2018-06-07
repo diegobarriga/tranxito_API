@@ -20,14 +20,20 @@
     },
     "event_timestamp": {
       "type": "date",
-      "required": true
+      "required": true,
+      "index": true
     },
     "shipping_doc_number": {
       "type": "string",
       "required": true
     },
     "event_record_status": {
-      "type": "number"
+      "type": "number",
+      "required": true
+    },
+    "recordOrigin": {
+      "type":  "number",
+      "required": true
     },
     "accumulated_vehicle_miles": {
       "type": "number",
@@ -60,7 +66,8 @@
       "type": "string"
     },
     "event_data_check_value": {
-      "type": "number"
+      "type": "number",
+      "required": true
     },
     "driver_location_description": {
       "type": "string"
@@ -111,6 +118,11 @@
       "type": "belongsTo",
       "model": "MotorCarrier",
       "foreignKey": ""
+    },
+    "event": {
+      "type": "belongsTo",
+      "model": "Event",
+      "foreignKey": "referenceId"
     }
   },
   "acls": [
@@ -185,6 +197,48 @@
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "S",
+      "permission": "ALLOW",
+      "property": "updateById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "softPatch"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "certifyEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "softPatch"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "replaceById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
       "permission": "ALLOW",
       "property": "updateById"
     }

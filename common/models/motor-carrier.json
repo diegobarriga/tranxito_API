@@ -26,6 +26,11 @@
       "model": "Vehicle",
       "foreignKey": ""
     },
+    "devices": {
+      "type": "hasMany",
+      "model": "Device",
+      "foreignKey": ""
+    },
     "people": {
       "type": "hasMany",
       "model": "Person",
@@ -47,12 +52,6 @@
     {
       "accessType": "*",
       "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
       "principalId": "A",
       "permission": "ALLOW"
     },
@@ -61,6 +60,33 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__tracking"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__supervisors"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__drivers"
     },
     {
       "accessType": "EXECUTE",
@@ -123,6 +149,55 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
     }
   ],
   "methods": {}

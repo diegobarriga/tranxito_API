@@ -7,9 +7,6 @@
     "promisify": true
   },
   "properties": {
-    "id": {
-      "type": "number"
-    },
     "date": {
       "type": "date",
       "required": true,
