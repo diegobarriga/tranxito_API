@@ -264,6 +264,7 @@ module.exports = async function(app) {
         'configScript': 'AAAAAAA',
         'configStatus': true,
         'sequenceId': randomInt(0, 65535),
+        'motorCarrierId': motorCarrierId,
       };
       dataVehicle.push(vehicle);
       dataDevice.push(device);
