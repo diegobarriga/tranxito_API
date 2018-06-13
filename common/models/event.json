@@ -6,28 +6,28 @@
     "validateUpsert": true
   },
   "properties": {
-    "event_sequence_id_number": {
+    "sequenceId": {
       "type": "number",
       "required": true
     },
-    "event_type": {
+    "type": {
       "type": "number",
       "required": true
     },
-    "event_code": {
+    "code": {
       "type": "number",
       "required": true
     },
-    "event_timestamp": {
+    "timestamp": {
       "type": "date",
       "required": true,
       "index": true
     },
-    "shipping_doc_number": {
+    "shippingDocNumber": {
       "type": "string",
       "required": true
     },
-    "event_record_status": {
+    "recordStatus": {
       "type": "number",
       "required": true
     },
@@ -35,13 +35,13 @@
       "type":  "number",
       "required": true
     },
-    "accumulated_vehicle_miles": {
+    "accumulatedVehicleMiles": {
       "type": "number",
       "postgresql": {
         "dataType": "double precision"
       }
     },
-    "elapsed_engine_hours": {
+    "elapsedEngineHours": {
       "type": "number",
       "postgresql": {
         "dataType": "double precision"
@@ -50,50 +50,53 @@
     "coordinates": {
       "type": "geopoint"
     },
-    "distance_since_last_valid_coordinates": {
+    "distSinceLastValidCoords": {
       "type": "number",
       "postgresql": {
         "dataType": "double precision"
       }
     },
-    "malfunction_indicator_status": {
+    "malfunctionIndicatorStatus": {
       "type": "Boolean"
     },
-    "data_diagnostic_event_indicator_status_for_driver": {
+    "dataDiagnosticEventIndicatorStatusForDriver": {
       "type": "Boolean"
     },
     "annotation": {
       "type": "string"
     },
-    "event_data_check_value": {
+    "dataCheckValue": {
       "type": "number",
       "required": true
     },
-    "driver_location_description": {
+    "driverLocationDescription": {
       "type": "string"
     },
-    "total_vehicle_miles": {
+    "totalVehicleMiles": {
       "type": "number",
       "postgresql": {
         "dataType": "double precision"
       }
     },
-    "total_engine_hours": {
+    "totalEngineHours": {
       "type": "number",
       "postgresql": {
         "dataType": "double precision"
       }
     },
-    "time_zone_offset_utc": {
+    "timeZoneOffsetUtc": {
       "type": "number"
     },
-    "date_of_certified_record": {
+    "dateOfCertifiedRecord": {
       "type": "date"
     },
-    "diagnostic_code": {
+    "diagnosticCode": {
       "type": "string"
     },
     "certified": {
+      "type": "Boolean"
+    },
+    "reportStatus": {
       "type": "Boolean"
     }
   },

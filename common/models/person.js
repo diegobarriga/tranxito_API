@@ -9,75 +9,75 @@ function emailValidator(err) {
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.account_type === 'D' && this.driver_license_number === undefined)
+  if (this.accountType === 'D' && this.driverLicenseNumber === undefined)
     err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.account_type === 'D' && this.licenses_issuing_state === undefined)
+  if (this.accountType === 'D' && this.licenseIssuingState === undefined)
     err();
 }
 
 function validateAccountStatus(err) {
-  if (this.account_type === 'D' && this.account_status === undefined) err();
+  if (this.accountType === 'D' && this.accountStatus === undefined) err();
 }
 
 function validateExemptDriverConfiguration(err) {
-  if ((this.account_type === 'D' &&
-    this.exempt_driver_configuration === undefined) ||
-   (this.account_type === 'D' &&
-    !['E', '0'].includes(this.exempt_driver_configuration)))
+  if ((this.accountType === 'D' &&
+    this.exemptDriverConfiguration === undefined) ||
+   (this.accountType === 'D' &&
+    !['E', '0'].includes(this.exemptDriverConfiguration)))
     err();
 }
 
 function validateTimeZoneOffsetUtc(err) {
-  if ((this.account_type === 'D' && this.time_zone_offset_utc === undefined) ||
-  (this.account_type === 'D' && !Number.isInteger(this.time_zone_offset_utc)) ||
-  (this.account_type === 'D' &&
-   (this.time_zone_offset_utc < 4 || this.time_zone_offset_utc > 11)))
+  if ((this.accountType === 'D' && this.timeZoneOffsetUtc === undefined) ||
+  (this.accountType === 'D' && !Number.isInteger(this.timeZoneOffsetUtc)) ||
+  (this.accountType === 'D' &&
+   (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
     err();
 }
 
 function validateStartingTime24HourPeriod(err) {
-  if (this.account_type === 'D' &&
-   this.starting_time_24_hour_period === undefined)
+  if (this.accountType === 'D' &&
+   this.startingTime24HourPeriod === undefined)
     err();
 }
 
 module.exports = function(Person) {
   // validations
   Person.validatesPresenceOf(
-    'first_name', 'last_name', 'username', 'account_type',
+    'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
-  Person.validatesLengthOf('first_name', {min: 2, max: 30});
-  Person.validatesLengthOf('last_name', {min: 2, max: 30});
+  Person.validatesLengthOf('firstName', {min: 2, max: 30});
+  Person.validatesLengthOf('lastName', {min: 2, max: 30});
   Person.validatesLengthOf('email', {min: 4, max: 60});
   Person.validate(
     'email', emailValidator, {message: 'Must provide a valid email'}
   );
-  Person.validatesInclusionOf('account_type', {'in': ['A', 'D', 'S']});
-  Person.validate('driver_license_number', validateDriverLiceseNumber,
-    {'message': "Can't be blank when account_type is D"});
-  Person.validate('licenses_issuing_state', validateLicensesIssuingState,
-    {'message': "Can't be blank when account_type is D"});
-  Person.validate('account_status', validateAccountStatus,
-    {'message': "Can't be blank when account_type is D"});
+  Person.validatesInclusionOf('accountType', {'in': ['A', 'D', 'S']});
+  Person.validate('driverLicenseNumber', validateDriverLiceseNumber,
+    {'message': "Can't be blank when accountType is D"});
+  Person.validate('licenseIssuingState', validateLicensesIssuingState,
+    {'message': "Can't be blank when accountType is D"});
+  Person.validate('accountStatus', validateAccountStatus,
+    {'message': "Can't be blank when accountType is D"});
   Person.validate(
-    'exempt_driver_configuration', validateExemptDriverConfiguration,
-    {'message': "Can't be blank when account_type is D"});
-  Person.validate('time_zone_offset_utc', validateTimeZoneOffsetUtc,
-    {'message': "Can't be blank when account_type is D"});
+    'exemptDriverConfiguration', validateExemptDriverConfiguration,
+    {'message': "Can't be blank when accountType is D"});
+  Person.validate('timeZoneOffsetUtc', validateTimeZoneOffsetUtc,
+    {'message': "Can't be blank when accountType is D"});
   Person.validate(
-    'starting_time_24_hour_period', validateStartingTime24HourPeriod,
-    {'message': "Can't be blank when account_type is D"});
+    'startingTime24HourPeriod', validateStartingTime24HourPeriod,
+    {'message': "Can't be blank when accountType is D"});
 
   // role assingment
   Person.observe('after save', function(context, next) {
     var Role = app.models.Role;
     var RoleMapping = app.models.RoleMapping;
     Role.findOne({
-      where: {name: context.instance.account_type},
+      where: {name: context.instance.accountType},
     }, function(err, role) {
       if (context.isNewInstance) {
         RoleMapping.create({
@@ -87,6 +87,17 @@ module.exports = function(Person) {
         });
       };
       next();
+    });
+  });
+
+  Person.observe('after save', function(context, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      if (err) throw (err);
+      LastMod.people = Date.now();
+      LastMod.save(function(error, LM) {
+        if (error) throw (error);
+        next();
+      });
     });
   });
 
@@ -126,7 +137,7 @@ module.exports = function(Person) {
         err.statusCode = '404';
         cb(err, 'Person not found');
       } else {
-        person.account_status = false;
+        person.accountStatus = false;
         person.save(function(err, person) {
           cb(err, person);
         });
@@ -152,7 +163,7 @@ module.exports = function(Person) {
         err = Error('Person not found');
         err.statusCode = '404';
         cb(err, 'Person not found');
-      } else if (person.account_type !== 'D') {
+      } else if (person.accountType !== 'D') {
         console.log(person);
         err = Error('Person found but not a driver.');
         err.statusCode = '422';
@@ -163,17 +174,17 @@ module.exports = function(Person) {
         person.events.find(
           {
             where: {
-              event_type: 1,
-              event_timestamp: {gt: DATE_LIMIT},
+              type: 1,
+              timestamp: {gt: DATE_LIMIT},
             },
           }, function(erro, data) {
           if (erro) return cb(erro);
           person.events.findOne(
             {
-              order: 'event_timestamp DESC',
+              order: 'timestamp DESC',
               where: {
-                event_type: 1,
-                event_timestamp: {lt: DATE_LIMIT},
+                type: 1,
+                timestamp: {lt: DATE_LIMIT},
               },
             }, function(error, first) {
             if (error) return cb(error);

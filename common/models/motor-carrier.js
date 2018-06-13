@@ -7,31 +7,31 @@ var csv = require('fast-csv');
 var fs = require('fs');
 
 function usdotValidator(err) {
-  if (!validator.isInt(String(this.USDOT_number), {min: 0, max: 999999999}))
+  if (!validator.isInt(String(this.usdotNumber), {min: 0, max: 999999999}))
     err();
 }
 
 module.exports = function(MotorCarrier) {
   MotorCarrier.validatesUniquenessOf('name', {message: 'Name already exists'});
-  MotorCarrier.validatesUniquenessOf('USDOT_number',
+  MotorCarrier.validatesUniquenessOf('usdotNumber',
    {message: 'USDOT number already exists'});
   MotorCarrier.validatesPresenceOf(
-    'name', 'USDOT_number', 'multiday_basis_used',
+    'name', 'usdotNumber', 'multidayBasisUsed',
     {'message': "Can't be blank"}
   );
   MotorCarrier.validatesLengthOf('name', {min: 4, max: 120});
   MotorCarrier.validatesNumericalityOf(
-    'USDOT_number', 'multiday_basis_used', {int: true}
+    'usdotNumber', 'multidayBasisUsed', {int: true}
   );
-  MotorCarrier.validatesInclusionOf('multiday_basis_used', {in: [7, 8]});
+  MotorCarrier.validatesInclusionOf('multidayBasisUsed', {in: [7, 8]});
   MotorCarrier.validate(
-    'USDOT_number', usdotValidator,
+    'usdotNumber', usdotValidator,
      {message: 'USDOT number not in range 0 - 999,999,999'}
    );
 
   MotorCarrier.getSupervisors = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {motorCarrierId: id, account_status: true, account_type: 'S'}},
+      {where: {motorCarrierId: id, accountStatus: true, accountType: 'S'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -45,14 +45,14 @@ module.exports = function(MotorCarrier) {
       returns: {arg: 'data', type: 'string', root: true},
       description: [
         'Get all non archived supervisors',
-        "(account_type: 'S', account_status: true)",
+        "(accountType: 'S', accountStatus: true)",
         'from the MotorCarrier with the required id',
       ],
     });
 
   MotorCarrier.getDrivers = function(id, cb) {
     MotorCarrier.app.models.Person.find(
-      {where: {motorCarrierId: id, account_status: true, account_type: 'D'}},
+      {where: {motorCarrierId: id, accountStatus: true, accountType: 'D'}},
        function(err, data) {
          return cb(err, data);
        });
@@ -66,7 +66,7 @@ module.exports = function(MotorCarrier) {
       returns: {arg: 'data', type: 'string', root: true},
       description: [
         'Get all non archived drivers',
-        "(account_type: 'D', account_status: true)",
+        "(accountType: 'D', accountStatus: true)",
         'from the MotorCarrier with the required id',
       ],
     });
@@ -83,13 +83,13 @@ module.exports = function(MotorCarrier) {
               }).catch(err => { throw err; });
             await vehicle.events.findOne(
               {where: {
-                'event_type': 1,
+                'type': 1,
                 vehicleId: vehicle.id,
               },
-                order: 'event_timestamp DESC'}
+                order: 'timestamp DESC'}
             ).then((event) => {
               if (event)
-                lastTrackings[vehicle.id].eventCode = event.event_code;
+                lastTrackings[vehicle.id].eventCode = event.code;
             }).catch(err => { throw err; });
           }))
           .then(() => {
@@ -131,27 +131,27 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, accountStatus: true, accountType: 'D'},
       }).then(async (drivers) => {
         await Promise.all(drivers.map(async (driver) => {
           driversStats[driver.id] = {1: 0, 2: 0, 3: 0, 4: 0};
           await driver.events.find(
             {
-              order: 'event_timestamp ASC',
+              order: 'timestamp ASC',
               where: {
-                event_type: 1,
-                event_timestamp: {gt: TODAY - nSpan},
+                type: 1,
+                timestamp: {gt: TODAY - nSpan},
               },
             })
             .then((events) => {
               events.forEach((event, i) => {
                 if (i < events.length - 1) {
-                  driversStats[driver.id][event.event_code] +=
-                    (events[i + 1].event_timestamp - event.event_timestamp) /
+                  driversStats[driver.id][event.code] +=
+                    (events[i + 1].timestamp - event.timestamp) /
                       (1000 * 60 * 60);
                 } else {
-                  driversStats[driver.id][event.event_code] +=
-                    (TODAY - event.event_timestamp) / (1000 * 60 * 60);
+                  driversStats[driver.id][event.code] +=
+                    (TODAY - event.timestamp) / (1000 * 60 * 60);
                 }
               });
             }).catch(err => { throw err; });
@@ -205,21 +205,21 @@ module.exports = function(MotorCarrier) {
           vehiclesStats[vehicle.id] = {1: 0, 2: 0, 3: 0, 4: 0};
           await vehicle.events.find(
             {
-              order: 'event_timestamp ASC',
+              order: 'timestamp ASC',
               where: {
-                event_type: 1,
-                event_timestamp: {gt: TODAY - nSpan},
+                type: 1,
+                timestamp: {gt: TODAY - nSpan},
               },
             })
             .then((events) => {
               events.forEach((event, i) => {
                 if (i < events.length - 1) {
-                  vehiclesStats[vehicle.id][event.event_code] +=
-                    (events[i + 1].event_timestamp - event.event_timestamp) /
+                  vehiclesStats[vehicle.id][event.code] +=
+                    (events[i + 1].timestamp - event.timestamp) /
                       (1000 * 60 * 60);
                 } else {
-                  vehiclesStats[vehicle.id][event.event_code] +=
-                    (TODAY - event.event_timestamp) / (1000 * 60 * 60);
+                  vehiclesStats[vehicle.id][event.code] +=
+                    (TODAY - event.timestamp) / (1000 * 60 * 60);
                 }
               });
             }).catch(err => { throw err; });
@@ -267,7 +267,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, accountStatus: true, accountType: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);
@@ -276,13 +276,13 @@ module.exports = function(MotorCarrier) {
           driversAlerts[driver.id] = {speedLimit: 0, timeLimit: 0};
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
+              timestamp: {gt: TODAY - nSpan}, speedLimitExceeded: true,
             }).then(speedingCount => {
               driversAlerts[driver.id].speedLimit = speedingCount;
             }).catch(err => { throw err; });
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
+              timestamp: {gt: TODAY - nSpan}, driveTimeExceeded: true,
             }).then(driveTimeCount => {
               driversAlerts[driver.id].timeLimit = driveTimeCount;
             });
@@ -315,7 +315,7 @@ module.exports = function(MotorCarrier) {
       {where: {motorCarrierId: id, driverId: null}},
        function(err, data) {
          if (err) {
-           return cb(err)
+           return cb(err);
          }
          data = data.filter(event => event.driverId === null);
          return cb(err, data);
@@ -359,26 +359,26 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, accountStatus: true, accountType: 'D'},
       }).then(async (drivers) => {
         await Promise.all(drivers.map(async (driver) => {
           await driver.events.find(
             {
-              order: 'event_timestamp ASC',
+              order: 'timestamp ASC',
               where: {
-                event_type: 1,
-                event_timestamp: {gt: TODAY - nSpan},
+                type: 1,
+                timestamp: {gt: TODAY - nSpan},
               },
             })
             .then((events) => {
               events.forEach((event, i) => {
                 if (i < events.length - 1) {
-                  carrierStats[event.event_code] +=
-                    (events[i + 1].event_timestamp - event.event_timestamp) /
+                  carrierStats[event.code] +=
+                    (events[i + 1].timestamp - event.timestamp) /
                       (1000 * 60 * 60);
                 } else {
-                  carrierStats[event.event_code] +=
-                    (TODAY - event.event_timestamp) / (1000 * 60 * 60);
+                  carrierStats[event.code] +=
+                    (TODAY - event.timestamp) / (1000 * 60 * 60);
                 }
               });
             }).catch(err => { throw err; });
@@ -431,7 +431,7 @@ module.exports = function(MotorCarrier) {
     }
     MotorCarrier.app.models.Person.find(
       {
-        where: {motorCarrierId: id, account_status: true, account_type: 'D'},
+        where: {motorCarrierId: id, accountStatus: true, accountType: 'D'},
       }).then(async (drivers, err) => {
         if (err) {
           return cb(err);
@@ -442,7 +442,7 @@ module.exports = function(MotorCarrier) {
           timeAlerts[driver.id] = 0;
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, speed_limit_exceeded: true,
+              timestamp: {gt: TODAY - nSpan}, speedLimitExceeded: true,
             }).then(speedingCount => {
               speedAlerts[driver.id] = speedingCount;
               driversAlerts[driver.id].speedLimit = speedingCount;
@@ -454,7 +454,7 @@ module.exports = function(MotorCarrier) {
             }).catch(err => { throw err; });
           await driver.trackings.count(
             {
-              timestamp: {gt: TODAY - nSpan}, drive_time_exceeded: true,
+              timestamp: {gt: TODAY - nSpan}, driveTimeExceeded: true,
             }).then(driveTimeCount => {
               timeAlerts[driver.id] = driveTimeCount;
               driversAlerts[driver.id].timeLimit = driveTimeCount;
@@ -563,26 +563,27 @@ module.exports = function(MotorCarrier) {
     });
   };
 
-  MotorCarrier.import = function(container, file, options, modelName, callback) {
+  MotorCarrier.import =
+  function(container, file, options, modelName, callback) {
     // Initialize a context object that will hold the transaction
     const ctx = {};
     console.log('Started import process');
 
-    // The import_preprocess is used to initialize the sql transaction
-    MotorCarrier.import_preprocess(
+    // The importPreprocess is used to initialize the sql transaction
+    MotorCarrier.importPreprocess(
       ctx, container, file, options, function(err, transaction) {
-        MotorCarrier.import_process(
+        MotorCarrier.importProcess(
           ctx, container, file, options, modelName, function(importError) {
             if (importError) {
               async.waterfall([
                 done => ctx.transaction.rollback(done),
-                done => MotorCarrier.import_postprocess_error(
+                done => MotorCarrier.importPostprocessError(
                   ctx, container, file, options, done),
               ], () => callback(importError));
             } else {
               async.waterfall([
                 done => ctx.transaction.commit(done),
-                done => MotorCarrier.import_postprocess_success(
+                done => MotorCarrier.importPostprocessSuccess(
                   ctx, container, file, options, done),
               ], () => callback(null));
             }
@@ -590,7 +591,8 @@ module.exports = function(MotorCarrier) {
       });
   };
 
-  MotorCarrier.import_preprocess = function(ctx, container, file, options, callback) {
+  MotorCarrier.importPreprocess =
+  function(ctx, container, file, options, callback) {
     // initialize the SQL transaction
     MotorCarrier.beginTransaction(
       {isolationLevel: MotorCarrier.Transaction.READ_COMMITTED},
@@ -602,7 +604,8 @@ module.exports = function(MotorCarrier) {
     );
   };
 
-  MotorCarrier.import_process = function(ctx, container, file, options, modelName, callback) {
+  MotorCarrier.importProcess =
+  function(ctx, container, file, options, modelName, callback) {
     let errors = [];
     let i = -1;
     const filename = path.join(
@@ -626,11 +629,11 @@ module.exports = function(MotorCarrier) {
       }
 
       if (modelName === 'Person') {
-        data.account_type = 'D';
-        data.account_status = true;
-        data.move_yards_use = (data.move_yards_use == '1') ? true : false;
-        data.default_use = (data.default_use == '1') ? true : false;
-        data.personal_use = (data.personal_use == '1') ? true : false;
+        data.accountType = 'D';
+        data.accountStatus = true;
+        data.moveYardsUse = (data.moveYardsUse == '1');
+        data.defaultUse = (data.defaultUse == '1');
+        data.personalUse = (data.personalUse == '1');
       }
 
       data.line = i + 2;
@@ -683,7 +686,8 @@ module.exports = function(MotorCarrier) {
     return fs.createReadStream(filename).pipe(stream);
   };
 
-  MotorCarrier.import_postprocess_success = (ctx, container, file, options, callback) =>
+  MotorCarrier.importPostprocessSuccess =
+  (ctx, container, file, options, callback) =>
     MotorCarrier.app.models.FileUpload.findById(
       options.fileUpload, function(err, fileUpload) {
         if (err) { return callback(err); }
@@ -698,7 +702,8 @@ module.exports = function(MotorCarrier) {
         MotorCarrier.app.models.Container.destroyContainer(container, callback);
       });
 
-  MotorCarrier.import_postprocess_error = (ctx, container, file, options, callback) =>
+  MotorCarrier.importPostprocessError =
+  (ctx, container, file, options, callback) =>
     MotorCarrier.app.models.FileUpload.findById(
       options.fileUpload, function(err, fileUpload) {
         if (err) { return callback(err); }

@@ -4,8 +4,8 @@ var fs = require('fs');
 var faker = require('faker');
 var loopback = require('loopback');
 var GeoPoint = loopback.GeoPoint;
-var IMEI_GenCheck = require('imei_gencheck');
-const imeigc = new IMEI_GenCheck();
+var ImeiGenCheck = require('imei_gencheck');
+const imeigc = new ImeiGenCheck();
 var randomMac = require('random-mac');
 const TrackingTime = 30; // every TrackingTime minutes generate a new tracking
 const EventTime = 30; // every EventTime hours generate a new DutyStatusEvent
@@ -75,13 +75,14 @@ module.exports = async function(app) {
     await postgresDs.automigrate('MotorCarrier');
 
     let Carrier = app.models.MotorCarrier;
-    let motorCarriers = []
-    let carrier
-    carrier = await Carrier.create({'name': 'E2EGroup', 'USDOT_number': 0, 'multiday_basis_used': 7})
-    motorCarriers.push(carrier)
-    carrier = await Carrier.create({'name': 'DCCGroup', 'USDOT_number': 12, 'multiday_basis_used': 8})
-    motorCarriers.push(carrier)
-
+    let motorCarriers = [];
+    let carrier;
+    carrier = await Carrier.create(
+      {'name': 'E2EGroup', 'usdotNumber': 0, 'multidayBasisUsed': 7});
+    motorCarriers.push(carrier);
+    carrier = await Carrier.create(
+      {'name': 'DCCGroup', 'usdotNumber': 12, 'multidayBasisUsed': 8});
+    motorCarriers.push(carrier);
 
     console.log(`motor carrier created! ${JSON.stringify(motorCarriers)}`);
     return motorCarriers;
@@ -99,53 +100,53 @@ module.exports = async function(app) {
 
     var people = await Person.create([
       {
-        'first_name': 'Andres', 'last_name': 'Flores',
-        'email': 'aflores@gmail.com', 'account_type': 'A',
+        'firstName': 'Andres', 'lastName': 'Flores',
+        'email': 'aflores@gmail.com', 'accountType': 'A',
         'username': 'aflores', 'emailVerified': true,
-        'password': '1234', 'account_status': true,
+        'password': '1234', 'accountStatus': true,
       },
       {
-        'first_name': 'Fernando', 'last_name': 'Diaz',
-        'email': 'fdiaz@gmail.com', 'account_type': 'S',
+        'firstName': 'Fernando', 'lastName': 'Diaz',
+        'email': 'fdiaz@gmail.com', 'accountType': 'S',
         'username': 'fdiaz', 'emailVerified': true,
         'motorCarrierId': carriers[0].id, 'password': '1234',
-        'account_status': true,
+        'accountStatus': true,
       },
       {
-        'first_name': 'Pablo', 'last_name': 'Sanchez',
-        'email': 'pablo.sanchez@gmail.com', 'account_type': 'D',
+        'firstName': 'Pablo', 'lastName': 'Sanchez',
+        'email': 'pablo.sanchez@gmail.com', 'accountType': 'D',
         'username': 'pablo.sanchez', 'emailVerified': true,
         'motorCarrierId': carriers[0].id, 'password': '1234',
-        'driver_license_number': '10234502',
-        'licenses_issuing_state': 'Santiago',
-        'account_status': true, 'exempt_driver_configuration': 'E',
-        'time_zone_offset_utc': 5, 'starting_time_24_hour_period': Date.now(),
-        'move_yards_use': true, 'default_use': true, 'personal_use': true,
+        'driverLicenseNumber': '10234502',
+        'licenseIssuingState': 'Santiago',
+        'accountStatus': true, 'exemptDriverConfiguration': 'E',
+        'timeZoneOffsetUtc': 5, 'startingTime24HourPeriod': Date.now(),
+        'moveYardsUse': true, 'defaultUse': true, 'personalUse': true,
 
       },
       {
-        'first_name': 'Andrea', 'last_name': 'Fernandez',
-        'email': 'afdez@gmail.com', 'account_type': 'A',
+        'firstName': 'Andrea', 'lastName': 'Fernandez',
+        'email': 'afdez@gmail.com', 'accountType': 'A',
         'username': 'afdez', 'emailVerified': true,
-        'password': '1234', 'account_status': true,
+        'password': '1234', 'accountStatus': true,
       },
       {
-        'first_name': 'Bernardo', 'last_name': 'Perez',
-        'email': 'bperez@gmail.com', 'account_type': 'S',
+        'firstName': 'Bernardo', 'lastName': 'Perez',
+        'email': 'bperez@gmail.com', 'accountType': 'S',
         'username': 'bperez', 'emailVerified': true,
         'motorCarrierId': carriers[1].id, 'password': '1234',
-        'account_status': true,
+        'accountStatus': true,
       },
       {
-        'first_name': 'Pedro', 'last_name': 'Lopez',
-        'email': 'pedro.lopez@gmail.com', 'account_type': 'D',
+        'firstName': 'Pedro', 'lastName': 'Lopez',
+        'email': 'pedro.lopez@gmail.com', 'accountType': 'D',
         'username': 'pedro.lopez', 'emailVerified': true,
         'motorCarrierId': carriers[1].id, 'password': '1234',
-        'driver_license_number': '10255321',
-        'licenses_issuing_state': 'Santiago',
-        'account_status': true, 'exempt_driver_configuration': 'E',
-        'time_zone_offset_utc': 4, 'starting_time_24_hour_period': Date.now(),
-        'move_yards_use': false, 'default_use': true, 'personal_use': false,
+        'driverLicenseNumber': '10255321',
+        'licenseIssuingState': 'Santiago',
+        'accountStatus': true, 'exemptDriverConfiguration': 'E',
+        'timeZoneOffsetUtc': 4, 'startingTime24HourPeriod': Date.now(),
+        'moveYardsUse': false, 'defaultUse': true, 'personalUse': false,
       },
     ]
     );
@@ -180,28 +181,28 @@ module.exports = async function(app) {
       'personDefault3.jpeg',
       'personDefault4.jpeg',
       'personDefault5.jpeg',
-    ]
+    ];
 
     for (var i = 0; i < 20; i++) {
       let name = faker.name.firstName();
       let lastname = faker.name.lastName();
       let driver = {
-        'first_name': name,
-        'last_name': lastname,
+        'firstName': name,
+        'lastName': lastname,
         'email': name + '.' + lastname + '@gmail.com',
-        'account_type': 'D',
+        'accountType': 'D',
         'username': name + lastname + faker.random.number(),
         'emailVerified': true,
         'password': '1234',
-        'driver_license_number': faker.random.number(),
-        'licenses_issuing_state': faker.address.state(),
-        'account_status': true,
-        'exempt_driver_configuration': 'E',
-        'time_zone_offset_utc': randomInt(4, 11), // entre 4 y 11
-        'starting_time_24_hour_period': faker.date.past(),
-        'move_yards_use': true,
-        'default_use': true,
-        'personal_use': true,
+        'driverLicenseNumber': faker.random.number(),
+        'licenseIssuingState': faker.address.state(),
+        'accountStatus': true,
+        'exemptDriverConfiguration': 'E',
+        'timeZoneOffsetUtc': randomInt(4, 11), // entre 4 y 11
+        'startingTime24HourPeriod': faker.date.past(),
+        'moveYardsUse': true,
+        'defaultUse': true,
+        'personalUse': true,
         'motorCarrierId': randomInt(1, 2),
         'image': randomChoice(images),
       };
@@ -231,13 +232,13 @@ module.exports = async function(app) {
       'vehicleDefault4.jpeg',
       'vehicleDefault5.jpeg',
       'vehicleDefault6.jpeg',
-    ]
+    ];
 
     for (var i = 0; i < num; i++) {
       let plaque = '';
       let vin = '';
-      let imei = i === 0 ? 357042063084165 : imeigc.randomIMEI_fullRandom();
-      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2)
+      let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
+      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
@@ -247,21 +248,22 @@ module.exports = async function(app) {
       }
       let vehicle = {
         'vin': vin,
-        'CMV_power_unit_number': randomInt(1, 999999999),
+        'CmvPowerUnitNumber': randomInt(1, 999999999),
         'model': randomChoice(models),
-        'car_maker': randomChoice(companies),
+        'carMaker': randomChoice(companies),
         'plaque': plaque,
         'state': faker.address.state(),
-        'IMEI_ELD': Number(imei),
+        'imeiEld': Number(imei),
         'motorCarrierId': motorCarrierId,
         'image': randomChoice(images),
       };
       let device = {
-        'bluetooth_mac': randomMac(),
+        'bluetoothMac': randomMac(),
         'imei': Number(imei),
         'state': true,
-        'configuration_script': 'AAAAAAA',
-        'configuration_status': true,
+        'configScript': 'AAAAAAA',
+        'configStatus': true,
+        'sequenceId': randomInt(0, 65535),
       };
       dataVehicle.push(vehicle);
       dataDevice.push(device);
@@ -273,7 +275,7 @@ module.exports = async function(app) {
         if (err) throw err;
         devices.forEach(function(dev) {
           var car = veh.filter(function(elem) {
-            return elem.IMEI_ELD == dev.imei;
+            return elem.imeiEld == dev.imei;
           });
           dev.vehicleId = car[0].id;
           dev.save(function(err) {
@@ -372,8 +374,8 @@ module.exports = async function(app) {
       'coordinates': GeoPoint({lat: lat, lng: lng}),
       'speed': speed,
       'timestamp': today,
-      'speed_limit_exceeded': (speed > 80), // if speed is greater than 80 limit is exceeded
-      'drive_time_exceeded': driveTimeBoolean,
+      'speedLimitExceeded': (speed > 80), // if speed is greater than 80 limit is exceeded
+      'driveTimeExceeded': driveTimeBoolean,
       'personId': driver.id,
       'vehicleId': car.id,
     };
@@ -392,8 +394,8 @@ module.exports = async function(app) {
   //       GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
   //       'speed': randomInt(0, 100),
   //       'timestamp': Date.now(),
-  //       'speed_limit_exceeded': faker.random.boolean(),
-  //       'drive_time_exceeded': faker.random.boolean(),
+  //       'speedLimitExceeded': faker.random.boolean(),
+  //       'driveTimeExceeded': faker.random.boolean(),
   //       'personId': driver.id,
   //       'vehicleId': vehicle.id,
   //     };
@@ -432,31 +434,31 @@ module.exports = async function(app) {
       if (certifiedEvent) dateCertified = faker.date.future();
     }
     var event = {
-      'event_sequence_id_number': sequence,
-      'event_type': 1,
-      'event_code': randomInt(1, 4),
-      'event_timestamp': today,
-      'shipping_doc_number': 'AAEECC1234',
-      'event_record_status': randomInt(1, 4),
+      'sequenceId': sequence,
+      'type': 1,
+      'code': randomInt(1, 4),
+      'timestamp': today,
+      'shippingDocNumber': 'AAEECC1234',
+      'recordStatus': randomInt(1, 4),
       'recordOrigin': randomInt(1, 4),
-      'accumulated_vehicle_miles': accumulatedMiles,
-      'elapsed_engine_hours': elapsedHours,
+      'accumulatedVehicleMiles': accumulatedMiles,
+      'elapsedEngineHours': elapsedHours,
       'coordinates': {
         'lat': lat,
         'lng': lng,
       },
-      'distance_since_last_valid_coordinates': randomInt(0, 6),
-      'malfunction_indicator_status': faker.random.boolean(),
-      'data_diagnostic_event_indicator_status_for_driver':
+      'distSinceLastValidCoords': randomInt(0, 6),
+      'malfunctionIndicatorStatus': faker.random.boolean(),
+      'dataDiagnosticEventIndicatorStatusForDriver':
       faker.random.boolean(),
-      'event_data_check_value': 0,
+      'dataCheckValue': 0,
       'annotation': faker.lorem.words(),
-      'driver_location_description': faker.address.streetAddress(),
-      'total_vehicle_miles': randomInt(accumulatedMiles, 9999000),
-      'total_engine_hours': randomInt(elapsedHours, 99000),
-      'time_zone_offset_utc': randomInt(4, 11),
-      'date_of_certified_record': dateCertified,
-      'event_report_status': faker.random.boolean(),
+      'driverLocationDescription': faker.address.streetAddress(),
+      'totalVehicleMiles': randomInt(accumulatedMiles, 9999000),
+      'totalEngineHours': randomInt(elapsedHours, 99000),
+      'timeZoneOffsetUtc': randomInt(4, 11),
+      'dateOfCertifiedRecord': dateCertified,
+      'reportStatus': faker.random.boolean(),
       'certified': certifiedEvent,
       'driverId': driverId,
       'vehicleId': vehicle.id,

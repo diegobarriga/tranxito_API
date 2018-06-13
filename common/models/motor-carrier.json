@@ -10,11 +10,11 @@
       "type": "string",
       "required": true
     },
-    "USDOT_number": {
+    "usdotNumber": {
       "type": "number",
       "required": true
     },
-    "multiday_basis_used": {
+    "multidayBasisUsed": {
       "type": "number",
       "required": true
     }

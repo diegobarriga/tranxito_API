@@ -10,8 +10,8 @@ module.exports = function(Tracking) {
     'coordinates',
     'speed',
     'timestamp',
-    'speed_limit_exceeded',
-    'drive_time_exceeded',
+    'speedLimitExceeded',
+    'driveTimeExceeded',
     {'message': "Can't be blank"}
   );
   Tracking.validate('speed', speedValidator);

@@ -1,9 +1,10 @@
 'use strict';
 var validator = require('validator');
 var imei = require('imei');
+var app = require('../../server/server.js');
 
 function macAddressValidator(err) {
-  if (!validator.isMACAddress(String(this.bluetooth_mac))) return err();
+  if (!validator.isMACAddress(String(this.bluetoothMac))) return err();
 }
 
 // function imeiValidator(err) {
@@ -12,17 +13,29 @@ function macAddressValidator(err) {
 
 module.exports = function(Device) {
   Device.validatesUniquenessOf('imei', {message: 'Imei already exists'});
-  Device.validatesUniquenessOf('bluetooth_mac',
+  Device.validatesUniquenessOf('bluetoothMac',
   {message: 'Bluetooth MAC already exists'}
   );
   Device.validatesPresenceOf(
-    'bluetooth_mac',
+    'bluetoothMac',
     'imei',
     'state',
     {'message': "Can't be blank"}
   );
-  Device.validate('bluetooth_mac', macAddressValidator);
+  Device.validate('bluetoothMac', macAddressValidator);
   // Device.validate('imei', imeiValidator);
+
+  Device.observe('after save', function(context, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      if (err) throw (err);
+      LastMod.devices = Date.now();
+      LastMod.save(function(error, LM) {
+        if (error) throw (error);
+        next();
+      });
+    });
+  });
+
   Device.newConfig = function(id, script, cb) {
     Device.findById(id, function(err, device) {
       if (err) {
@@ -33,8 +46,8 @@ module.exports = function(Device) {
         err.statusCode = '404';
         cb(err, 'Device not found');
       } else {
-        device.configuration_script = script;
-        device.configuration_status = false;
+        device.configScript = script;
+        device.configStatus = false;
         device.save(function(error, obj) {
           if (error) cb(error);
           cb(null, 'Configuration Script set correctly');
@@ -50,7 +63,7 @@ module.exports = function(Device) {
         {arg: 'id', type: 'number', required: true},
         {arg: 'script', type: 'string', required: true},
       ],
-      http: {path: '/:id/new_config', verb: 'post'},
+      http: {path: '/:id/newConfig', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
     });
 
@@ -64,7 +77,7 @@ module.exports = function(Device) {
         err.statusCode = '404';
         cb(err, 'Device not found');
       } else {
-        device.configuration_status = true;
+        device.configStatus = true;
         device.save(function(error, obj) {
           if (error) cb(error);
           cb(null, 'Configuration set as valid');
@@ -77,7 +90,7 @@ module.exports = function(Device) {
     'validConfig',
     {
       accepts: {arg: 'id', type: 'number', required: true},
-      http: {path: '/:id/valid_config', verb: 'get'},
+      http: {path: '/:id/validConfig', verb: 'get'},
       returns: {arg: 'message', type: 'string'},
     });
 };

@@ -38,11 +38,11 @@
       "type": "date",
       "required": true
     },
-    "speed_limit_exceeded": {
+    "speedLimitExceeded": {
       "type": "boolean",
       "required": true
     },
-    "drive_time_exceeded": {
+    "driveTimeExceeded": {
       "type": "boolean",
       "required": true
     }

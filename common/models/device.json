@@ -6,7 +6,7 @@
     "validateUpsert": true
   },
   "properties": {
-    "bluetooth_mac": {
+    "bluetoothMac": {
       "type": "string",
       "required": true
     },
@@ -21,15 +21,19 @@
       "type": "boolean",
       "required": true
     },
-    "configuration_script": {
+    "configScript": {
       "type": "string",
       "required": true,
       "postgresql": {
         "dataType": "text"
       }
     },
-    "configuration_status": {
+    "configStatus": {
       "type": "boolean",
+      "required": true
+    },
+    "sequenceId": {
+      "type": "number",
       "required": true
     }
   },

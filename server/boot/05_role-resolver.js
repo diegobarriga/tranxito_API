@@ -1,3 +1,4 @@
+'use strict';
 module.exports = function(app) {
   var Role = app.models.Role;
 
@@ -9,7 +10,7 @@ module.exports = function(app) {
     var Person = app.models.Person;
     Person.findById(userId, function(err, user) {
       if (err) return cb(err);
-      if (user.account_type == 'A') {
+      if (user.accountType == 'A') {
         return cb(null, true);
       } else {
         return process.nextTick(() => cb(null, false));
@@ -29,11 +30,11 @@ module.exports = function(app) {
         var Person = app.models.Person;
         Person.findById(userId, function(err, user) {
           if (err) return cb(err);
-          if (user.account_type == 'S' &&
+          if (user.accountType == 'S' &&
             context.modelName === 'MotorCarrier' &&
             user.motorCarrierId === modelInstance.id) {
             return cb(null, true);
-          } else if ((user.account_type == 'S' &&
+          } else if ((user.accountType == 'S' &&
               context.modelName === 'Person' ||
               context.modelName === 'Vehicle') &&
               user.motorCarrierId === modelInstance.motorCarrierId) {
@@ -62,21 +63,21 @@ module.exports = function(app) {
         var Person = app.models.Person;
         Person.findById(userId, function(err, user) {
           if (err) return cb(err);
-          if (user.account_type == 'D' &&
+          if (user.accountType == 'D' &&
             context.modelName === 'MotorCarrier' &&
             user.motorCarrierId === modelInstance.id) {
             return cb(null, true);
-          } else if (user.account_type == 'D' &&
+          } else if (user.accountType == 'D' &&
               context.modelName === 'Person' &&
               user.id == modelInstance.id) {
             return cb(null, true);
-          } else if (user.account_type == 'D' &&
+          } else if (user.accountType == 'D' &&
               context.modelName === 'Event' &&
               (user.id === modelInstance.driverId ||
               user.id === modelInstance.codriverId ||
               modelInstance.driverId == null)) {
             return cb(null, true);
-          } else if (user.account_type == 'D' &&
+          } else if (user.accountType == 'D' &&
               context.modelName === 'Tracking' &&
               user.id === modelInstance.personId) {
             return cb(null, true);
@@ -90,7 +91,7 @@ module.exports = function(app) {
       // TODO cambiar endpoint PATCH Event/certifyEvents por PATCH People/{id}/certifyEvents
       Person.findById(userId, function(err, user) {
         if (err) return cb(err);
-        if (user.account_type == 'D') {
+        if (user.accountType == 'D') {
           return cb(null, true);
         } else {
           return process.nextTick(() => cb(null, false));
