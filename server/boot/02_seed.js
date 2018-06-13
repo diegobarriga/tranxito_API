@@ -153,7 +153,7 @@ module.exports = async function(app) {
     console.log('people created!');
     return people;
   }
-  
+
   async function createRoles(users, cb) {
     await postgresDs.automigrate('Role');
     await postgresDs.automigrate('RoleMapping');
