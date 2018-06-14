@@ -269,24 +269,20 @@ module.exports = async function(app) {
       dataDevice.push(device);
     }
 
-    Vehicle.create(dataVehicle, function(err, vehicles) {
-      if (err) throw err;
-      Device.create(dataDevice, function(err, devices) {
-        if (err) throw err;
-        devices.forEach(function(dev) {
-          for (var i = 0; i < vehicles.length; i++) {
-            dev.updateAttribute('vehicleId', vehicles[i].id, function(err, _) {
-              if (err) throw err;
-            });
-            vehicles[i].updateAttribute('deviceId', dev.id, function(err, _) {
-              if (err) throw err;
-            });
-          }
+    let vehicles = await Vehicle.create(dataVehicle);
+    let devices = Device.create(dataDevice);
+    devices.forEach(function(dev) {
+      for (var i = 0; i < vehicles.length; i++) {
+        dev.updateAttribute('vehicleId', vehicles[i].id, function(err, _) {
+          // if (err) throw err;
         });
-        console.log('Devices created succesfully');
-      });
-      cb(null, vehicles);
+        vehicles[i].updateAttribute('deviceId', dev.id, function(err, _) {
+          // if (err) throw err;
+        });
+      }
     });
+    console.log('Devices created succesfully');
+    // cb(null, vehicles);
   }
 
   // Simulate events and trackings
