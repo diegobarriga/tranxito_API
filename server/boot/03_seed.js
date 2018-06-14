@@ -112,24 +112,6 @@ module.exports = async function(app) {
         'accountStatus': true,
       },
       {
-        'firstName': 'Pablo', 'lastName': 'Sanchez',
-        'email': 'pablo.sanchez@gmail.com', 'accountType': 'D',
-        'username': 'pablo.sanchez', 'emailVerified': true,
-        'motorCarrierId': carriers[0].id, 'password': '1234',
-        'driverLicenseNumber': '10234502',
-        'licenseIssuingState': 'Santiago',
-        'accountStatus': true, 'exemptDriverConfiguration': 'E',
-        'timeZoneOffsetUtc': 5, 'startingTime24HourPeriod': Date.now(),
-        'moveYardsUse': true, 'defaultUse': true, 'personalUse': true,
-
-      },
-      {
-        'firstName': 'Andrea', 'lastName': 'Fernandez',
-        'email': 'afdez@gmail.com', 'accountType': 'A',
-        'username': 'afdez', 'emailVerified': true,
-        'password': '1234', 'accountStatus': true,
-      },
-      {
         'firstName': 'Bernardo', 'lastName': 'Perez',
         'email': 'bperez@gmail.com', 'accountType': 'S',
         'username': 'bperez', 'emailVerified': true,
@@ -137,10 +119,21 @@ module.exports = async function(app) {
         'accountStatus': true,
       },
       {
+        'firstName': 'Pablo', 'lastName': 'Sanchez',
+        'email': 'pablo.sanchez@gmail.com', 'accountType': 'D',
+        'username': 'pablo.sanchez', 'emailVerified': true,
+        'motorCarrierId': carriers[1].id, 'password': '1234',
+        'driverLicenseNumber': '10234502',
+        'licenseIssuingState': 'Santiago',
+        'accountStatus': true, 'exemptDriverConfiguration': 'E',
+        'timeZoneOffsetUtc': 5, 'startingTime24HourPeriod': Date.now(),
+        'moveYardsUse': true, 'defaultUse': true, 'personalUse': true,
+      },
+      {
         'firstName': 'Pedro', 'lastName': 'Lopez',
         'email': 'pedro.lopez@gmail.com', 'accountType': 'D',
         'username': 'pedro.lopez', 'emailVerified': true,
-        'motorCarrierId': carriers[1].id, 'password': '1234',
+        'motorCarrierId': carriers[0].id, 'password': '1234',
         'driverLicenseNumber': '10255321',
         'licenseIssuingState': 'Santiago',
         'accountStatus': true, 'exemptDriverConfiguration': 'E',
@@ -226,6 +219,7 @@ module.exports = async function(app) {
     await postgresDs.automigrate('Device');
     let Vehicle = app.models.Vehicle;
     let Device = app.models.Device;
+    Vehicle.hasOne(Device, {foreignKey: 'deviceId', as: 'device'});
     let dataVehicle = [];
     let dataDevice = [];
     let models = ['Truck', 'Bus', 'Car'];
@@ -275,22 +269,23 @@ module.exports = async function(app) {
       dataDevice.push(device);
     }
 
-    Vehicle.create(dataVehicle, function(err, veh) {
+    Vehicle.create(dataVehicle, function(err, vehicles) {
       if (err) throw err;
       Device.create(dataDevice, function(err, devices) {
         if (err) throw err;
         devices.forEach(function(dev) {
-          var car = veh.filter(function(elem) {
-            return elem.imeiEld == dev.imei;
-          });
-          dev.vehicleId = car[0].id;
-          dev.save(function(err) {
-            if (err) throw err;
-          });
+          for (var i = 0; i < vehicles.length; i++) {
+            dev.updateAttribute('vehicleId', vehicles[i].id, function(err, _) {
+              if (err) throw err;
+            });
+            vehicles[i].updateAttribute('deviceId', dev.id, function(err, _) {
+              if (err) throw err;
+            });
+          }
         });
         console.log('Devices created succesfully');
       });
-      cb(null, veh);
+      cb(null, vehicles);
     });
   }
 
