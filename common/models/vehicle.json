@@ -5,18 +5,29 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "plaqueStateIndex": {
+      "keys": {
+        "plaque": 1,
+        "state": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "mixins": {},
   "properties": {
     "vin": {
       "type": "string"
     },
-    "CMV_power_unit_number": {
+    "CmvPowerUnitNumber": {
       "type": "string"
     },
     "model": {
       "type": "string"
     },
-    "car_maker": {
+    "carMaker": {
       "type": "string"
     },
     "plaque": {
@@ -25,7 +36,7 @@
     "state": {
       "type": "string"
     },
-    "IMEI_ELD": {
+    "imeiEld": {
       "type": "number",
       "postgresql": {
         "dataType": "bigint"
@@ -147,6 +158,13 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__update__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__destroy__devices"
     },
     {
       "accessType": "EXECUTE",
@@ -308,6 +326,69 @@
       "principalId": "$owner",
       "permission": "DENY",
       "property": "__destroyById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__trackings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__motorCarrier"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__devices"
     }
   ],
   "methods": {}

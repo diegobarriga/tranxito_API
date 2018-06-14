@@ -6,7 +6,7 @@
     "validateUpsert": true
   },
   "properties": {
-    "bluetooth_mac": {
+    "bluetoothMac": {
       "type": "string",
       "required": true
     },
@@ -21,15 +21,19 @@
       "type": "boolean",
       "required": true
     },
-    "configuration_script": {
+    "configScript": {
       "type": "string",
       "required": true,
       "postgresql": {
         "dataType": "text"
       }
     },
-    "configuration_status": {
+    "configStatus": {
       "type": "boolean",
+      "required": true
+    },
+    "sequenceId": {
+      "type": "number",
       "required": true
     }
   },
@@ -38,6 +42,11 @@
     "vehicle": {
       "type": "belongsTo",
       "model": "Vehicle",
+      "foreignKey": ""
+    },
+    "motorCarrier": {
+      "type": "belongsTo",
+      "model": "MotorCarrier",
       "foreignKey": ""
     }
   },
@@ -86,7 +95,7 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "__get__valid_config"
+      "property": "validConfig"
     },
     {
       "accessType": "EXECUTE",
@@ -121,6 +130,13 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
+      "property": "replaceById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
       "property": "count"
     },
     {
@@ -129,6 +145,34 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "exists"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "exists"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicle"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "validConfig"
     }
   ],
   "methods": {}

@@ -10,11 +10,11 @@
       "type": "string",
       "required": true
     },
-    "USDOT_number": {
+    "usdotNumber": {
       "type": "number",
       "required": true
     },
-    "multiday_basis_used": {
+    "multidayBasisUsed": {
       "type": "number",
       "required": true
     }
@@ -24,6 +24,11 @@
     "vehicles": {
       "type": "hasMany",
       "model": "Vehicle",
+      "foreignKey": ""
+    },
+    "devices": {
+      "type": "hasMany",
+      "model": "Device",
       "foreignKey": ""
     },
     "people": {
@@ -144,6 +149,55 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "patchAttributes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "nonAuthEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__count__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
     }
   ],
   "methods": {}

@@ -5,6 +5,26 @@
   "options": {
     "validateUpsert": true
   },
+  "indexes": {
+    "timestampVehicleIndex": {
+      "keys": {
+        "timestamp": 1,
+        "vehicleId": -1
+      },
+      "options": {
+        "unique": true
+      }
+    },
+    "timestampDriverIndex": {
+      "keys": {
+        "timestamp": 1,
+        "personId": -1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
   "properties": {
     "coordinates": {
       "type": "geopoint",
@@ -18,11 +38,11 @@
       "type": "date",
       "required": true
     },
-    "speed_limit_exceeded": {
+    "speedLimitExceeded": {
       "type": "boolean",
       "required": true
     },
-    "drive_time_exceeded": {
+    "driveTimeExceeded": {
       "type": "boolean",
       "required": true
     }
@@ -100,7 +120,14 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
-      "property": "find"
+      "property": "__get__vehicle"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__person"
     },
     {
       "accessType": "EXECUTE",
@@ -122,6 +149,48 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__get__person"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicle"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__person"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "exists"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "exists"
     }
   ],
   "methods": {}

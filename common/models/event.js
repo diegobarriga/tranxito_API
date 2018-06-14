@@ -4,7 +4,7 @@ var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
 function eventTypeValidator(err) {
-  if (!validator.isInt(String(this.event_type), {min: 1, max: 7})) return err();
+  if (!validator.isInt(String(this.type), {min: 1, max: 7})) return err();
 }
 
 function eventCodeValidator(err) {
@@ -39,15 +39,15 @@ function eventCodeValidator(err) {
       max: 4,
     },
   };
-  if (!this.event_type ||
-    !eventTypes.includes(this.event_type) ||
-    !validator.isInt(String(this.event_code),
-     {min: dict[this.event_type].min, max: dict[this.event_type].max}))
+  if (!this.type ||
+    !eventTypes.includes(this.type) ||
+    !validator.isInt(String(this.code),
+     {min: dict[this.type].min, max: dict[this.type].max}))
     return err();
 }
 
 function eventRecordStatusValidator(err) {
-  if (!validator.isInt(String(this.event_record_status), {min: 1, max: 4}))
+  if (!validator.isInt(String(this.recordStatus), {min: 1, max: 4}))
     return err();
 }
 
@@ -59,20 +59,20 @@ function recordOriginValidator(err) {
 function accumulatedVehicleMilesValidator(err) {
   if (
     !validator.isInt(
-      String(this.accumulated_vehicle_miles), {min: 0, max: 9999})
+      String(this.accumulatedVehicleMiles), {min: 0, max: 9999})
   ) return err();
 }
 
 function elapsedEngineHoursValidator(err) {
   if (!validator.isFloat(
-    String(this.elapsed_engine_hours), {min: 0.0, max: 99.9}) ||
-   !validator.isInt(String((this.elapsed_engine_hours * 10) % 1))
+    String(this.elapsedEngineHours), {min: 0.0, max: 99.9}) ||
+   !validator.isInt(String((this.elapsedEngineHours * 10) % 1))
  ) return err();
 }
 
 function distanceSinceLastValidCoordinatesValidator(err) {
   if (!validator.isInt(
-    String(this.distance_since_last_valid_coordinates), {min: 0, max: 6})
+    String(this.distSinceLastValidCoords), {min: 0, max: 6})
   ) return err();
 }
 
@@ -85,82 +85,82 @@ function annotationValidator(err) {
 
 function eventDataCheckValueValidator(err) {
   if (!validator.isInt(
-    String(this.event_data_check_value), {min: 0, max: 255})
+    String(this.dataCheckValue), {min: 0, max: 255})
   ) return err();
 }
 
 function totalVehicleMilesValidator(err) {
   if (!validator.isInt(
-    String(this.total_vehicle_miles), {min: 0, max: (9999999)}) ||
-    this.total_vehicle_miles < this.accumulated_vehicle_miles
+    String(this.totalVehicleMiles), {min: 0, max: (9999999)}) ||
+    this.totalVehicleMiles < this.accumulatedVehicleMiles
   ) return err();
 }
 
 function totalEngineHoursValidator(err) {
   if (
     !validator.isFloat(
-      String(this.total_engine_hours), {min: 0.0, max: 99999.9}) ||
-   !validator.isInt(String((this.total_engine_hours * 10) % 1)) ||
-   this.total_engine_hours < this.elapsed_engine_hours
+      String(this.totalEngineHours), {min: 0.0, max: 99999.9}) ||
+   !validator.isInt(String((this.totalEngineHours * 10) % 1)) ||
+   this.totalEngineHours < this.elapsedEngineHours
  ) return err();
 }
 
 function timeZoneOffsetUtcValidator(err) {
   if (
     !validator.isInt(
-      String(this.time_zone_offset_utc), {min: 4, max: 11})
+      String(this.timeZoneOffsetUtc), {min: 4, max: 11})
     ) return err();
 }
 
 function diagnosticCodeValidator(err) {
   let valArray = ['P', 'E', 'T', 'L', 'R', 'S',
     'O', '1', '2', '3', '4', '5', '6'];
-  if (this.diagnostic_code && !valArray.includes(this.diagnostic_code))
+  if (this.diagnosticCode && !valArray.includes(this.diagnosticCode))
     return err();
 }
 
 module.exports = function(Event) {
   Event.validatesPresenceOf(
-    'event_sequence_id_number',
-    'event_type',
-    'event_record_status',
+    'sequenceId',
+    'type',
+    'recordStatus',
     'recordOrigin',
-    'event_timestamp',
-    'event_code',
-    'event_data_check_value',
-    'shipping_doc_number',
+    'timestamp',
+    'code',
+    'dataCheckValue',
+    'shippingDocNumber',
     {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
-    'event_sequence_id_number',
-    'event_record_status',
+    'sequenceId',
+    'recordStatus',
     'recordOrigin',
-    'event_type',
-    'event_code',
-    'accumulated_vehicle_miles',
-    'distance_since_last_valid_coordinates',
-    'event_data_check_value',
-    'total_vehicle_miles',
-    'time_zone_offset_utc',
+    'type',
+    'code',
+    'accumulatedVehicleMiles',
+    'distSinceLastValidCoords',
+    'dataCheckValue',
+    'totalVehicleMiles',
+    'timeZoneOffsetUtc',
      {int: true}
    );
 
-  Event.validate('event_type', eventTypeValidator);
-  Event.validate('event_code', eventCodeValidator);
-  Event.validate('event_record_status', eventRecordStatusValidator);
+  Event.validate('type', eventTypeValidator);
+  Event.validate('code', eventCodeValidator);
+  Event.validate('recordStatus', eventRecordStatusValidator);
   Event.validate('recordOrigin', recordOriginValidator);
-  Event.validate('accumulated_vehicle_miles', accumulatedVehicleMilesValidator);
-  Event.validate('elapsed_engine_hours', elapsedEngineHoursValidator);
-  Event.validate('distance_since_last_valid_coordinates',
+  Event.validate('accumulatedVehicleMiles', accumulatedVehicleMilesValidator);
+  Event.validate('elapsedEngineHours', elapsedEngineHoursValidator);
+  Event.validate('distSinceLastValidCoords',
   distanceSinceLastValidCoordinatesValidator);
   Event.validate('annotation', annotationValidator);
-  Event.validate('event_data_check_value', eventDataCheckValueValidator);
-  Event.validate('total_vehicle_miles', totalVehicleMilesValidator);
+  Event.validate('dataCheckValue', eventDataCheckValueValidator);
+  Event.validate('totalVehicleMiles', totalVehicleMilesValidator);
   Event.validate('annotation', annotationValidator);
-  Event.validate('total_engine_hours', totalEngineHoursValidator);
+  Event.validate('totalEngineHours', totalEngineHoursValidator);
   Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
-  Event.validatesLengthOf('shipping_doc_number', {min: 0, max: 40});
-  Event.validatesLengthOf('driver_location_description', {min: 5, max: 60});
+  Event.validatesLengthOf('shippingDocNumber', {min: 0, max: 40});
+  Event.validatesLengthOf('driverLocationDescription', {min: 5, max: 60});
 
   Event.softPatch = function(id, data, cb) {
     Event.findById(id, function(err, originalEvent) {
@@ -181,7 +181,7 @@ module.exports = function(Event) {
         duplicatedData.recordOrigin = 2;
         console.log(duplicatedData);
         // Set original event to updated status
-        originalEvent.updateAttribute('event_record_status', 2,
+        originalEvent.updateAttribute('recordStatus', 2,
          function(err, _) {
            if (err) throw err;
          });
@@ -226,7 +226,7 @@ module.exports = function(Event) {
           err = Error('Person not found');
           err.statusCode = '404';
           return cb(err, 'Person not found');
-        } else if (person.account_type != 'D') {
+        } else if (person.accountType != 'D') {
           err = Error('Person found but not a driver.');
           err.statusCode = '422';
           return cb(err, 'Person is not a driver');
@@ -250,7 +250,7 @@ module.exports = function(Event) {
             }
             usefulEvents.forEach(function(event) {
               event.certified = true;
-              event.date_of_certified_record = Date.now();
+              event.dateOfCertifiedRecord = Date.now();
               event.save();
             });
             console.log(usefulEvents.length + ' events certified');
