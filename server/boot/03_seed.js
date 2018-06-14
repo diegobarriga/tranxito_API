@@ -97,8 +97,7 @@ module.exports = async function(app) {
     // RoleMapping.belongsTo(Person);
     // Person.hasOne(RoleMapping, {foreignKey: 'principalId'});
     // Role.hasMany(Person, {through: RoleMapping, foreignKey: 'roleId'});
-
-    var people = await Person.create([
+    let data = [
       {
         'firstName': 'Andres', 'lastName': 'Flores',
         'email': 'aflores@gmail.com', 'accountType': 'A',
@@ -109,7 +108,7 @@ module.exports = async function(app) {
         'firstName': 'Fernando', 'lastName': 'Diaz',
         'email': 'fdiaz@gmail.com', 'accountType': 'S',
         'username': 'fdiaz', 'emailVerified': true,
-        'motorCarrierId': carriers[0].id, 'password': '1234',
+        'motorCarrierId': carriers[1].id, 'password': '1234',
         'accountStatus': true,
       },
       {
@@ -134,7 +133,7 @@ module.exports = async function(app) {
         'firstName': 'Bernardo', 'lastName': 'Perez',
         'email': 'bperez@gmail.com', 'accountType': 'S',
         'username': 'bperez', 'emailVerified': true,
-        'motorCarrierId': carriers[1].id, 'password': '1234',
+        'motorCarrierId': carriers[0].id, 'password': '1234',
         'accountStatus': true,
       },
       {
@@ -148,8 +147,12 @@ module.exports = async function(app) {
         'timeZoneOffsetUtc': 4, 'startingTime24HourPeriod': Date.now(),
         'moveYardsUse': false, 'defaultUse': true, 'personalUse': false,
       },
-    ]
-    );
+    ];
+    var people = [];
+    for (var i = 0; i < data.length; i++) {
+      let person = await Person.create(data[i]);
+      people.push(person);
+    }
 
     console.log('people created!');
     return people;
@@ -186,6 +189,8 @@ module.exports = async function(app) {
     for (var i = 0; i < 20; i++) {
       let name = faker.name.firstName();
       let lastname = faker.name.lastName();
+      let motorCarrierId = i % 2 === 0 ? 2 : 1;
+
       let driver = {
         'firstName': name,
         'lastName': lastname,
@@ -203,7 +208,7 @@ module.exports = async function(app) {
         'moveYardsUse': true,
         'defaultUse': true,
         'personalUse': true,
-        'motorCarrierId': randomInt(1, 2),
+        'motorCarrierId': motorCarrierId,
         'image': randomChoice(images),
       };
       data.push(driver);
@@ -238,7 +243,7 @@ module.exports = async function(app) {
       let plaque = '';
       let vin = '';
       let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
-      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
+      let motorCarrierId = i % 2 === 0 ? 2 : 1;
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
@@ -382,31 +387,6 @@ module.exports = async function(app) {
     };
     return track;
   }
-
-  // async function fakeTrackings(num, drivers, vehicles, events, cb) {
-  //   await postgresDs.automigrate('Tracking');
-  //   var data = [];
-  //   var Tracking = app.models.Tracking;
-  //   for (var i = 0; i < num; i++) {
-  //     var driver = randomChoice(drivers);
-  //     var vehicle = randomChoice(vehicles);
-  //     var track = {
-  //       'coordinates':
-  //       GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
-  //       'speed': randomInt(0, 100),
-  //       'timestamp': Date.now(),
-  //       'speedLimitExceeded': faker.random.boolean(),
-  //       'driveTimeExceeded': faker.random.boolean(),
-  //       'personId': driver.id,
-  //       'vehicleId': vehicle.id,
-  //     };
-  //     data.push(track);
-  //   };
-  //   Tracking.create(data, function(err, trackings) {
-  //     if (err) throw err;
-  //     cb(null, trackings);
-  //   });
-  // }
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
