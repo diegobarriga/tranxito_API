@@ -29,5 +29,10 @@
     "provider": "filesystem",
     "root": "./server/local-storage",
     "nameConflict": "makeUnique"
+  },
+  "mailgun": {
+    "connector": "loopback-connector-mailgun",
+    "apikey": "${Mailgun_API_Key}",
+    "domain": "sandboxae9672d895034f938fba1c29620d8aac.mailgun.org"
   }
 }

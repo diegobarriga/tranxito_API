@@ -750,4 +750,38 @@ module.exports = function(MotorCarrier) {
         'Create multiple vehicles through a csv',
       ],
     });
+
+  MotorCarrier.sendEmail = function(id, to, subject, text, html, cb) {
+    MotorCarrier.findById(id).then(motorCarrier => {
+      MotorCarrier.app.models.Email.send(
+        {
+          to: to,
+          from: `eld_${motorCarrier.name}@e2e_carrier_${id}.com`,
+          text: text,
+          html: html,
+          attachments: [path.resolve('../api_bug.png')], // To be changed
+        }
+      ).then(response => {
+        cb(null, response.message);
+      }).catch(error => cb(error));
+    }).catch(err => cb(err));
+  };
+
+  MotorCarrier.remoteMethod(
+    'sendEmail',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'to', type: 'string', required: true},
+        {arg: 'subject', type: 'string', required: true},
+        {arg: 'text', type: 'string'},
+        {arg: 'html', type: 'string'},
+      ],
+      http: {verb: 'post', path: '/:id/sendEmail'},
+      returns: {arg: 'message', type: 'string'},
+      description: [
+        'Send an email to the <to> address with the specified information.',
+        'If both html and text are present, text will be ignored.',
+      ],
+    });
 };
