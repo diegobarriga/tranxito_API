@@ -6,6 +6,11 @@ var path = require('path');
 var csv = require('fast-csv');
 var fs = require('fs');
 
+function nameValidator(err) {
+  if (this.usdotNumber.trim() === '')
+    err();
+}
+
 function usdotValidator(err) {
   if (!validator.isInt(String(this.usdotNumber), {min: 0, max: 999999999}))
     err();
@@ -28,6 +33,8 @@ module.exports = function(MotorCarrier) {
     'usdotNumber', usdotValidator,
      {message: 'USDOT number not in range 0 - 999,999,999'}
    );
+  MotorCarrier.validate('name', nameValidator,
+  {message: "Name can't be blank"});
 
   MotorCarrier.getSupervisors = function(id, cb) {
     MotorCarrier.app.models.Person.find(
