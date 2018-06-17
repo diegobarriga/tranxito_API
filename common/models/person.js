@@ -5,35 +5,29 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 
 function emailValidator(err) {
-  if (!validator.isEmail(String(this.email.trim()))) return err();
+  if (!validator.isEmail(String(this.email))) return err();
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.accountType === 'D' && (this.driverLicenseNumber === undefined ||
-    this.driverLicenseNumber.trim() === ''))
-    return err();
+  if (this.accountType === 'D' && this.driverLicenseNumber === undefined)
+    err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType === 'D' &&
-  (this.licenseIssuingState === undefined ||
-    this.licenseIssuingState.trim() === ''))
-    return err();
+  if (this.accountType === 'D' && this.licenseIssuingState === undefined)
+    err();
 }
 
 function validateAccountStatus(err) {
-  if (this.accountType === 'D' &&
-  (this.accountStatus === undefined ||
-    this.accountStatus.trim().length <= 0)) return err();
+  if (this.accountType === 'D' && this.accountStatus === undefined) err();
 }
 
 function validateExemptDriverConfiguration(err) {
   if ((this.accountType === 'D' &&
-    (this.exemptDriverConfiguration === undefined ||
-      this.exemptDriverConfiguration.trim() === '')) ||
+    this.exemptDriverConfiguration === undefined) ||
    (this.accountType === 'D' &&
     !['E', '0'].includes(this.exemptDriverConfiguration)))
-    return err();
+    err();
 }
 
 function validateTimeZoneOffsetUtc(err) {
@@ -41,21 +35,13 @@ function validateTimeZoneOffsetUtc(err) {
   (this.accountType === 'D' && !Number.isInteger(this.timeZoneOffsetUtc)) ||
   (this.accountType === 'D' &&
    (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
-    return err();
+    err();
 }
 
 function validateStartingTime24HourPeriod(err) {
   if (this.accountType === 'D' &&
    this.startingTime24HourPeriod === undefined)
-    return err();
-}
-
-function firstNameValidator(err) {
-  if (this.firstName.trim() === '') return err();
-}
-
-function lastNameValidator(err) {
-  if (this.lastName.trim() === '') return err();
+    err();
 }
 
 module.exports = function(Person) {
@@ -64,11 +50,6 @@ module.exports = function(Person) {
     'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
-  // Blank content
-  Person.validate('firstName', firstNameValidator, "First Name can't be blank");
-  Person.validate('lastName', lastNameValidator, "Last Name can't be blank");
-
-  // Other
   Person.validatesLengthOf('firstName', {min: 2, max: 30});
   Person.validatesLengthOf('lastName', {min: 2, max: 30});
   Person.validatesLengthOf('email', {min: 4, max: 60});
