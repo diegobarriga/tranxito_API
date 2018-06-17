@@ -11,19 +11,16 @@ var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
 function vinValidator(err) {
-  if (this.vin != '' &&
-  (this.vin.trim().length > 18 || this.vin.trim().length < 17))
+  if (this.vin != '' && (this.vin.length > 18 || this.vin.length < 17))
     return err();
 }
 
 function CmvPowerUnitNumberValidator(err) {
-  if (this.imeiEld && !this.CmvPowerUnitNumber &&
-    this.CmvPowerUnitNumber.trim() !== '') return err();
+  if (this.imeiEld && !this.CmvPowerUnitNumber) return err();
 }
 
 module.exports = function(Vehicle) {
   Vehicle.validate('vin', vinValidator);
-  Vehicle.validatesPresenceOf('plaque', 'state', 'model', 'carMaker');
   Vehicle.validatesUniquenessOf('vin', {message: 'VIN already exists'});
   Vehicle.validatesNumericalityOf('imeiEld', {int: true});
   Vehicle.validatesLengthOf('CmvPowerUnitNumber', {min: 1, max: 10});

@@ -78,8 +78,8 @@ function distanceSinceLastValidCoordinatesValidator(err) {
 
 function annotationValidator(err) {
   if (
-    (this.annotation && this.annotation.trim().length < 4) ||
-     (this.annotation && this.annotation.trim().length > 60)
+    (this.annotation && this.annotation.length < 4) ||
+     (this.annotation && this.annotation.length > 60)
    ) return err();
 }
 
@@ -115,18 +115,7 @@ function timeZoneOffsetUtcValidator(err) {
 function diagnosticCodeValidator(err) {
   let valArray = ['P', 'E', 'T', 'L', 'R', 'S',
     'O', '1', '2', '3', '4', '5', '6'];
-  if (this.diagnosticCode && !valArray.includes(this.diagnosticCode.trim()))
-    return err();
-}
-
-function shippingDocNumberValidator(err) {
-  if (this.shippingDocNumberValidator.trim() === '')
-    return err();
-}
-
-function driverLocationDescriptionValidator(err) {
-  if (this.driverLocationDescription &&
-  this.driverLocationDescription.trim() === '')
+  if (this.diagnosticCode && !valArray.includes(this.diagnosticCode))
     return err();
 }
 
@@ -170,8 +159,6 @@ module.exports = function(Event) {
   Event.validate('annotation', annotationValidator);
   Event.validate('totalEngineHours', totalEngineHoursValidator);
   Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
-  Event.validate('shippingDocNumber', shippingDocNumberValidator,
-  {message: "shippingDocNumber can't be blank"});
   Event.validatesLengthOf('shippingDocNumber', {min: 0, max: 40});
   Event.validatesLengthOf('driverLocationDescription', {min: 5, max: 60});
 
