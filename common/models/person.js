@@ -9,39 +9,56 @@ function emailValidator(err) {
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.accountType === 'D' && this.driverLicenseNumber === undefined)
-    err();
+  if (this.accountType.trim() === 'D' &&
+    (this.driverLicenseNumber === undefined ||
+    this.driverLicenseNumber.trim() === ''))
+    return err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType === 'D' && this.licenseIssuingState === undefined)
-    err();
+  if (this.accountType.trim() === 'D' &&
+  (this.licenseIssuingState === undefined ||
+    this.licenseIssuingState.trim() === ''))
+    return err();
 }
 
 function validateAccountStatus(err) {
-  if (this.accountType === 'D' && this.accountStatus === undefined) err();
+  if (this.accountType.trim() === 'D' &&
+    this.accountStatus === undefined)
+    return err();
 }
 
 function validateExemptDriverConfiguration(err) {
-  if ((this.accountType === 'D' &&
-    this.exemptDriverConfiguration === undefined) ||
+  if ((this.accountType.trim() === 'D' &&
+    (this.exemptDriverConfiguration === undefined ||
+      this.exemptDriverConfiguration.trim() === '')) ||
    (this.accountType === 'D' &&
-    !['E', '0'].includes(this.exemptDriverConfiguration)))
-    err();
+    !['E', '0'].includes(this.exemptDriverConfiguration.trim())))
+    return err();
 }
 
 function validateTimeZoneOffsetUtc(err) {
-  if ((this.accountType === 'D' && this.timeZoneOffsetUtc === undefined) ||
-  (this.accountType === 'D' && !Number.isInteger(this.timeZoneOffsetUtc)) ||
-  (this.accountType === 'D' &&
+  if ((this.accountType.trim() === 'D' &&
+    this.timeZoneOffsetUtc === undefined) ||
+  (this.accountType.trim() === 'D' &&
+    !Number.isInteger(this.timeZoneOffsetUtc)) ||
+  (this.accountType.trim() === 'D' &&
    (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
     err();
 }
 
 function validateStartingTime24HourPeriod(err) {
-  if (this.accountType === 'D' &&
+  if (this.accountType.trim() === 'D' &&
    this.startingTime24HourPeriod === undefined)
-    err();
+    return err();
+}
+
+function firstNameValidator(err) {
+  if (this.firstName && this.firstName.trim() === '') return err();
+}
+
+function lastNameValidator(err) {
+  if (this.lastName && this.lastName.trim() === '') return err();
 }
 
 module.exports = function(Person) {
@@ -50,6 +67,14 @@ module.exports = function(Person) {
     'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
+
+  // Blank content
+  Person.validate('firstName', firstNameValidator,
+  {message: "First Name can't be blank"});
+  Person.validate('lastName', lastNameValidator,
+  {message: "Last Name can't be blank"});
+
+  // Other
   Person.validatesLengthOf('firstName', {min: 2, max: 30});
   Person.validatesLengthOf('lastName', {min: 2, max: 30});
   Person.validatesLengthOf('email', {min: 4, max: 60});
