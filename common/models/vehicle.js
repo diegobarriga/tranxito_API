@@ -18,7 +18,7 @@ function vinValidator(err) {
 
 function CmvPowerUnitNumberValidator(err) {
   if (this.imeiEld && !this.CmvPowerUnitNumber &&
-    this.CmvPowerUnitNumber.trim() !== '') return err();
+    this.CmvPowerUnitNumber.trim() === '') return err();
 }
 
 module.exports = function(Vehicle) {

@@ -5,7 +5,7 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 
 function emailValidator(err) {
-  if (!validator.isEmail(String(this.email.trim()))) return err();
+  if (!validator.isEmail(String(this.email).trim())) return err();
 }
 
 function validateDriverLiceseNumber(err) {
@@ -24,7 +24,7 @@ function validateLicensesIssuingState(err) {
 function validateAccountStatus(err) {
   if (this.accountType === 'D' &&
   (this.accountStatus === undefined ||
-    this.accountStatus.trim().length <= 0)) return err();
+    this.accountStatus.trim() === '')) return err();
 }
 
 function validateExemptDriverConfiguration(err) {
@@ -51,11 +51,11 @@ function validateStartingTime24HourPeriod(err) {
 }
 
 function firstNameValidator(err) {
-  if (this.firstName.trim() === '') return err();
+  if (this.firstName && this.firstName.trim() === '') return err();
 }
 
 function lastNameValidator(err) {
-  if (this.lastName.trim() === '') return err();
+  if (this.lastName && this.lastName.trim() === '') return err();
 }
 
 module.exports = function(Person) {

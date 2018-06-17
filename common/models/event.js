@@ -120,7 +120,8 @@ function diagnosticCodeValidator(err) {
 }
 
 function shippingDocNumberValidator(err) {
-  if (this.shippingDocNumberValidator.trim() === '')
+  if (this.shippingDocNumberValidator &&
+    this.shippingDocNumberValidator.trim() === '')
     return err();
 }
 
@@ -172,6 +173,9 @@ module.exports = function(Event) {
   Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
   Event.validate('shippingDocNumber', shippingDocNumberValidator,
   {message: "shippingDocNumber can't be blank"});
+  Event.validate('driverLocationDescription',
+  driverLocationDescriptionValidator,
+  {message: "driverLocationDescription can't be blank"});
   Event.validatesLengthOf('shippingDocNumber', {min: 0, max: 40});
   Event.validatesLengthOf('driverLocationDescription', {min: 5, max: 60});
 
