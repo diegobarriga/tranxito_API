@@ -12,7 +12,7 @@ function configScriptValidator(err) {
 }
 
 // function imeiValidator(err) {
-//   if (!imei.isValid(String(this.imei))) return err();
+//   if (!imei.isValid(String(this.imei)) return err();
 // }
 
 module.exports = function(Device) {
@@ -28,8 +28,8 @@ module.exports = function(Device) {
     {'message': "Can't be blank"}
   );
   Device.validate('bluetoothMac', macAddressValidator);
-  Device.validate('configScript', configScriptValidator,
-  {message: "configScript can't be blank"});
+  // Device.validate('configScript', configScriptValidator,
+  // {message: "configScript can't be blank"});
   // Device.validate('imei', imeiValidator);
 
   Device.observe('after save', function(context, next) {

@@ -5,47 +5,50 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 
 function emailValidator(err) {
-  if (!validator.isEmail(String(this.email).trim())) return err();
+  if (!validator.isEmail(String(this.email))) return err();
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.accountType === 'D' && (this.driverLicenseNumber === undefined ||
+  if (this.accountType.trim() === 'D' &&
+    (this.driverLicenseNumber === undefined ||
     this.driverLicenseNumber.trim() === ''))
     return err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType === 'D' &&
+  if (this.accountType.trim() === 'D' &&
   (this.licenseIssuingState === undefined ||
     this.licenseIssuingState.trim() === ''))
     return err();
 }
 
 function validateAccountStatus(err) {
-  if (this.accountType === 'D' &&
-  (this.accountStatus === undefined ||
-    this.accountStatus.trim() === '')) return err();
+  if (this.accountType.trim() === 'D' &&
+    this.accountStatus === undefined)
+    return err();
 }
 
 function validateExemptDriverConfiguration(err) {
-  if ((this.accountType === 'D' &&
+  if ((this.accountType.trim() === 'D' &&
     (this.exemptDriverConfiguration === undefined ||
       this.exemptDriverConfiguration.trim() === '')) ||
    (this.accountType === 'D' &&
-    !['E', '0'].includes(this.exemptDriverConfiguration)))
+    !['E', '0'].includes(this.exemptDriverConfiguration.trim())))
     return err();
 }
 
 function validateTimeZoneOffsetUtc(err) {
-  if ((this.accountType === 'D' && this.timeZoneOffsetUtc === undefined) ||
-  (this.accountType === 'D' && !Number.isInteger(this.timeZoneOffsetUtc)) ||
-  (this.accountType === 'D' &&
+  if ((this.accountType.trim() === 'D' &&
+    this.timeZoneOffsetUtc === undefined) ||
+  (this.accountType.trim() === 'D' &&
+    !Number.isInteger(this.timeZoneOffsetUtc)) ||
+  (this.accountType.trim() === 'D' &&
    (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
     return err();
 }
 
 function validateStartingTime24HourPeriod(err) {
-  if (this.accountType === 'D' &&
+  if (this.accountType.trim() === 'D' &&
    this.startingTime24HourPeriod === undefined)
     return err();
 }
@@ -65,8 +68,10 @@ module.exports = function(Person) {
     {'message': "Can't be blank"}
   );
   // Blank content
-  Person.validate('firstName', firstNameValidator, "First Name can't be blank");
-  Person.validate('lastName', lastNameValidator, "Last Name can't be blank");
+  Person.validate('firstName', firstNameValidator,
+  {message: "First Name can't be blank"});
+  Person.validate('lastName', lastNameValidator,
+  {message: "Last Name can't be blank"});
 
   // Other
   Person.validatesLengthOf('firstName', {min: 2, max: 30});
