@@ -4,13 +4,11 @@ var imei = require('imei');
 var app = require('../../server/server.js');
 
 function macAddressValidator(err) {
-
   if (!validator.isMACAddress(String(this.bluetoothMac).trim())) return err();
 }
 
 function configScriptValidator(err) {
   if (this.configScript && this.configScript.trim() === '') return err();
-
 }
 
 // function imeiValidator(err) {

@@ -67,7 +67,7 @@ module.exports = function(Person) {
     'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
-  
+
   // Blank content
   Person.validate('firstName', firstNameValidator,
   {message: "First Name can't be blank"});

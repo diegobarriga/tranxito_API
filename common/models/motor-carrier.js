@@ -6,7 +6,6 @@ var path = require('path');
 var csv = require('fast-csv');
 var fs = require('fs');
 
-
 function nameValidator(err) {
   if (this.name && this.name.trim() === '')
     err();
