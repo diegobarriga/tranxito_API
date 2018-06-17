@@ -25,20 +25,16 @@
       "type": "string"
     },
     "model": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "carMaker": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "plaque": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "state": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "imeiEld": {
       "type": "number",

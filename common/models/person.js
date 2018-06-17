@@ -44,7 +44,7 @@ function validateTimeZoneOffsetUtc(err) {
     !Number.isInteger(this.timeZoneOffsetUtc)) ||
   (this.accountType.trim() === 'D' &&
    (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
-    return err();
+    err();
 }
 
 function validateStartingTime24HourPeriod(err) {
@@ -67,6 +67,7 @@ module.exports = function(Person) {
     'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
+  
   // Blank content
   Person.validate('firstName', firstNameValidator,
   {message: "First Name can't be blank"});

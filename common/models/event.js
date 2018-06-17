@@ -78,8 +78,8 @@ function distanceSinceLastValidCoordinatesValidator(err) {
 
 function annotationValidator(err) {
   if (
-    (this.annotation && this.annotation.trim().length < 4) ||
-     (this.annotation && this.annotation.trim().length > 60)
+    (this.annotation && this.annotation.length < 4) ||
+     (this.annotation && this.annotation.length > 60)
    ) return err();
 }
 
