@@ -133,7 +133,6 @@ function driverLocationDescriptionValidator(err) {
 
 module.exports = function(Event) {
   Event.validatesPresenceOf(
-    'sequenceId',
     'type',
     'recordStatus',
     'recordOrigin',
@@ -144,7 +143,6 @@ module.exports = function(Event) {
     {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
-    'sequenceId',
     'recordStatus',
     'recordOrigin',
     'type',
@@ -292,4 +290,16 @@ module.exports = function(Event) {
         'If req is given, certify only the records given by eventsIds',
       ],
     });
+
+  Event.observe('after save', function updateSequenceId(ctx, next) {
+    if (ctx.instance) {
+      ctx.instance.updateAttribute('sequenceId', ctx.instance.id % 65536,
+      function(err, _) {
+        if (err) throw err;
+      });
+    } else {
+      ctx.data.sequenceId = ctx.data.id % 65536;
+    }
+    next();
+  });
 };
