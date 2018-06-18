@@ -293,12 +293,12 @@ module.exports = function(Event) {
 
   Event.observe('after save', function updateSequenceId(ctx, next) {
     if (ctx.instance) {
-      ctx.instance.updateAttribute('sequenceId', ctx.instance.id % 65535,
+      ctx.instance.updateAttribute('sequenceId', ctx.instance.id % 65536,
       function(err, _) {
         if (err) throw err;
       });
     } else {
-      ctx.data.sequenceId = ctx.data.id % 65535; // FFFF in hexa
+      ctx.data.sequenceId = ctx.data.id % 65536;
     }
     next();
   });
