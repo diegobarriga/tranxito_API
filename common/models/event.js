@@ -292,4 +292,12 @@ module.exports = function(Event) {
         'If req is given, certify only the records given by eventsIds',
       ],
     });
+
+  Event.observe('before save', function updateSequenceId(ctx, next) {
+    // If instance is new (i.e CREATE method)
+    if (ctx.instance) {
+      ctx.instance.sequenceId = ctx.instance.sequenceId % 65535;
+    }
+    next();
+  });
 };
