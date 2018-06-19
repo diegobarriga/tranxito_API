@@ -31,11 +31,22 @@ module.exports = function(Vehicle) {
   Vehicle.observe('after save', function(context, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
-      LastMod.vehicles = Date.now();
-      LastMod.save(function(error, LM) {
+      var NOW = Date.now();
+      var currentContext = LoopBackContext.getCurrentContext();
+      LastMod.vehicles = NOW;
+      if (currentContext) currentContext.set('timestamp', NOW);
+      LastMod.save(function(error) {
         if (error) throw (error);
         next();
       });
+    });
+  });
+
+  Vehicle.afterRemote('**', function(ctx, modelInstance, next) {
+    var currentContext = LoopBackContext.getCurrentContext();
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      ctx.res.set('LastMod', LastMod.vehicle);
+      next();
     });
   });
 
