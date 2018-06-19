@@ -3,6 +3,7 @@ var validator = require('validator');
 var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
+var LoopBackContext = require('loopback-context');
 
 function emailValidator(err) {
   if (!validator.isEmail(String(this.email))) return err();
@@ -118,11 +119,22 @@ module.exports = function(Person) {
   Person.observe('after save', function(context, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
-      LastMod.people = Date.now();
-      LastMod.save(function(error, LM) {
+      var NOW = Date.now();
+      var currentContext = LoopBackContext.getCurrentContext();
+      LastMod.people = NOW;
+      if (currentContext) currentContext.set('timestamp', NOW);
+      LastMod.save(function(error) {
         if (error) throw (error);
         next();
       });
+    });
+  });
+
+  Person.afterRemote('**', function(ctx, modelInstance, next) {
+    var currentContext = LoopBackContext.getCurrentContext();
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      ctx.res.set('LastMod', LastMod.people);
+      next();
     });
   });
 
