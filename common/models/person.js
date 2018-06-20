@@ -243,4 +243,72 @@ module.exports = function(Person) {
         'for the specified driver from the last 24 hour',
       ],
     });
+
+  // Certify all the uncertified events for a driver
+  Person.certifyEvents = function(id, req, cb) {
+    Person.findById(id, function(err, person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
+        cb(err, 'Person not found');
+      } else if (person.accountType !== 'D') {
+        err = Error('Person is not a driver.');
+        err.statusCode = '422';
+        return cb(err, 'Person is not a driver');
+      } else {
+        let context = LoopBackContext.getCurrentContext();
+        let currentUser = context && context.get('currentUser');
+        if (currentUser && currentUser.id !== person.id &&
+          currentUser.accountType === 'D') {
+          let err = Error('Cannot modify another driver records');
+          err.statusCode = '401';
+          return cb(err, 'Cannot modify another driver records');
+        }
+        person.events.find(
+          {
+            where: {
+              certified: false,
+            },
+          }, function(error, events) {
+          if (error) {
+            return cb(error);
+          }
+          let usefulEvents;
+          if (req && req.eventsIds && (req.eventsIds.length > 0)) {
+            usefulEvents = events.filter(function(element) {
+              return req.eventsIds.indexOf(element.id) != -1;
+            });
+          } else {
+            usefulEvents = events;
+          }
+          usefulEvents.forEach(function(event) {
+            event.certified = true;
+            event.dateOfCertifiedRecord = Date.now();
+            event.save();
+          });
+          console.log(usefulEvents.length + ' events certified');
+          return cb(null, {'message': usefulEvents.length +
+          ' events certified'}); // revisar que respuesta se debe enviar
+        });
+      }
+    });
+  };
+
+  Person.remoteMethod(
+    'certifyEvents',
+    {
+      accepts: [
+        {arg: 'id', type: 'number', required: true},
+        {arg: 'req', type: 'object'},
+      ],
+      http: {path: '/:id/certifyEvents', verb: 'patch'},
+      returns: {arg: 'message', type: 'string'},
+      description: [
+        'Certify all the uncertified events for a driver.',
+        'If req is given, certify only the records given by eventsIds',
+      ],
+    });
 };

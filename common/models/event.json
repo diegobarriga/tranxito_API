@@ -214,13 +214,6 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
-      "property": "certifyEvents"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
-      "principalId": "D",
-      "permission": "ALLOW",
       "property": "findById"
     },
     {
