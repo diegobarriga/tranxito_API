@@ -67,31 +67,10 @@
       "permission": "ALLOW"
     },
     {
-      "accessType": "*",
+      "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__tracking"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__supervisors"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__drivers"
     },
     {
       "accessType": "EXECUTE",
@@ -120,6 +99,27 @@
       "principalId": "S",
       "permission": "DENY",
       "property": "__delete__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__trailers"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__devices"
     },
     {
       "accessType": "EXECUTE",
@@ -202,6 +202,13 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
+      "property": "__get__trailers"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
       "property": "__get__devices"
     },
     {
@@ -217,6 +224,13 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "__findById__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__trailers"
     },
     {
       "accessType": "EXECUTE",
