@@ -81,7 +81,7 @@
     "dataSource": "postgresDB",
     "public": true
   },
-  "trailer": {
+  "Trailer": {
     "dataSource": "postgresDB",
     "public": true
   }

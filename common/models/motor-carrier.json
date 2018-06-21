@@ -26,6 +26,11 @@
       "model": "Vehicle",
       "foreignKey": ""
     },
+    "trailers": {
+      "type": "hasMany",
+      "model": "Trailer",
+      "foreignKey": ""
+    },
     "devices": {
       "type": "hasMany",
       "model": "Device",
