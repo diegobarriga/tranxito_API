@@ -78,10 +78,12 @@ module.exports = async function(app) {
     let motorCarriers = [];
     let carrier;
     carrier = await Carrier.create(
-      {'name': 'E2EGroup', 'usdotNumber': 0, 'multidayBasisUsed': 7});
+      {'name': 'E2EGroup', 'usdotNumber': 0, 'multidayBasisUsed': 7,
+        'createDevices': true});
     motorCarriers.push(carrier);
     carrier = await Carrier.create(
-      {'name': 'DCCGroup', 'usdotNumber': 12, 'multidayBasisUsed': 8});
+      {'name': 'DCCGroup', 'usdotNumber': 12, 'multidayBasisUsed': 8,
+        'createDevices': false});
     motorCarriers.push(carrier);
 
     console.log(`motor carrier created! ${JSON.stringify(motorCarriers)}`);

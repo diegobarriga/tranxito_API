@@ -36,6 +36,10 @@ module.exports = function(app) {
           if (isSupport &&
             ctxModel === 'MotorCarrier' &&
             user.motorCarrierId === modelInstance.id) {
+            if (context.method === '__create__devices' &&
+                !modelInstance.createDevices) {
+              return process.nextTick(() => cb(null, false));
+            }
             return cb(null, true);
           } else if ((isSupport &&
               ctxModel === 'Person' || ctxModel === 'Vehicle' ||
@@ -52,7 +56,6 @@ module.exports = function(app) {
     }
   });
 
-  // TODO agregar ACLs
   Role.registerResolver('D', function(role, context, cb) {
     var userId = context.accessToken.userId;
     if (!userId) {

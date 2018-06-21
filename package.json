@@ -33,7 +33,7 @@
     "loopback-console": "^1.1.0",
     "loopback-context": "^3.3.0",
     "loopback-import-mixin": "^1.2.2",
-    "npm": "^5.8.0",
+    "npm": "^5.10.0",
     "random-mac": "0.0.4",
     "serve-favicon": "^2.0.1",
     "strong-error-handler": "^2.0.0",
