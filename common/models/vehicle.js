@@ -22,7 +22,8 @@ function CmvPowerUnitNumberValidator(err) {
 }
 
 function yearValidator(err) {
-  let thisYear = Date.now().getUTCFullYear();
+  let now = new Date();
+  let thisYear = now.getUTCFullYear();
   if (this.year && !validator.isInt(String(this.year),
     {min: 1900, max: thisYear}))
     return err();

@@ -26,7 +26,8 @@ function gvwtValidator(err) {
 }
 
 function yearValidator(err) {
-  let thisYear = Date.now().getUTCFullYear();
+  let now = new Date();
+  let thisYear = now.getUTCFullYear();
   if (this.year && !validator.isInt(String(this.year),
     {min: 1900, max: thisYear}))
     return err();
@@ -34,6 +35,7 @@ function yearValidator(err) {
 
 module.exports = function(Trailer) {
   Trailer.validate('vin', vinValidator);
+  Trailer.validatesUniquenessOf('vin', {message: 'VIN already exists'});
   Trailer.validate('model', modelValidator);
   Trailer.validate('manufacturer', manufacturerValidator);
   Trailer.validate('gvw', gvwtValidator);
