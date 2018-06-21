@@ -2,9 +2,6 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
   "indexes": {
     "plaqueStateIndex": {
       "keys": {
@@ -16,6 +13,9 @@
       }
     }
   },
+  "options": {
+    "validateUpsert": true
+  },
   "mixins": {},
   "properties": {
     "vin": {
@@ -26,6 +26,9 @@
     },
     "model": {
       "type": "string"
+    },
+    "year": {
+      "type": "number"
     },
     "carMaker": {
       "type": "string"

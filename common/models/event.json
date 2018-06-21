@@ -31,7 +31,7 @@
       "required": true
     },
     "recordOrigin": {
-      "type":  "number",
+      "type": "number",
       "required": true
     },
     "accumulatedVehicleMiles": {
