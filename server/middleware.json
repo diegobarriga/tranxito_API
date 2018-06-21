@@ -16,7 +16,8 @@
       "params": {
         "origin": true,
         "credentials": true,
-        "maxAge": 86400
+        "maxAge": 86400,
+        "exposedHeaders": ["LastMod"]
       }
     },
     "helmet#xssFilter": {},
