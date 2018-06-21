@@ -36,6 +36,8 @@ function yearValidator(err) {
 module.exports = function(Trailer) {
   Trailer.validate('vin', vinValidator);
   Trailer.validatesUniquenessOf('vin', {message: 'VIN already exists'});
+  Trailer.validatesUniquenessOf('number',
+  {message: 'Serial No already exists'});
   Trailer.validate('model', modelValidator);
   Trailer.validate('manufacturer', manufacturerValidator);
   Trailer.validate('gvw', gvwtValidator);
