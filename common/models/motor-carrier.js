@@ -544,8 +544,6 @@ module.exports = function(MotorCarrier) {
       },
       function(fileContainer, done) {
         // Store the state of the import process in the database
-        console.log('req.currentUser');
-        console.log(req.currentUser);
         FileUpload.create({
           date: new Date(),
           fileType: MotorCarrier.modelName,
@@ -668,9 +666,7 @@ module.exports = function(MotorCarrier) {
 
       let transactionOptions = {transaction: ctx.transaction};
       function recursiveTransactionCreateInstance(index) {
-        console.log(`recursiveTransactionCreateInstance: ${index} `);
         if (index > dataList.length - 1) {
-          console.log(`dataList.length reached ${index} - ${errors}`);
           if (errors.length > 0) {
             return callback(errors[0]);
           } else {
@@ -679,7 +675,6 @@ module.exports = function(MotorCarrier) {
         }
 
         let model;
-        console.log(modelName);
         if (modelName === 'Person') {
           model = MotorCarrier.app.models.Person;
         }
