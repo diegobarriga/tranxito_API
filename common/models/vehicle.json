@@ -2,9 +2,6 @@
   "name": "Vehicle",
   "base": "PersistedModel",
   "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
   "indexes": {
     "plaqueStateIndex": {
       "keys": {
@@ -15,6 +12,9 @@
         "unique": true
       }
     }
+  },
+  "options": {
+    "validateUpsert": true
   },
   "mixins": {},
   "properties": {

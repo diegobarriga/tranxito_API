@@ -1,8 +1,12 @@
 {
   "initial:before": {
     "loopback#favicon": {},
-      "body-parser#json": {},
-      "body-parser#urlencoded": {"params": { "extended": true }},
+    "body-parser#json": {},
+    "body-parser#urlencoded": {
+      "params": {
+        "extended": true
+      }
+    },
     "./middleware/request-logger": {}
   },
   "initial": {

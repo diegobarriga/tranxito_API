@@ -11,7 +11,8 @@ var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
 function vinValidator(err) {
-  if (this.vin != '' && (this.vin.length > 18 || this.vin.length < 17))
+  if (this.vin != '' && (this.vin.trim().length > 18 ||
+  this.vin.trim().length < 17))
     return err();
 }
 
