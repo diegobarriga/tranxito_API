@@ -15,12 +15,18 @@
     "model": {
       "type": "string"
     },
+    "year": {
+      "type": "number"
+    },
     "vin": {
       "type": "string"
     },
     "number": {
       "type": "string",
       "required": true
+    },
+    "image": {
+      "type": "string"
     }
   },
   "validations": [],

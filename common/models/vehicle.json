@@ -27,6 +27,9 @@
     "model": {
       "type": "string"
     },
+    "year": {
+      "type": "number"
+    },
     "carMaker": {
       "type": "string"
     },
