@@ -520,6 +520,10 @@ module.exports = function(MotorCarrier) {
     return this.csvUpload(req, 'Vehicle', callback);
   };
 
+  MotorCarrier.devicesCsvUpload = function(id, req, callback) {
+    return this.csvUpload(req, 'Device', callback);
+  };
+
   MotorCarrier.csvUpload = function(req, modelName, callback) {
     const Container  = MotorCarrier.app.models.Container;
     const FileUpload  = MotorCarrier.app.models.FileUpload;
@@ -540,13 +544,11 @@ module.exports = function(MotorCarrier) {
       },
       function(fileContainer, done) {
         // Store the state of the import process in the database
-        var context = LoopBackContext.getCurrentContext();
-        var currentUser = context && context.get('currentUser');
         FileUpload.create({
           date: new Date(),
           fileType: MotorCarrier.modelName,
           status: 'PENDING',
-          personId: currentUser.id,
+          personId: req.currentUser.id,
         }, function(err, fileUpload) {
           done(err, fileContainer, fileUpload);
         });
@@ -558,6 +560,7 @@ module.exports = function(MotorCarrier) {
         root: MotorCarrier.app.datasources.container.settings.root,
         container: fileContainer.files.file[0].container,
         file: fileContainer.files.file[0].name,
+        currentUser: req.currentUser,
       };
 
       MotorCarrier.import(
@@ -631,11 +634,8 @@ module.exports = function(MotorCarrier) {
       stream.pause();
       i++;
       console.log(data);
-      var context = LoopBackContext.getCurrentContext();
-      var currentUser = context && context.get('currentUser');
-      if (currentUser) {
-        data.motorCarrierId = currentUser.motorCarrierId;
-      }
+
+      data.motorCarrierId = options.currentUser && options.currentUser.motorCarrierId;
 
       if (modelName === 'Person') {
         data.accountType = 'D';
@@ -644,6 +644,15 @@ module.exports = function(MotorCarrier) {
         data.defaultUse = (data.defaultUse == '1');
         data.personalUse = (data.personalUse == '1');
       }
+
+      if (modelName === 'Device') {
+        data.state = true;
+        data.configScript = "#string"
+        data.configStatus = false;
+        data.sequenceId = 0
+        data.vehicleId = undefined;
+      }
+
 
       data.line = i + 2;
       dataList.push(data);
@@ -657,9 +666,7 @@ module.exports = function(MotorCarrier) {
 
       let transactionOptions = {transaction: ctx.transaction};
       function recursiveTransactionCreateInstance(index) {
-        console.log(`recursiveTransactionCreateInstance: ${index} `);
         if (index > dataList.length - 1) {
-          console.log(`dataList.length reached ${index} - ${errors}`);
           if (errors.length > 0) {
             return callback(errors[0]);
           } else {
@@ -670,8 +677,12 @@ module.exports = function(MotorCarrier) {
         let model;
         if (modelName === 'Person') {
           model = MotorCarrier.app.models.Person;
-        } else {
+        }
+        if (modelName === 'Vehicle') {
           model = MotorCarrier.app.models.Vehicle;
+        }
+        if (modelName === 'Device') {
+          model = MotorCarrier.app.models.Device;
         }
         model.create(dataList[index], transactionOptions, function(err) {
           if (err) {
@@ -757,6 +768,22 @@ module.exports = function(MotorCarrier) {
       ],
       description: [
         'Create multiple vehicles through a csv',
+      ],
+    });
+
+  MotorCarrier.remoteMethod(
+    'devicesCsvUpload',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'req', type: 'object', http: {source: 'req'}, required: true},
+      ],
+      http: {verb: 'post', path: '/:id/devices/csvUpload'},
+      returns: [
+        {arg: 'message', type: 'string', root: true},
+      ],
+      description: [
+        'Create multiple devices through a csv',
       ],
     });
 };
