@@ -26,18 +26,21 @@ module.exports = function(app) {
     if (context.modelId) {
       context.model.findById(context.modelId, function(err, modelInstance) {
         if (err) return cb(err);
-        if (!modelInstance) return cb(new Error('Motor Carrier not found'));
+        if (!modelInstance) return cb(new Error(context.modelName + '/{' +
+        context.modelId + '} not found'));
         var Person = app.models.Person;
         Person.findById(userId, function(err, user) {
           if (err) return cb(err);
-          if (user.accountType == 'S' &&
-            context.modelName === 'MotorCarrier' &&
+          let isSupport = user.accountType == 'S';
+          let ctxModel = context.modelName;
+          if (isSupport &&
+            ctxModel === 'MotorCarrier' &&
             user.motorCarrierId === modelInstance.id) {
             return cb(null, true);
-          } else if ((user.accountType == 'S' &&
-              context.modelName === 'Person' ||
-              context.modelName === 'Vehicle') &&
-              user.motorCarrierId === modelInstance.motorCarrierId) {
+          } else if ((isSupport &&
+              ctxModel === 'Person' || ctxModel === 'Vehicle' ||
+              ctxModel === 'Trailer'
+            ) && user.motorCarrierId === modelInstance.motorCarrierId) {
             return cb(null, true);
           } else {
             return process.nextTick(() => cb(null, false));
@@ -63,39 +66,26 @@ module.exports = function(app) {
         var Person = app.models.Person;
         Person.findById(userId, function(err, user) {
           if (err) return cb(err);
-          if (user.accountType == 'D' &&
-            context.modelName === 'MotorCarrier' &&
+          let isDriver = user.accountType == 'D';
+          let ctxModel = context.modelName;
+          if (isDriver && ctxModel === 'MotorCarrier' &&
             user.motorCarrierId === modelInstance.id) {
             return cb(null, true);
-          } else if (user.accountType == 'D' &&
-              context.modelName === 'Person' &&
+          } else if (isDriver && ctxModel === 'Person' &&
               user.id == modelInstance.id) {
             return cb(null, true);
-          } else if (user.accountType == 'D' &&
-              context.modelName === 'Event' &&
+          } else if (isDriver && ctxModel === 'Event' &&
               (user.id === modelInstance.driverId ||
               user.id === modelInstance.codriverId ||
               modelInstance.driverId == null)) {
             return cb(null, true);
-          } else if (user.accountType == 'D' &&
-              context.modelName === 'Tracking' &&
+          } else if (isDriver && ctxModel === 'Tracking' &&
               user.id === modelInstance.personId) {
             return cb(null, true);
           } else {
             return process.nextTick(() => cb(null, false));
           }
         });
-      });
-    } else if (context.modelName === 'Event' &&
-        context.method === 'certifyEvents') {
-      // TODO cambiar endpoint PATCH Event/certifyEvents por PATCH People/{id}/certifyEvents
-      Person.findById(userId, function(err, user) {
-        if (err) return cb(err);
-        if (user.accountType == 'D') {
-          return cb(null, true);
-        } else {
-          return process.nextTick(() => cb(null, false));
-        }
       });
     } else {
       return process.nextTick(() => cb(null, false));

@@ -434,6 +434,20 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "__get__motorCarrier"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "certifyEvents"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "certifyEvents"
     }
   ],
   "methods": {}
