@@ -221,12 +221,44 @@ module.exports = function(Person) {
       if (!events) {
         return cb(erro, 'No events found for driver');
       }
-      let data = [];
+      let currentUserEvents = [];
       events.forEach(function(event) {
         let e = event.toJSON();
-        data.push(e);
+        currentUserEvents.push(e);
       });
-      return cb(null, data);
+
+      Person.app.models.Event.find({
+        where: {
+          timestamp: {gt: DATE_LIMIT},
+          vehicleId: currentUserEvents[0].vehicleId,
+        }, order: 'timestamp DESC',
+        include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
+      }, function(err, elements) {
+        if (err) return cb(err);
+        let currentCMVEvents = [];
+        elements.forEach(function(element) {
+          let elem = element.toJSON();
+          currentCMVEvents.push(elem);
+        });
+
+        Person.app.models.Event.find({
+          where: {
+            timestamp: {gt: DATE_LIMIT},
+            driverId: null,
+            motorCarrierId: person.motorCarrierId,
+          }, order: 'timestamp DESC',
+          include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
+        }, function(error, unidentifiedEvents) {
+          if (error) return cb(error);
+          let unidentifiedUserEvents = [];
+          unidentifiedEvents.forEach(function(element) {
+            let elem = element.toJSON();
+            unidentifiedUserEvents.push(elem);
+          });
+          return cb(null, currentUserEvents, currentCMVEvents,
+           unidentifiedUserEvents);
+        });
+      });
     });
   };
 
@@ -245,18 +277,31 @@ module.exports = function(Person) {
         err.statusCode = '422';
         cb(err, 'Person is not a driver');
       } else {
-        Person.getReportData(person, function(err, data) {
-          if (err) throw err;
-          const containerName = Person.createContainerName('Report');
-          const header = Person.reportHeader(data[0]);
-          const cmvList = Person.reportCmvList(data);
-          let reportEventsandComments = Person.reportEventListandComments(data);
-          const reportEventsList = reportEventsandComments[0];
-          const reportComments = reportEventsandComments[1];
-          const reportCertificationList = Person.reportCertificationList(data);
-          console.log(header + cmvList + reportEventsList + reportComments);
-          cb(null, header + cmvList);
-        });
+        Person.getReportData(person,
+         function(error, currentUserEvents, currentCMVEvents,
+          unidentifiedUserEvents) {
+           if (error) return cb(error);
+           const containerName = Person.createContainerName('Report');
+           const header = Person.reportHeader(currentUserEvents[0]);
+           const userList = Person.reportUserList(currentCMVEvents);
+           const cmvList = Person.reportCmvList(currentUserEvents);
+           let eventsandComments = Person.reportEventListandComments(
+            currentUserEvents);
+           const eventsList = eventsandComments[0];
+           const comments = eventsandComments[1];
+           const certificationList = Person.reportCertificationList(
+            currentUserEvents);
+           const malfunctionList = Person.reportMalfunctionList(
+            currentUserEvents);
+           const loginout = Person.reportLoginout(currentUserEvents);
+           const powerActivity = Person.reportPowerActivity(currentUserEvents);
+           const unidentifiedUser = Person.reportUnidentifiedUser(
+            unidentifiedUserEvents);
+           console.log(header + userList + cmvList + eventsList +
+           comments + malfunctionList + loginout +
+           powerActivity + unidentifiedUser);
+           cb(null, header + cmvList);
+         });
       }
     });
   };
@@ -321,43 +366,83 @@ module.exports = function(Person) {
       motorCarrier.usdotNumber,
       motorCarrier.name,
       motorCarrier.multidayBasisUsed,
-      motorCarrier.startingTime24HourPeriod,
-      motorCarrier.timeZoneOffsetUtc,
+      driver.startingTime24HourPeriod,
+      driver.timeZoneOffsetUtc,
     ], [
       data.shippingDocNumber,
-      data.exemptDriverConfiguration,
+      driver.exemptDriverConfiguration,
     ], [
       date[0],
       date[1],
       data.coordinates.lat,
       data.coordinates.lng,
-      data.totaVehicleMiles,
+      data.totalVehicleMiles,
       data.totalEngineHours,
     ]);  // falta una linea de datos del eld y los checkline de cada linea
     return Person.reportSection(header, lines);
   };
 
   Person.reportUserList = function(data) {
-    const header = 'ELD File Header Segment:';
+    const header = 'User List:';
     let lines = [];
+    let uniqueUserIds = [];
     let counter = 1;
+
+    data.forEach(function(event) {
+      let driver = event.driver;
+      let codriver = event.codriver;
+      if (driver == undefined) {
+        driver = {};
+        driver.id = null;
+        driver.accountType = null;
+        driver.firstName = null;
+        driver.lastName = null;
+      }
+      if (driver != undefined && uniqueUserIds.indexOf(driver.id) == -1) {
+        lines.push([
+          counter,
+          driver.accountType,
+          driver.lastName,
+          driver.firstName,
+          // falta check line
+        ]);
+        counter += 1;
+      }
+      if (codriver != undefined && uniqueUserIds.indexOf(codriver.id) == -1) {
+        lines.push([
+          counter,
+          event.driver.accountType,
+          event.driver.lastName,
+          event.driver.firstName,
+          // falta check line
+        ]);
+        counter += 1;
+      }
+    });
+
+    return Person.reportSection(header, lines);
   };
 
   Person.reportCmvList = function(data) {
     const header = 'CMV List:';
     let lines = [];
+    let uniqueVehicleIds = [];
     let counter = 1;
 
     data.forEach(function(event) {
       let vehicle = event.vehicle;
-
-      lines.push([
-        counter,
-        vehicle.CmvPowerUnitNumber,
-        vehicle.vin,
-        // falta check line
-      ]);
-      counter += 1;
+      if (uniqueVehicleIds.indexOf(vehicle.id) == -1) {
+        lines.push([
+          counter,
+          vehicle.CmvPowerUnitNumber,
+          vehicle.vin,
+          // falta check line
+        ]);
+        counter += 1;
+        uniqueVehicleIds.push(vehicle.id);
+      } else {
+        console.log('vehiculo repetido con vin: ' + vehicle.vin);
+      };
     });
     return Person.reportSection(header, lines);
   };
@@ -427,8 +512,110 @@ module.exports = function(Person) {
     return Person.reportSection(header, lines);
   };
 
+  Person.reportMalfunctionList = function(data) {
+    const header = 'Malfunctions and Data Diagnostic Events:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 7) {
+        let date = Person.extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          event.diagnosticCode,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+          // corresponding cmv number
+          //line data check value
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportLoginout = function(data) {
+    const header = 'ELD Login/Logout Report:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 5) {
+        let date = Person.extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          event.driver.username,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+          //line data check value
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportPowerActivity = function(data) {
+    const header = 'CMV Engine Power-Up and Shut Down Activity:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 6) {
+        let date = Person.extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+          event.coordinates.lat,
+          event.coordinates.lng,
+          event.vehicle.CmvPowerUnitNumber,
+          event.vehicle.vin,
+          event.vehicle.trailerNumber,
+          event.shippingDocNumber,
+          //line data check value
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportUnidentifiedUser = function(data) {
+    const header = 'Unidentified Driver Profile Records:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.driverId == null) {
+        let date = Person.extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.recordStatus,
+          event.recordOrigin,
+          event.type,
+          event.code,
+          date[0],
+          date[1],
+          event.accumulatedVehicleMiles,
+          event.elapsedEngineHours,
+          event.coordinates.lat,
+          event.coordinates.lng,
+          event.distSinceLastValidCoords,
+          // corresponding cmv number
+          event.malfunctionIndicatorStatus,
+          event.dataCheckValue,
+          //line data check value
+        ]);
+      };
+    });
+    return Person.reportSection(header, lines);
+  };
+
   Person.extractDateTime = function(timestamp) {
     let date = new Date(Date.parse(timestamp));
-    return [1, 2]; // buscar formato de date y time
+    return ['date', 'time']; // buscar formato de date y time real
   };
 };
