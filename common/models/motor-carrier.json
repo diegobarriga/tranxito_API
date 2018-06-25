@@ -17,8 +17,13 @@
     "multidayBasisUsed": {
       "type": "number",
       "required": true
+    },
+    "createDevices": {
+      "type": "boolean",
+      "required": true
     }
   },
+  "hidden": ["createDevices"],
   "validations": [],
   "relations": {
     "vehicles": {
@@ -133,6 +138,13 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "DENY",
+      "property": "create"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
       "property": "__destroyById__events"
     },
     {
@@ -158,16 +170,16 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW",
+      "principalId": "S",
+      "permission": "DENY",
       "property": "patchAttributes"
     },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "S",
-      "permission": "ALLOW",
-      "property": "patchAttributes"
+      "permission": "DENY",
+      "property": "updateAttributes"
     },
     {
       "accessType": "EXECUTE",
