@@ -84,5 +84,10 @@
   "Trailer": {
     "dataSource": "postgresDB",
     "public": true
+  },
+
+  "Email": {
+    "dataSource": "mailgun",
+    "public": false
   }
 }
