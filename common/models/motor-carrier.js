@@ -635,7 +635,8 @@ module.exports = function(MotorCarrier) {
       i++;
       console.log(data);
 
-      data.motorCarrierId = options.currentUser && options.currentUser.motorCarrierId;
+      data.motorCarrierId =
+        options.currentUser && options.currentUser.motorCarrierId;
 
       if (modelName === 'Person') {
         data.accountType = 'D';
@@ -647,12 +648,11 @@ module.exports = function(MotorCarrier) {
 
       if (modelName === 'Device') {
         data.state = true;
-        data.configScript = "#string"
+        data.configScript = '#string';
         data.configStatus = false;
-        data.sequenceId = 0
+        data.sequenceId = 0;
         data.vehicleId = undefined;
       }
-
 
       data.line = i + 2;
       dataList.push(data);
@@ -784,9 +784,9 @@ module.exports = function(MotorCarrier) {
       ],
       description: [
         'Create multiple devices through a csv',
-        ],
+      ],
     });
-  
+
   MotorCarrier.sendEmail = function(id, to, subject, text, html, cb) {
     MotorCarrier.findById(id).then(motorCarrier => {
       MotorCarrier.app.models.Email.send(
