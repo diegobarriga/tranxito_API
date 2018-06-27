@@ -8,7 +8,6 @@ var fork      = require('child_process').fork;
 var fs        = require('fs');
 var path      = require('path');
 var loopback  = require('loopback');
-var LoopBackContext = require('loopback-context');
 
 function vinValidator(err) {
   if (this.vin != '' && (this.vin.trim().length > 18 ||
@@ -42,9 +41,7 @@ module.exports = function(Vehicle) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
       var NOW = Date.now();
-      var currentContext = LoopBackContext.getCurrentContext();
       LastMod.vehicles = NOW;
-      if (currentContext) currentContext.set('timestamp', NOW);
       LastMod.save(function(error) {
         if (error) throw (error);
         next();
@@ -53,9 +50,8 @@ module.exports = function(Vehicle) {
   });
 
   Vehicle.afterRemote('**', function(ctx, modelInstance, next) {
-    var currentContext = LoopBackContext.getCurrentContext();
     app.models.LastMod.findOne({}, function(err, LastMod) {
-      ctx.res.set('LastMod', LastMod.vehicle);
+      ctx.res.set('LastMod', LastMod.vehicle.toISOString());
       next();
     });
   });

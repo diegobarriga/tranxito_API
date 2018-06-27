@@ -2,7 +2,6 @@
 var validator = require('validator');
 var imei = require('imei');
 var app = require('../../server/server.js');
-var LoopBackContext = require('loopback-context');
 
 function macAddressValidator(err) {
   if (!validator.isMACAddress(String(this.bluetoothMac).trim())) return err();
@@ -36,9 +35,7 @@ module.exports = function(Device) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
       var NOW = Date.now();
-      var currentContext = LoopBackContext.getCurrentContext();
       LastMod.devices = NOW;
-      if (currentContext) currentContext.set('timestamp', NOW);
       LastMod.save(function(error) {
         if (error) throw (error);
         next();
@@ -47,9 +44,8 @@ module.exports = function(Device) {
   });
 
   Device.afterRemote('**', function(ctx, modelInstance, next) {
-    var currentContext = LoopBackContext.getCurrentContext();
     app.models.LastMod.findOne({}, function(err, LastMod) {
-      ctx.res.set('LastMod', LastMod.device);
+      ctx.res.set('LastMod', LastMod.device.toISOString());
       next();
     });
   });
