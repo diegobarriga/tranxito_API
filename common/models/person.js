@@ -120,9 +120,7 @@ module.exports = function(Person) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
       var NOW = Date.now();
-      var currentContext = LoopBackContext.getCurrentContext();
       LastMod.people = NOW;
-      if (currentContext) currentContext.set('timestamp', NOW);
       LastMod.save(function(error) {
         if (error) throw (error);
         next();
@@ -131,9 +129,8 @@ module.exports = function(Person) {
   });
 
   Person.afterRemote('**', function(ctx, modelInstance, next) {
-    var currentContext = LoopBackContext.getCurrentContext();
     app.models.LastMod.findOne({}, function(err, LastMod) {
-      ctx.res.set('LastMod', LastMod.people);
+      ctx.res.set('LastMod', LastMod.people.toISOString());
       next();
     });
   });
