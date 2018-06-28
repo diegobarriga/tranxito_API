@@ -49,12 +49,14 @@ module.exports = function(Vehicle) {
     });
   });
 
+/*
   Vehicle.afterRemote('**', function(ctx, modelInstance, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       ctx.res.set('LastMod', LastMod.vehicle.toISOString());
       next();
     });
   });
+  */
 
   Vehicle.setImage = function(id, image, cb) {
     Vehicle.findById(id, function(err, vehicle) {

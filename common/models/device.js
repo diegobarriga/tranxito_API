@@ -50,13 +50,14 @@ module.exports = function(Device) {
     });
   });
 
+/*
   Device.afterRemote('**', function(ctx, modelInstance, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       ctx.res.set('LastMod', LastMod.device.toISOString());
       next();
     });
   });
-
+*/
   Device.newConfig = function(id, script, cb) {
     Device.findById(id, function(err, device) {
       if (err) {

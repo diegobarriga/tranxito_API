@@ -127,14 +127,14 @@ module.exports = function(Person) {
       });
     });
   });
-
+/*
   Person.afterRemote('**', function(ctx, modelInstance, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       ctx.res.set('LastMod', LastMod.people.toISOString());
       next();
     });
   });
-
+*/
   Person.setImage = function(id, image, cb) {
     Person.findById(id, function(err, person) {
       if (err) {
