@@ -241,7 +241,6 @@ module.exports = function(Person) {
       ],
     });
 
-
   // Certify all the uncertified events for a driver
   Person.certifyEvents = function(id, req, cb) {
     Person.findById(id, function(err, person) {
@@ -324,7 +323,7 @@ module.exports = function(Person) {
       }, function(erro, events) {
       if (erro) return cb(erro);
 
-      if (events == undefined || events == null || events.length != null ||
+      if (events == undefined || events == null || events.length == null ||
        events.length == 0) {
         let problem = Error('No events during last week for current driver');
         problem.statusCode = '404';
@@ -395,21 +394,21 @@ module.exports = function(Person) {
            const userList = Person.reportUserList(currentCMVEvents);
            const cmvList = Person.reportCmvList(currentUserEvents);
            let eventsandComments = Person.reportEventListandComments(
-            currentUserEvents);
+            currentUserEvents, cmvList[1], userList[1]);
            const eventsList = eventsandComments[0];
            const comments = eventsandComments[1];
            const certificationList = Person.reportCertificationList(
-            currentUserEvents);
+            currentUserEvents, cmvList[1]);
            const malfunctionList = Person.reportMalfunctionList(
-            currentUserEvents);
+            currentUserEvents, cmvList[1]);
            const loginout = Person.reportLoginout(currentUserEvents);
            const powerActivity = Person.reportPowerActivity(currentUserEvents);
            const unidentifiedUser = Person.reportUnidentifiedUser(
-            unidentifiedUserEvents);
-           console.log(header + userList + cmvList + eventsList +
+            unidentifiedUserEvents, cmvList[1]);
+           let report = header + userList[0] + cmvList[0] + eventsList +
            comments + malfunctionList + loginout +
-           powerActivity + unidentifiedUser);
-           cb(null, header + cmvList);
+           powerActivity + unidentifiedUser;
+           cb(null, report);
          });
       };
     });
@@ -496,6 +495,7 @@ module.exports = function(Person) {
     let lines = [];
     let uniqueUserIds = [];
     let counter = 1;
+    let userListNumber = {};
 
     data.forEach(function(event) {
       let driver = event.driver;
@@ -515,7 +515,9 @@ module.exports = function(Person) {
           driver.firstName,
           // falta check line
         ]);
+        userListNumber[event.driverId] = counter;
         counter += 1;
+        uniqueUserIds.push(driver.id);
       }
       if (codriver != undefined && uniqueUserIds.indexOf(codriver.id) == -1) {
         lines.push([
@@ -525,11 +527,13 @@ module.exports = function(Person) {
           event.driver.firstName,
           // falta check line
         ]);
+        userListNumber[event.codriverId] = counter;
         counter += 1;
+        uniqueUserIds.push(codriver.id);
       }
     });
 
-    return Person.reportSection(header, lines);
+    return [Person.reportSection(header, lines), userListNumber];
   };
 
   Person.reportCmvList = function(data) {
@@ -537,6 +541,7 @@ module.exports = function(Person) {
     let lines = [];
     let uniqueVehicleIds = [];
     let counter = 1;
+    let cmvListNumber = {};
 
     data.forEach(function(event) {
       let vehicle = event.vehicle;
@@ -547,16 +552,18 @@ module.exports = function(Person) {
           vehicle.vin,
           // falta check line
         ]);
+        cmvListNumber[vehicle.id] = counter;
         counter += 1;
         uniqueVehicleIds.push(vehicle.id);
       } else {
         console.log('vehiculo repetido con vin: ' + vehicle.vin);
       };
     });
-    return Person.reportSection(header, lines);
+    return [Person.reportSection(header, lines), cmvListNumber];
   };
 
-  Person.reportEventListandComments = function(data) {
+  Person.reportEventListandComments = function(data, cmvListNumber,
+   userListNumber) {
     const header = 'ELD Event List:';
     const header2 = 'ELD Event Annotations or Comments:';
     let lines = [];
@@ -578,8 +585,8 @@ module.exports = function(Person) {
           event.coordinates.lat,
           event.coordinates.lng,
           event.distSinceLastValidCoords,
-          // corresponding cmv number
-          // corresponding user number
+          cmvListNumber[event.vehicleId],
+          userListNumber[event.driverId],
           event.malfunctionIndicatorStatus,
           event.dataDiagnosticEventIndicatorStatusForDriver,
           event.dataCheckValue,
@@ -600,7 +607,7 @@ module.exports = function(Person) {
       Person.reportSection(header2, lines2)];
   };
 
-  Person.reportCertificationList = function(data) {
+  Person.reportCertificationList = function(data, cmvListNumber) {
     const header = 'Driver’s Certification/Recertification Actions:';
     let lines = [];
 
@@ -613,7 +620,7 @@ module.exports = function(Person) {
           date[0],
           date[1],
           event.dateOfCertifiedRecord,
-          // corresponding cmv number
+          cmvListNumber[event.vehicleId],
           //line data check value
         ]);
       }
@@ -621,7 +628,7 @@ module.exports = function(Person) {
     return Person.reportSection(header, lines);
   };
 
-  Person.reportMalfunctionList = function(data) {
+  Person.reportMalfunctionList = function(data, cmvListNumber) {
     const header = 'Malfunctions and Data Diagnostic Events:';
     let lines = [];
 
@@ -636,7 +643,7 @@ module.exports = function(Person) {
           date[1],
           event.totaVehicleMiles,
           event.totalEngineHours,
-          // corresponding cmv number
+          cmvListNumber[event.vehicleId],
           //line data check value
         ]);
       }
@@ -693,7 +700,7 @@ module.exports = function(Person) {
     return Person.reportSection(header, lines);
   };
 
-  Person.reportUnidentifiedUser = function(data) {
+  Person.reportUnidentifiedUser = function(data, cmvListNumber) {
     const header = 'Unidentified Driver Profile Records:';
     let lines = [];
 
@@ -713,7 +720,7 @@ module.exports = function(Person) {
           event.coordinates.lat,
           event.coordinates.lng,
           event.distSinceLastValidCoords,
-          // corresponding cmv number
+          cmvListNumber[event.vehicleId],
           event.malfunctionIndicatorStatus,
           event.dataCheckValue,
           //line data check value
@@ -725,7 +732,19 @@ module.exports = function(Person) {
 
   Person.extractDateTime = function(timestamp) {
     let date = new Date(Date.parse(timestamp));
-    return ['date', 'time']; // buscar formato de date y time real
+    const hours = (date.getHours() < 10) ? '0' +  date.getHours() :
+    '' + date.getHours();
+    const minutes = (date.getMinutes() < 10) ? '0' +  date.getMinutes() :
+    '' + date.getMinutes();
+    const seconds = (date.getSeconds() < 10) ? '0' +  date.getSeconds() :
+    '' + date.getSeconds();
+    const day = (date.getDate() < 10) ? '0' +  date.getDate() :
+    '' + date.getDate();
+    const month = (date.getMonth() < 10) ? '0' +  date.getMonth() :
+    '' + date.getMonth();
+    const year = ('' + date.getFullYear()).slice(-2);
+    let dateString = month + day + year;
+    let timeString = hours + minutes + seconds;
+    return [dateString, timeString]; // buscar formato de date y time real
   };
-
 };
