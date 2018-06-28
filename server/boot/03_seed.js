@@ -50,6 +50,15 @@ module.exports = async function(app) {
     return res;
   }).catch(err => { throw err; });
 
+  var trailers = fakeTrailers(30, function(err, vehicles) {
+    if (err) throw err;
+    console.log('> Trailers created sucessfully');
+  });
+
+  trailers = await trailers.then(function(res) {
+    return res;
+  }).catch(err => { throw err; });
+
   fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
     fakeVehicles(30, function(err, vehicles) {
@@ -99,7 +108,8 @@ module.exports = async function(app) {
     // RoleMapping.belongsTo(Person);
     // Person.hasOne(RoleMapping, {foreignKey: 'principalId'});
     // Role.hasMany(Person, {through: RoleMapping, foreignKey: 'roleId'});
-    let data = [
+
+    var people = await Person.create([
       {
         'firstName': 'Andres', 'lastName': 'Flores',
         'email': 'aflores@gmail.com', 'accountType': 'A',
@@ -110,13 +120,6 @@ module.exports = async function(app) {
         'firstName': 'Fernando', 'lastName': 'Diaz',
         'email': 'fdiaz@gmail.com', 'accountType': 'S',
         'username': 'fdiaz', 'emailVerified': true,
-        'motorCarrierId': carriers[1].id, 'password': '1234',
-        'accountStatus': true,
-      },
-      {
-        'firstName': 'Bernardo', 'lastName': 'Perez',
-        'email': 'bperez@gmail.com', 'accountType': 'S',
-        'username': 'bperez', 'emailVerified': true,
         'motorCarrierId': carriers[0].id, 'password': '1234',
         'accountStatus': true,
       },
@@ -124,30 +127,40 @@ module.exports = async function(app) {
         'firstName': 'Pablo', 'lastName': 'Sanchez',
         'email': 'pablo.sanchez@gmail.com', 'accountType': 'D',
         'username': 'pablo.sanchez', 'emailVerified': true,
-        'motorCarrierId': carriers[1].id, 'password': '1234',
+        'motorCarrierId': carriers[0].id, 'password': '1234',
         'driverLicenseNumber': '10234502',
         'licenseIssuingState': 'Santiago',
         'accountStatus': true, 'exemptDriverConfiguration': 'E',
         'timeZoneOffsetUtc': 5, 'startingTime24HourPeriod': Date.now(),
         'moveYardsUse': true, 'defaultUse': true, 'personalUse': true,
+
+      },
+      {
+        'firstName': 'Andrea', 'lastName': 'Fernandez',
+        'email': 'afdez@gmail.com', 'accountType': 'A',
+        'username': 'afdez', 'emailVerified': true,
+        'password': '1234', 'accountStatus': true,
+      },
+      {
+        'firstName': 'Bernardo', 'lastName': 'Perez',
+        'email': 'bperez@gmail.com', 'accountType': 'S',
+        'username': 'bperez', 'emailVerified': true,
+        'motorCarrierId': carriers[1].id, 'password': '1234',
+        'accountStatus': true,
       },
       {
         'firstName': 'Pedro', 'lastName': 'Lopez',
         'email': 'pedro.lopez@gmail.com', 'accountType': 'D',
         'username': 'pedro.lopez', 'emailVerified': true,
-        'motorCarrierId': carriers[0].id, 'password': '1234',
+        'motorCarrierId': carriers[1].id, 'password': '1234',
         'driverLicenseNumber': '10255321',
         'licenseIssuingState': 'Santiago',
         'accountStatus': true, 'exemptDriverConfiguration': 'E',
         'timeZoneOffsetUtc': 4, 'startingTime24HourPeriod': Date.now(),
         'moveYardsUse': false, 'defaultUse': true, 'personalUse': false,
       },
-    ];
-    var people = [];
-    for (var i = 0; i < data.length; i++) {
-      let person = await Person.create(data[i]);
-      people.push(person);
-    }
+    ]
+    );
 
     console.log('people created!');
     return people;
@@ -184,8 +197,6 @@ module.exports = async function(app) {
     for (var i = 0; i < 20; i++) {
       let name = faker.name.firstName();
       let lastname = faker.name.lastName();
-      let motorCarrierId = i % 2 === 0 ? 2 : 1;
-
       let driver = {
         'firstName': name,
         'lastName': lastname,
@@ -203,7 +214,7 @@ module.exports = async function(app) {
         'moveYardsUse': true,
         'defaultUse': true,
         'personalUse': true,
-        'motorCarrierId': motorCarrierId,
+        'motorCarrierId': randomInt(1, 2),
         'image': randomChoice(images),
       };
       data.push(driver);
@@ -216,12 +227,53 @@ module.exports = async function(app) {
     });
   }
 
+  async function fakeTrailers(num, cb) {
+    await postgresDs.automigrate('Trailer');
+    let Trailer = app.models.Trailer;
+    let dataTrailer = [];
+    let images = [
+      'container.jpeg',
+      'refrigerated.jpg',
+      'dry_trailer.jpeg',
+      'liquid_tank.jpg',
+      'pneumatic.jpg',
+    ];
+    let trailerCompanies = ['Hyundai Translead', 'Doepker', 'East',
+      'Felling Trailers', 'Fontaine', 'Mac'];
+    let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
+      'Liquid Tank', 'Pneumatic Tank'];
+    let model = randomInt(0, 4);
+    for (var i = 0; i < num; i++) {
+      let vinTrailer = '';
+      let motorCarrierId = i % 2 === 0 ? 2 : 1;
+      let today = new Date();
+      let thisYear = today.getUTCFullYear();
+      for (var j = 0; j < 18; j++) {
+        vinTrailer += faker.random.alphaNumeric();
+      }
+      let trailer = {
+        'manufacturer': randomChoice(trailerCompanies),
+        'model': trailerModels[model],
+        'number': vinTrailer.substr(0, 10),
+        'vin': vinTrailer,
+        'year': thisYear - randomInt(-1, 75),
+        'gvw': randomInt(500, 2000),
+        'motorCarrierId': motorCarrierId,
+        'image': images[model],
+      };
+      dataTrailer.push(trailer);
+    }
+    Trailer.create(dataTrailer, function(err, trailers) {
+      if (err) throw err;
+      cb(null, trailers);
+    });
+  }
+
   async function fakeVehicles(num, cb) {
     await postgresDs.automigrate('Vehicle');
     await postgresDs.automigrate('Device');
     let Vehicle = app.models.Vehicle;
     let Device = app.models.Device;
-    Vehicle.hasOne(Device, {foreignKey: 'deviceId', as: 'device'});
     let dataVehicle = [];
     let dataDevice = [];
     let models = ['Truck', 'Bus', 'Car'];
@@ -239,7 +291,7 @@ module.exports = async function(app) {
       let plaque = '';
       let vin = '';
       let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
-      let motorCarrierId = i % 2 === 0 ? 2 : 1;
+      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
@@ -271,20 +323,23 @@ module.exports = async function(app) {
       dataDevice.push(device);
     }
 
-    let vehicles = await Vehicle.create(dataVehicle);
-    let devices = Device.create(dataDevice);
-    devices.forEach(function(dev) {
-      for (var i = 0; i < vehicles.length; i++) {
-        dev.updateAttribute('vehicleId', vehicles[i].id, function(err, _) {
-          // if (err) throw err;
+    Vehicle.create(dataVehicle, function(err, veh) {
+      if (err) throw err;
+      Device.create(dataDevice, function(err, devices) {
+        if (err) throw err;
+        devices.forEach(function(dev) {
+          var car = veh.filter(function(elem) {
+            return elem.imeiEld == dev.imei;
+          });
+          dev.vehicleId = car[0].id;
+          dev.save(function(err) {
+            if (err) throw err;
+          });
         });
-        vehicles[i].updateAttribute('deviceId', dev.id, function(err, _) {
-          // if (err) throw err;
-        });
-      }
+        console.log('Devices created succesfully');
+      });
+      cb(null, veh);
     });
-    console.log('Devices created succesfully');
-    // cb(null, vehicles);
   }
 
   // Simulate events and trackings
@@ -380,6 +435,31 @@ module.exports = async function(app) {
     };
     return track;
   }
+
+  // async function fakeTrackings(num, drivers, vehicles, events, cb) {
+  //   await postgresDs.automigrate('Tracking');
+  //   var data = [];
+  //   var Tracking = app.models.Tracking;
+  //   for (var i = 0; i < num; i++) {
+  //     var driver = randomChoice(drivers);
+  //     var vehicle = randomChoice(vehicles);
+  //     var track = {
+  //       'coordinates':
+  //       GeoPoint({lat: randomInt(-90, 90), lng: randomInt(-180, 180)}),
+  //       'speed': randomInt(0, 100),
+  //       'timestamp': Date.now(),
+  //       'speedLimitExceeded': faker.random.boolean(),
+  //       'driveTimeExceeded': faker.random.boolean(),
+  //       'personId': driver.id,
+  //       'vehicleId': vehicle.id,
+  //     };
+  //     data.push(track);
+  //   };
+  //   Tracking.create(data, function(err, trackings) {
+  //     if (err) throw err;
+  //     cb(null, trackings);
+  //   });
+  // }
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

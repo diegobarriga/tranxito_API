@@ -16,8 +16,8 @@ function manufacturerValidator(err) {
 }
 
 function numberValidator(err) {
-  if (this.number.trim().length > 10 ||
-    this.number.trim().length == 0) return err();
+  if (this.number && (this.number.trim().length > 10 ||
+    this.number.trim().length == 0)) return err();
 }
 
 function gvwtValidator(err) {
