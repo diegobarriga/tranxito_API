@@ -3,11 +3,11 @@ var validator = require('validator');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 
-function eventTypeValidator(err) {
+function typeValidator(err) {
   if (!validator.isInt(String(this.type), {min: 1, max: 7})) return err();
 }
 
-function eventCodeValidator(err) {
+function codeValidator(err) {
   let eventTypes = [1, 2, 3, 4, 5, 6, 7];
   let dict = {
     1: {
@@ -46,7 +46,7 @@ function eventCodeValidator(err) {
     return err();
 }
 
-function eventRecordStatusValidator(err) {
+function recordStatusValidator(err) {
   if (!validator.isInt(String(this.recordStatus), {min: 1, max: 4}))
     return err();
 }
@@ -76,14 +76,20 @@ function distanceSinceLastValidCoordinatesValidator(err) {
   ) return err();
 }
 
-function annotationValidator(err) {
+function annotationValidator1(err) {
   if (
-    (this.annotation && this.annotation.length < 4) ||
-     (this.annotation && this.annotation.length > 60)
+    (this.annotation && this.annotation.trim().length < 4) ||
+     (this.annotation && this.annotation.trim().length > 60)
    ) return err();
 }
 
-function eventDataCheckValueValidator(err) {
+function annotationValidator2(err) {
+  // If the event was edited, there must be an annotation for the updated one
+  if ((this.referenceId || this.recordOrigin == 2 || this.recordStatus == 2) &&
+  !this.annotation) return err();
+}
+
+function dataCheckValueValidator(err) {
   if (!validator.isInt(
     String(this.dataCheckValue), {min: 0, max: 255})
   ) return err();
@@ -121,14 +127,24 @@ function diagnosticCodeValidator(err) {
 
 function shippingDocNumberValidator(err) {
   if (this.shippingDocNumberValidator &&
-    this.shippingDocNumberValidator.trim() === '')
+    (this.shippingDocNumberValidator.trim().length == 0 ||
+    this.shippingDocNumberValidator.trim().length > 40))
     return err();
 }
 
 function driverLocationDescriptionValidator(err) {
   if (this.driverLocationDescription &&
-  this.driverLocationDescription.trim() === '')
+  (this.driverLocationDescription.trim().length < 5 ||
+  this.driverLocationDescription.trim().length > 60))
     return err();
+}
+
+function dateOfCertifiedRecordValidator(err) {
+  if (this.certified && !this.dateOfCertifiedRecord) return err();
+}
+
+function certifiedValidator(err) {
+  if (this.dateOfCertifiedRecord && !this.certified) return err();
 }
 
 module.exports = function(Event) {
@@ -155,27 +171,41 @@ module.exports = function(Event) {
      {int: true}
    );
 
-  Event.validate('type', eventTypeValidator);
-  Event.validate('code', eventCodeValidator);
-  Event.validate('recordStatus', eventRecordStatusValidator);
-  Event.validate('recordOrigin', recordOriginValidator);
+  Event.validate('type', typeValidator,
+  {message: 'Event type must be between 1-7'});
+  Event.validate('code', codeValidator,
+  {message: 'Invalid event code value for given event type'});
+  Event.validate('recordStatus', recordStatusValidator,
+  {message: 'Event record status must be between 1-4'});
+  Event.validate('recordOrigin', recordOriginValidator,
+  {message: 'Event record origin must be between 1-4'});
   Event.validate('accumulatedVehicleMiles', accumulatedVehicleMilesValidator);
   Event.validate('elapsedEngineHours', elapsedEngineHoursValidator);
   Event.validate('distSinceLastValidCoords',
-  distanceSinceLastValidCoordinatesValidator);
-  Event.validate('annotation', annotationValidator);
-  Event.validate('dataCheckValue', eventDataCheckValueValidator);
+  distanceSinceLastValidCoordinatesValidator, {message:
+    'Event distSinceLastValidCoordinates value must be between 0-6'});
+  Event.validate('annotation', annotationValidator1,
+  {message: 'Annotation lenght must be between 4-60 char long'});
+  Event.validate('annotation', annotationValidator2,
+  {message: 'Driver event edits must be accompanied by an annotation'});
+  Event.validate('dataCheckValue', dataCheckValueValidator,
+  {message: 'Event dataCheckValue must be between 0-255'});
   Event.validate('totalVehicleMiles', totalVehicleMilesValidator);
-  Event.validate('annotation', annotationValidator);
+  Event.validate('dateOfCertifiedRecord', dateOfCertifiedRecordValidator,
+  {message: "Missing event's date of certification"});
+  Event.validate('certified', certifiedValidator,
+  {message: 'Event needs to be certified'});
   Event.validate('totalEngineHours', totalEngineHoursValidator);
-  Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
+  Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator,
+  {message: 'Event timezone offset in UTC must be between 4-11'});
   Event.validate('shippingDocNumber', shippingDocNumberValidator,
-  {message: "shippingDocNumber can't be blank"});
+  {message: "Event shipping doc number can't be blank"});
   Event.validate('driverLocationDescription',
   driverLocationDescriptionValidator,
-  {message: "driverLocationDescription can't be blank"});
-  Event.validatesLengthOf('shippingDocNumber', {min: 0, max: 40});
-  Event.validatesLengthOf('driverLocationDescription', {min: 5, max: 60});
+  {message: "Event driver's location description can't be blank"});
+  Event.validate('shippingDocNumber',
+  shippingDocNumberValidator,
+  {message: "shippingDocNumber can't be blank"});
 
   Event.softPatch = function(id, data, cb) {
     Event.findById(id, function(err, originalEvent) {
@@ -186,15 +216,20 @@ module.exports = function(Event) {
         err = Error('Event not found');
         err.statusCode = '404';
         cb(err, 'Event not found');
+      } else if (!data.annotation || data.annotation.trim() == '') {
+        err = Error('Driver edits must be accompanied by an annotation');
+        err.statusCode = '400';
+        cb(err, 'Driver edits must be accompanied by an annotation');
       } else {
-        // Duplicate datal
-        console.log(originalEvent.__data);
+        // Duplicate data
         let duplicatedData = Object.assign({}, originalEvent.__data);
         delete duplicatedData.id;
         // Create Referece with original event and update data
         duplicatedData.referenceId = originalEvent.__data.id;
         duplicatedData.recordOrigin = 2;
-        console.log(duplicatedData);
+        // if event was certified it looses its certification
+        duplicatedData.certified = false;
+        duplicatedData.dateOfCertifiedRecord = null;
         // Set original event to updated status
         originalEvent.updateAttribute('recordStatus', 2,
          function(err, _) {
@@ -203,7 +238,6 @@ module.exports = function(Event) {
         // Create a new duplicated instance from original event
         Event.create(duplicatedData, function(err, instance) {
           if (err) cb(err);
-          console.log(instance);
           instance.updateAttributes(data, function(err, _) {
             if (err) throw err;
           });

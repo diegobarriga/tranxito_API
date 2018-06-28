@@ -14,5 +14,6 @@ module.exports = function(Tracking) {
     'driveTimeExceeded',
     {'message': "Can't be blank"}
   );
-  Tracking.validate('speed', speedValidator);
+  Tracking.validate('speed', speedValidator,
+  {message: "Speed can't be below 0 mph"});
 };

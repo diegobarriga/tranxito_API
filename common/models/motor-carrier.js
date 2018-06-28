@@ -520,6 +520,10 @@ module.exports = function(MotorCarrier) {
     return this.csvUpload(req, 'Vehicle', callback);
   };
 
+  MotorCarrier.trailersCsvUpload = function(id, req, callback) {
+    return this.csvUpload(req, 'Trailer', callback);
+  };
+
   MotorCarrier.devicesCsvUpload = function(id, req, callback) {
     return this.csvUpload(req, 'Device', callback);
   };
@@ -768,6 +772,22 @@ module.exports = function(MotorCarrier) {
       ],
       description: [
         'Create multiple vehicles through a csv',
+      ],
+    });
+
+  MotorCarrier.remoteMethod(
+    'trailersCsvUpload',
+    {
+      accepts: [
+        {arg: 'id', type: 'string', required: true},
+        {arg: 'req', type: 'object', http: {source: 'req'}, required: true},
+      ],
+      http: {verb: 'post', path: '/:id/trailers/csvUpload'},
+      returns: [
+        {arg: 'message', type: 'string', root: true},
+      ],
+      description: [
+        'Create multiple trailers through a csv',
       ],
     });
 
