@@ -3,45 +3,63 @@ var validator = require('validator');
 var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
+var LoopBackContext = require('loopback-context');
 
 function emailValidator(err) {
   if (!validator.isEmail(String(this.email))) return err();
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.accountType === 'D' && this.driverLicenseNumber === undefined)
-    err();
+  if (this.accountType.trim() === 'D' &&
+    (this.driverLicenseNumber === undefined ||
+    this.driverLicenseNumber.trim() === ''))
+    return err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType === 'D' && this.licenseIssuingState === undefined)
-    err();
+  if (this.accountType.trim() === 'D' &&
+  (this.licenseIssuingState === undefined ||
+    this.licenseIssuingState.trim() === ''))
+    return err();
 }
 
 function validateAccountStatus(err) {
-  if (this.accountType === 'D' && this.accountStatus === undefined) err();
+  if (this.accountType.trim() === 'D' &&
+    this.accountStatus === undefined)
+    return err();
 }
 
 function validateExemptDriverConfiguration(err) {
-  if ((this.accountType === 'D' &&
-    this.exemptDriverConfiguration === undefined) ||
+  if ((this.accountType.trim() === 'D' &&
+    (this.exemptDriverConfiguration === undefined ||
+      this.exemptDriverConfiguration.trim() === '')) ||
    (this.accountType === 'D' &&
-    !['E', '0'].includes(this.exemptDriverConfiguration)))
-    err();
+    !['E', '0'].includes(this.exemptDriverConfiguration.trim())))
+    return err();
 }
 
 function validateTimeZoneOffsetUtc(err) {
-  if ((this.accountType === 'D' && this.timeZoneOffsetUtc === undefined) ||
-  (this.accountType === 'D' && !Number.isInteger(this.timeZoneOffsetUtc)) ||
-  (this.accountType === 'D' &&
+  if ((this.accountType.trim() === 'D' &&
+    this.timeZoneOffsetUtc === undefined) ||
+  (this.accountType.trim() === 'D' &&
+    !Number.isInteger(this.timeZoneOffsetUtc)) ||
+  (this.accountType.trim() === 'D' &&
    (this.timeZoneOffsetUtc < 4 || this.timeZoneOffsetUtc > 11)))
     err();
 }
 
 function validateStartingTime24HourPeriod(err) {
-  if (this.accountType === 'D' &&
+  if (this.accountType.trim() === 'D' &&
    this.startingTime24HourPeriod === undefined)
-    err();
+    return err();
+}
+
+function firstNameValidator(err) {
+  if (this.firstName && this.firstName.trim() === '') return err();
+}
+
+function lastNameValidator(err) {
+  if (this.lastName && this.lastName.trim() === '') return err();
 }
 
 module.exports = function(Person) {
@@ -50,6 +68,14 @@ module.exports = function(Person) {
     'firstName', 'lastName', 'username', 'accountType',
     {'message': "Can't be blank"}
   );
+
+  // Blank content
+  Person.validate('firstName', firstNameValidator,
+  {message: "First Name can't be blank"});
+  Person.validate('lastName', lastNameValidator,
+  {message: "Last Name can't be blank"});
+
+  // Other
   Person.validatesLengthOf('firstName', {min: 2, max: 30});
   Person.validatesLengthOf('lastName', {min: 2, max: 30});
   Person.validatesLengthOf('email', {min: 4, max: 60});
@@ -93,14 +119,22 @@ module.exports = function(Person) {
   Person.observe('after save', function(context, next) {
     app.models.LastMod.findOne({}, function(err, LastMod) {
       if (err) throw (err);
-      LastMod.people = Date.now();
-      LastMod.save(function(error, LM) {
+      var NOW = Date.now();
+      LastMod.people = NOW;
+      LastMod.save(function(error) {
         if (error) throw (error);
         next();
       });
     });
   });
-
+/*
+  Person.afterRemote('**', function(ctx, modelInstance, next) {
+    app.models.LastMod.findOne({}, function(err, LastMod) {
+      ctx.res.set('LastMod', LastMod.people.toISOString());
+      next();
+    });
+  });
+*/
   Person.setImage = function(id, image, cb) {
     Person.findById(id, function(err, person) {
       if (err) {
@@ -207,6 +241,77 @@ module.exports = function(Person) {
       ],
     });
 
+
+  // Certify all the uncertified events for a driver
+  Person.certifyEvents = function(id, req, cb) {
+    Person.findById(id, function(err, person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
+        cb(err, 'Person not found');
+      } else if (person.accountType !== 'D') {
+        console.log(person);
+        err = Error('Person is not a driver.');
+        err.statusCode = '422';
+        return cb(err, 'Person is not a driver');
+      } else {
+        let context = LoopBackContext.getCurrentContext();
+        let currentUser = context && context.get('currentUser');
+        if (currentUser && currentUser.id !== person.id &&
+          currentUser.accountType === 'D') {
+          let err = Error('Cannot modify another driver records');
+          err.statusCode = '401';
+          return cb(err, 'Cannot modify another driver records');
+        }
+        person.events.find(
+          {
+            where: {
+              certified: false,
+            },
+          }, function(error, events) {
+          if (error) {
+            return cb(error);
+          }
+          let usefulEvents;
+          if (req && req.eventsIds && (req.eventsIds.length > 0)) {
+            usefulEvents = events.filter(function(element) {
+              return req.eventsIds.indexOf(element.id) != -1;
+            });
+          } else {
+            usefulEvents = events;
+          }
+          usefulEvents.forEach(function(event) {
+            event.certified = true;
+            event.dateOfCertifiedRecord = Date.now();
+            event.save();
+          });
+          console.log(usefulEvents.length + ' events certified');
+          return cb(null, {'message': usefulEvents.length +
+          ' events certified'}); // revisar que respuesta se debe enviar
+        });
+      }
+    });
+  };
+
+  Person.remoteMethod(
+    'certifyEvents',
+    {
+      accepts: [
+        {arg: 'id', type: 'number', required: true},
+        {arg: 'req', type: 'object'},
+      ],
+      http: {path: '/:id/certifyEvents', verb: 'patch'},
+      returns: {arg: 'message', type: 'string'},
+      description: [
+        'Certify all the uncertified events for a driver.',
+        'If req is given, certify only the records given by eventsIds',
+      ],
+    });
+
+
   Person.getReportData = function(person, cb) {
     const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
     const DATE_LIMIT = Date.now() - ONE_WEEK;
@@ -306,7 +411,7 @@ module.exports = function(Person) {
            powerActivity + unidentifiedUser);
            cb(null, header + cmvList);
          });
-      }
+      };
     });
   };
 
@@ -622,4 +727,5 @@ module.exports = function(Person) {
     let date = new Date(Date.parse(timestamp));
     return ['date', 'time']; // buscar formato de date y time real
   };
+
 };

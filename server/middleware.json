@@ -1,8 +1,13 @@
 {
   "initial:before": {
+    "loopback#token": {},
     "loopback#favicon": {},
-      "body-parser#json": {},
-      "body-parser#urlencoded": {"params": { "extended": true }},
+    "body-parser#json": {},
+    "body-parser#urlencoded": {
+      "params": {
+        "extended": true
+      }
+    },
     "./middleware/request-logger": {}
   },
   "initial": {
@@ -11,7 +16,8 @@
       "params": {
         "origin": true,
         "credentials": true,
-        "maxAge": 86400
+        "maxAge": 86400,
+        "exposedHeaders": ["LastMod"]
       }
     },
     "helmet#xssFilter": {},

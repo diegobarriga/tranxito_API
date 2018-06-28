@@ -29,5 +29,10 @@
     "provider": "filesystem",
     "root": "./server/local-storage",
     "nameConflict": "makeUnique"
+  },
+  "mailgun": {
+    "connector": "loopback-connector-mailgun",
+    "apikey": "${Mailgun_API_Key}",
+    "domain": "eldmailer.tk"
   }
 }

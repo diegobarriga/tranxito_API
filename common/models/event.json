@@ -7,8 +7,7 @@
   },
   "properties": {
     "sequenceId": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "type": {
       "type": "number",
@@ -32,7 +31,7 @@
       "required": true
     },
     "recordOrigin": {
-      "type":  "number",
+      "type": "number",
       "required": true
     },
     "accumulatedVehicleMiles": {
@@ -209,13 +208,6 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "softPatch"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
-      "principalId": "D",
-      "permission": "ALLOW",
-      "property": "certifyEvents"
     },
     {
       "accessType": "EXECUTE",
