@@ -115,13 +115,24 @@ function timeZoneOffsetUtcValidator(err) {
 function diagnosticCodeValidator(err) {
   let valArray = ['P', 'E', 'T', 'L', 'R', 'S',
     'O', '1', '2', '3', '4', '5', '6'];
-  if (this.diagnosticCode && !valArray.includes(this.diagnosticCode))
+  if (this.diagnosticCode && !valArray.includes(this.diagnosticCode.trim()))
+    return err();
+}
+
+function shippingDocNumberValidator(err) {
+  if (this.shippingDocNumberValidator &&
+    this.shippingDocNumberValidator.trim() === '')
+    return err();
+}
+
+function driverLocationDescriptionValidator(err) {
+  if (this.driverLocationDescription &&
+  this.driverLocationDescription.trim() === '')
     return err();
 }
 
 module.exports = function(Event) {
   Event.validatesPresenceOf(
-    'sequenceId',
     'type',
     'recordStatus',
     'recordOrigin',
@@ -132,7 +143,6 @@ module.exports = function(Event) {
     {'message': "Can't be blank"}
   );
   Event.validatesNumericalityOf(
-    'sequenceId',
     'recordStatus',
     'recordOrigin',
     'type',
@@ -159,6 +169,11 @@ module.exports = function(Event) {
   Event.validate('annotation', annotationValidator);
   Event.validate('totalEngineHours', totalEngineHoursValidator);
   Event.validate('timeZoneOffsetUtcValidator', timeZoneOffsetUtcValidator);
+  Event.validate('shippingDocNumber', shippingDocNumberValidator,
+  {message: "shippingDocNumber can't be blank"});
+  Event.validate('driverLocationDescription',
+  driverLocationDescriptionValidator,
+  {message: "driverLocationDescription can't be blank"});
   Event.validatesLengthOf('shippingDocNumber', {min: 0, max: 40});
   Event.validatesLengthOf('driverLocationDescription', {min: 5, max: 60});
 
@@ -209,70 +224,15 @@ module.exports = function(Event) {
    'into the data source.'],
   });
 
-  // Certify all the uncertified events for a driver
-  Event.certifyEvents = function(req, cb) {
-    var context = LoopBackContext.getCurrentContext();
-    var currentUser = context && context.get('currentUser');
-    if (!currentUser) {
-      let er = Error('No Current User');
-      er.statusCode = '404';
-      return cb(er, 'currentUser not found');
-    } else {
-      Event.app.models.Person.findById(currentUser.id, function(err, person) {
-        if (err) {
-          return cb(err);
-        }
-        if (!person) {
-          err = Error('Person not found');
-          err.statusCode = '404';
-          return cb(err, 'Person not found');
-        } else if (person.accountType != 'D') {
-          err = Error('Person found but not a driver.');
-          err.statusCode = '422';
-          return cb(err, 'Person is not a driver');
-        } else {
-          person.events.find(
-            {
-              where: {
-                certified: false,
-              },
-            }, function(error, events) {
-            if (error) {
-              return cb(error);
-            }
-            let usefulEvents;
-            if (req && req.eventsIds && (req.eventsIds.length > 0)) {
-              usefulEvents = events.filter(function(element) {
-                return req.eventsIds.indexOf(element.id) != -1;
-              });
-            } else {
-              usefulEvents = events;
-            }
-            usefulEvents.forEach(function(event) {
-              event.certified = true;
-              event.dateOfCertifiedRecord = Date.now();
-              event.save();
-            });
-            console.log(usefulEvents.length + ' events certified');
-            return cb(null, {'message': usefulEvents.length +
-            ' events certified'}); // revisar que respuesta se debe enviar
-          });
-        }
+  Event.observe('after save', function updateSequenceId(ctx, next) {
+    if (ctx.instance) {
+      ctx.instance.updateAttribute('sequenceId', ctx.instance.id % 65536,
+      function(err, _) {
+        if (err) throw err;
       });
+    } else {
+      ctx.data.sequenceId = ctx.data.id % 65536;
     }
-  };
-
-  Event.remoteMethod(
-    'certifyEvents',
-    {
-      accepts: [
-        {arg: 'req', type: 'object'},
-      ],
-      http: {path: '/certifyEvents', verb: 'patch'},
-      returns: {arg: 'message', type: 'string'},
-      description: [
-        'Certify all the uncertified events for a driver.',
-        'If req is given, certify only the records given by eventsIds',
-      ],
-    });
+    next();
+  });
 };

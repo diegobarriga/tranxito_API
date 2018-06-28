@@ -17,13 +17,23 @@
     "multidayBasisUsed": {
       "type": "number",
       "required": true
+    },
+    "createDevices": {
+      "type": "boolean",
+      "required": true
     }
   },
+  "hidden": ["createDevices"],
   "validations": [],
   "relations": {
     "vehicles": {
       "type": "hasMany",
       "model": "Vehicle",
+      "foreignKey": ""
+    },
+    "trailers": {
+      "type": "hasMany",
+      "model": "Trailer",
       "foreignKey": ""
     },
     "devices": {
@@ -62,33 +72,12 @@
       "permission": "ALLOW"
     },
     {
-      "accessType": "*",
+      "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW"
     },
     {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__tracking"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__supervisors"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "S",
-      "permission": "ALLOW",
-      "property": "__get__drivers"
-    },
-    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "$owner",
@@ -119,9 +108,37 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__trailers"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "__delete__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "A",
       "permission": "DENY",
       "property": "__destroyById__events"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "DENY",
+      "property": "create"
     },
     {
       "accessType": "EXECUTE",
@@ -153,16 +170,16 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW",
+      "principalId": "S",
+      "permission": "DENY",
       "property": "patchAttributes"
     },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "S",
-      "permission": "ALLOW",
-      "property": "patchAttributes"
+      "permission": "DENY",
+      "property": "updateAttributes"
     },
     {
       "accessType": "EXECUTE",
@@ -197,6 +214,13 @@
       "principalType": "ROLE",
       "principalId": "D",
       "permission": "ALLOW",
+      "property": "__get__trailers"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
       "property": "__get__devices"
     },
     {
@@ -212,6 +236,13 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "__findById__vehicles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__findById__trailers"
     },
     {
       "accessType": "EXECUTE",

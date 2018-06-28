@@ -78,10 +78,12 @@ module.exports = async function(app) {
     let motorCarriers = [];
     let carrier;
     carrier = await Carrier.create(
-      {'name': 'E2EGroup', 'usdotNumber': 0, 'multidayBasisUsed': 7});
+      {'name': 'E2EGroup', 'usdotNumber': 0, 'multidayBasisUsed': 7,
+        'createDevices': true});
     motorCarriers.push(carrier);
     carrier = await Carrier.create(
-      {'name': 'DCCGroup', 'usdotNumber': 12, 'multidayBasisUsed': 8});
+      {'name': 'DCCGroup', 'usdotNumber': 12, 'multidayBasisUsed': 8,
+        'createDevices': false});
     motorCarriers.push(carrier);
 
     console.log(`motor carrier created! ${JSON.stringify(motorCarriers)}`);
@@ -330,7 +332,7 @@ module.exports = async function(app) {
             longitude + y : longitude;
             if (i % (EventTime * 60 / TrackingTime) == 0) {
               var event = changeDutyStatusEvent(driver, vehicle,
-               counter, new Date(today), latitude, longitude);
+                new Date(today), latitude, longitude);
               counter += 1;
               dataEvents.push(event);
             }
@@ -392,7 +394,7 @@ module.exports = async function(app) {
     return array[index];
   }
 
-  function changeDutyStatusEvent(driver, vehicle, sequence, today, lat, lng) {
+  function changeDutyStatusEvent(driver, vehicle, today, lat, lng) {
     let accumulatedMiles = randomInt(0, 7000);
     let elapsedHours = randomInt(0, 50);
     let driverId, certifiedEvent, dateCertified;
@@ -406,7 +408,6 @@ module.exports = async function(app) {
       if (certifiedEvent) dateCertified = faker.date.future();
     }
     var event = {
-      'sequenceId': sequence,
       'type': 1,
       'code': randomInt(1, 4),
       'timestamp': today,

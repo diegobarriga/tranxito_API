@@ -80,5 +80,14 @@
   "LastMod": {
     "dataSource": "postgresDB",
     "public": true
+  },
+  "Trailer": {
+    "dataSource": "postgresDB",
+    "public": true
+  },
+
+  "Email": {
+    "dataSource": "mailgun",
+    "public": false
   }
 }

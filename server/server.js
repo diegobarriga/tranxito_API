@@ -19,28 +19,6 @@ app.start = function() {
   });
 };
 
-// add current user to per request context
-app.use(LoopBackContext.perRequest());
-app.use(loopback.token());
-app.use(function setCurrentUser(req, res, next) {
-  if (!req.accessToken) {
-    return next();
-  }
-  app.models.Person.findById(req.accessToken.userId, function(err, user) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return next(new Error('No user with this access token was found.'));
-    }
-    var loopbackContext = LoopBackContext.getCurrentContext();
-    if (loopbackContext) {
-      loopbackContext.set('currentUser', user);
-    }
-    next();
-  });
-});
-
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
