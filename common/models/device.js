@@ -3,7 +3,11 @@ var validator = require('validator');
 var imei = require('imei');
 var app = require('../../server/server.js');
 
-function macAddressValidator(err) {
+function macAddressValidator1(err) {
+  if (this.bluetoothMac && this.bluetoothMac.trim() === '') return err();
+}
+
+function macAddressValidator2(err) {
   if (!validator.isMACAddress(String(this.bluetoothMac).trim())) return err();
 }
 
@@ -26,9 +30,12 @@ module.exports = function(Device) {
     'state',
     {'message': "Can't be blank"}
   );
-  Device.validate('bluetoothMac', macAddressValidator);
+  Device.validate('bluetoothMac', macAddressValidator1,
+  {message: "Device Bluetooth MAC can't be blank"});
+  Device.validate('bluetoothMac', macAddressValidator2,
+  {message: 'Invalid Bluetooth MAC address'});
   Device.validate('configScript', configScriptValidator,
-  {message: "configScript can't be blank"});
+  {message: "Device config script can't be blank"});
   // Device.validate('imei', imeiValidator);
 
   Device.observe('after save', function(context, next) {

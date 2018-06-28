@@ -38,11 +38,14 @@ module.exports = function(Trailer) {
   Trailer.validatesUniquenessOf('vin', {message: 'VIN already exists'});
   Trailer.validatesUniquenessOf('number',
   {message: 'Serial No already exists'});
-  Trailer.validate('model', modelValidator);
-  Trailer.validate('manufacturer', manufacturerValidator);
+  Trailer.validate('model', modelValidator,
+  {message: "Model can't be blank"});
+  Trailer.validate('manufacturer', manufacturerValidator,
+  {message: "Manufacturer can't be blank"});
   Trailer.validate('gvw', gvwtValidator);
   Trailer.validate('number', numberValidator);
-  Trailer.validate('year', yearValidator);
+  Trailer.validate('year', yearValidator,
+  {message: 'Invalid year of manufacture'});
   Trailer.validatesPresenceOf('number');
 
   Trailer.setImage = function(id, image, cb) {
