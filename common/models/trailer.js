@@ -29,7 +29,7 @@ function yearValidator(err) {
   let now = new Date();
   let thisYear = now.getUTCFullYear();
   if (this.year && !validator.isInt(String(this.year),
-    {min: 1900, max: thisYear}))
+    {min: 1900, max: thisYear + 1}))
     return err();
 }
 
