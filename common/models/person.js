@@ -218,8 +218,12 @@ module.exports = function(Person) {
         include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
       }, function(erro, events) {
       if (erro) return cb(erro);
-      if (!events) {
-        return cb(erro, 'No events found for driver');
+
+      if (events == undefined || events == null || events.length != null ||
+       events.length == 0) {
+        let problem = Error('No events during last week for current driver');
+        problem.statusCode = '404';
+        return cb(problem, 'No events found for driver');
       }
       let currentUserEvents = [];
       events.forEach(function(event) {
