@@ -50,6 +50,15 @@ module.exports = async function(app) {
     return res;
   }).catch(err => { throw err; });
 
+  var trailers = fakeTrailers(30, function(err, vehicles) {
+    if (err) throw err;
+    console.log('> Trailers created sucessfully');
+  });
+
+  trailers = await trailers.then(function(res) {
+    return res;
+  }).catch(err => { throw err; });
+
   fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
     fakeVehicles(30, function(err, vehicles) {
@@ -215,6 +224,48 @@ module.exports = async function(app) {
       if (err) throw err;
       console.log('Drivers created succesfully');
       cb(null, driv);
+    });
+  }
+
+  async function fakeTrailers(num, cb) {
+    await postgresDs.automigrate('Trailer');
+    let Trailer = app.models.Trailer;
+    let dataTrailer = [];
+    let images = [
+      'container.jpeg',
+      'refrigerated.jpg',
+      'dry_trailer.jpeg',
+      'liquid_tank.jpg',
+      'pneumatic.jpg',
+    ];
+    let trailerCompanies = ['Hyundai Translead', 'Doepker', 'East',
+      'Felling Trailers', 'Fontaine', 'Mac'];
+    let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
+      'Liquid Tank', 'Pneumatic Tank'];
+    let model = randomInt(0, 4);
+    for (var i = 0; i < num; i++) {
+      let vinTrailer = '';
+      let motorCarrierId = i % 2 === 0 ? 2 : 1;
+      let today = new Date();
+      let thisYear = today.getUTCFullYear();
+      for (var j = 0; j < 18; j++) {
+        vinTrailer += faker.random.alphaNumeric();
+      }
+      let trailer = {
+        'manufacturer': randomChoice(trailerCompanies),
+        'model': trailerModels[model],
+        'number': vinTrailer.substr(0, 10),
+        'vin': vinTrailer,
+        'year': thisYear - randomInt(-1, 75),
+        'gvw': randomInt(500, 2000),
+        'motorCarrierId': motorCarrierId,
+        'image': images[model],
+      };
+      dataTrailer.push(trailer);
+    }
+    Trailer.create(dataTrailer, function(err, trailers) {
+      if (err) throw err;
+      cb(null, trailers);
     });
   }
 
