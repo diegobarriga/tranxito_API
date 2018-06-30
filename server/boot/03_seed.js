@@ -242,8 +242,8 @@ module.exports = async function(app) {
       'Felling Trailers', 'Fontaine', 'Mac'];
     let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
       'Liquid Tank', 'Pneumatic Tank'];
-    let model = randomInt(0, 4);
     for (var i = 0; i < num; i++) {
+      let model = randomInt(0, 4);
       let vinTrailer = '';
       let motorCarrierId = i % 2 === 0 ? 2 : 1;
       let today = new Date();
