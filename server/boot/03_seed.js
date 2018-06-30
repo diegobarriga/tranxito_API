@@ -234,7 +234,7 @@ module.exports = async function(app) {
     let images = [
       'container.jpeg',
       'refrigerated.jpg',
-      'dry_trailer.jpeg',
+      'dry_trailer.jpg',
       'liquid_tank.jpg',
       'pneumatic.jpg',
     ];
