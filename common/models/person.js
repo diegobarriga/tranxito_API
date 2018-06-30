@@ -4,6 +4,41 @@ var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
+var rolInt8 = require('bitwise-rotation').rolInt8;
+
+function extractDateTime(timestamp) {
+  let date = new Date(Date.parse(timestamp));
+  const hours = (date.getHours() < 10) ? '0' +  date.getHours() :
+  '' + date.getHours();
+  const minutes = (date.getMinutes() < 10) ? '0' +  date.getMinutes() :
+  '' + date.getMinutes();
+  const seconds = (date.getSeconds() < 10) ? '0' +  date.getSeconds() :
+  '' + date.getSeconds();
+  const day = (date.getDate() < 10) ? '0' +  date.getDate() :
+  '' + date.getDate();
+  const month = (date.getMonth() + 1 < 10) ? '0' +  (date.getMonth() + 1) :
+  '' + (date.getMonth() + 1);
+  const year = ('' + date.getFullYear()).slice(-2);
+  let dateString = month + day + year;
+  let timeString = hours + minutes + seconds;
+  return [dateString, timeString];
+};
+
+function calculateLineChecksum(line) {
+  let sum = 0;
+  for (var i = 0; i < line.length; i++) {
+    let character = line.charAt(i);
+    if (/^\d+$/.test(character) || /[a-zA-Z]/.test(character)) {
+      sum += character.charCodeAt() - 48;
+    };
+  };
+
+  let hexadecimal = sum.toString(16).slice(-2); // 8-bit lower byte of hexa representation
+  let binary = '0b' + parseInt(hexadecimal, 16).toString(2).padStart(8, '0'); // binary from hexa
+  binary = '0b' + rolInt8(Number(binary), 3).toString(2); // 3 left rotations
+  let checkValue = binary ^ '0b10010110'; // xor with hexa 96 (decimal 150)
+  return Number(checkValue).toString(16);
+};
 
 function emailValidator(err) {
   if (!validator.isEmail(String(this.email))) return err();
@@ -198,7 +233,6 @@ module.exports = function(Person) {
         err.statusCode = '404';
         cb(err, 'Person not found');
       } else if (person.accountType !== 'D') {
-        console.log(person);
         err = Error('Person found but not a driver.');
         err.statusCode = '422';
         cb(err, 'Person is not a driver');
@@ -252,7 +286,6 @@ module.exports = function(Person) {
         err.statusCode = '404';
         cb(err, 'Person not found');
       } else if (person.accountType !== 'D') {
-        console.log(person);
         err = Error('Person is not a driver.');
         err.statusCode = '422';
         return cb(err, 'Person is not a driver');
@@ -309,7 +342,6 @@ module.exports = function(Person) {
         'If req is given, certify only the records given by eventsIds',
       ],
     });
-
 
   Person.getReportData = function(person, cb) {
     const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -380,7 +412,6 @@ module.exports = function(Person) {
         err.statusCode = '404';
         cb(err, 'Person not found');
       } else if (person.accountType !== 'D') {
-        console.log(person);
         err = Error('Person found but not a driver.');
         err.statusCode = '422';
         cb(err, 'Person is not a driver');
@@ -405,9 +436,13 @@ module.exports = function(Person) {
            const powerActivity = Person.reportPowerActivity(currentUserEvents);
            const unidentifiedUser = Person.reportUnidentifiedUser(
             unidentifiedUserEvents, cmvList[1]);
+           const fileCheckValue = Person.reportFileCheckValue();
            let report = header + userList[0] + cmvList[0] + eventsList +
-           comments + malfunctionList + loginout +
-           powerActivity + unidentifiedUser;
+           comments + certificationList + malfunctionList + loginout +
+           powerActivity + unidentifiedUser + fileCheckValue;
+           console.log(report);
+           console.log('Filename:' + Person.reportFileName(
+            currentUserEvents[0]));
            cb(null, report);
          });
       };
@@ -440,6 +475,7 @@ module.exports = function(Person) {
         newLine += element + delimiter;
       });
       newLine = newLine.replace(/(^[,]+)|([,]+$)/g, '');
+      newLine = newLine + delimiter + calculateLineChecksum(newLine);
       newLine = newLine + lineBreak;
       section += newLine;
     });
@@ -454,7 +490,7 @@ module.exports = function(Person) {
     let motorCarrier = data.motorCarrier;
     let lines = [];
 
-    let date = Person.extractDateTime(data.timestamp);
+    let date = extractDateTime(data.timestamp);
 
     lines.push([
       driver.lastName,
@@ -482,8 +518,8 @@ module.exports = function(Person) {
     ], [
       date[0],
       date[1],
-      data.coordinates.lat,
-      data.coordinates.lng,
+      data.coordinates.lat.toFixed(2),
+      data.coordinates.lng.toFixed(2),
       data.totalVehicleMiles,
       data.totalEngineHours,
     ]);  // falta una linea de datos del eld y los checkline de cada linea
@@ -513,7 +549,6 @@ module.exports = function(Person) {
           driver.accountType,
           driver.lastName,
           driver.firstName,
-          // falta check line
         ]);
         userListNumber[event.driverId] = counter;
         counter += 1;
@@ -525,7 +560,6 @@ module.exports = function(Person) {
           event.driver.accountType,
           event.driver.lastName,
           event.driver.firstName,
-          // falta check line
         ]);
         userListNumber[event.codriverId] = counter;
         counter += 1;
@@ -550,13 +584,10 @@ module.exports = function(Person) {
           counter,
           vehicle.CmvPowerUnitNumber,
           vehicle.vin,
-          // falta check line
         ]);
         cmvListNumber[vehicle.id] = counter;
         counter += 1;
         uniqueVehicleIds.push(vehicle.id);
-      } else {
-        console.log('vehiculo repetido con vin: ' + vehicle.vin);
       };
     });
     return [Person.reportSection(header, lines), cmvListNumber];
@@ -571,7 +602,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if ([1, 2, 3].indexOf(event.type) != -1) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.recordStatus,
@@ -582,15 +613,14 @@ module.exports = function(Person) {
           date[1],
           event.accumulatedVehicleMiles,
           event.elapsedEngineHours,
-          event.coordinates.lat,
-          event.coordinates.lng,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
           event.distSinceLastValidCoords,
           cmvListNumber[event.vehicleId],
           userListNumber[event.driverId],
-          event.malfunctionIndicatorStatus,
-          event.dataDiagnosticEventIndicatorStatusForDriver,
+          event.malfunctionIndicatorStatus ? 1 : 0,
+          event.dataDiagnosticEventIndicatorStatusForDriver ? 1 : 0,
           event.dataCheckValue,
-          //line data check value
         ]);
 
         lines2.push([
@@ -613,7 +643,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if (event.type == 4) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.code,
@@ -621,7 +651,6 @@ module.exports = function(Person) {
           date[1],
           event.dateOfCertifiedRecord,
           cmvListNumber[event.vehicleId],
-          //line data check value
         ]);
       }
     });
@@ -634,7 +663,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if (event.type == 7) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.code,
@@ -644,7 +673,6 @@ module.exports = function(Person) {
           event.totaVehicleMiles,
           event.totalEngineHours,
           cmvListNumber[event.vehicleId],
-          //line data check value
         ]);
       }
     });
@@ -657,7 +685,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if (event.type == 5) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.code,
@@ -666,7 +694,6 @@ module.exports = function(Person) {
           date[1],
           event.totaVehicleMiles,
           event.totalEngineHours,
-          //line data check value
         ]);
       }
     });
@@ -679,7 +706,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if (event.type == 6) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.code,
@@ -687,13 +714,12 @@ module.exports = function(Person) {
           date[1],
           event.totaVehicleMiles,
           event.totalEngineHours,
-          event.coordinates.lat,
-          event.coordinates.lng,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
           event.vehicle.CmvPowerUnitNumber,
           event.vehicle.vin,
           event.vehicle.trailerNumber,
           event.shippingDocNumber,
-          //line data check value
         ]);
       }
     });
@@ -706,7 +732,7 @@ module.exports = function(Person) {
 
     data.forEach(function(event) {
       if (event.driverId == null) {
-        let date = Person.extractDateTime(event.timestamp);
+        let date = extractDateTime(event.timestamp);
         lines.push([
           event.sequenceId,
           event.recordStatus,
@@ -717,34 +743,35 @@ module.exports = function(Person) {
           date[1],
           event.accumulatedVehicleMiles,
           event.elapsedEngineHours,
-          event.coordinates.lat,
-          event.coordinates.lng,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
           event.distSinceLastValidCoords,
           cmvListNumber[event.vehicleId],
-          event.malfunctionIndicatorStatus,
+          event.malfunctionIndicatorStatus ? 1 : 0,
           event.dataCheckValue,
-          //line data check value
         ]);
       };
     });
     return Person.reportSection(header, lines);
   };
 
-  Person.extractDateTime = function(timestamp) {
-    let date = new Date(Date.parse(timestamp));
-    const hours = (date.getHours() < 10) ? '0' +  date.getHours() :
-    '' + date.getHours();
-    const minutes = (date.getMinutes() < 10) ? '0' +  date.getMinutes() :
-    '' + date.getMinutes();
-    const seconds = (date.getSeconds() < 10) ? '0' +  date.getSeconds() :
-    '' + date.getSeconds();
-    const day = (date.getDate() < 10) ? '0' +  date.getDate() :
-    '' + date.getDate();
-    const month = (date.getMonth() < 10) ? '0' +  date.getMonth() :
-    '' + date.getMonth();
-    const year = ('' + date.getFullYear()).slice(-2);
-    let dateString = month + day + year;
-    let timeString = hours + minutes + seconds;
-    return [dateString, timeString]; // buscar formato de date y time real
+  Person.reportFileCheckValue = function(numbers) {
+    let header = 'End of File:' + String.fromCharCode(10);
+    header += 3333 + String.fromCharCode(10);
+    return header;
+  };
+
+  Person.reportFileName = function(data) {
+    let fileName = '';
+    let driver = data.driver;
+    let date = extractDateTime(Date(Date.now()));
+    fileName += driver.lastName.substring(0, 5).padEnd(5, '_');
+    fileName += driver.driverLicenseNumber.toString().slice(-2);
+    fileName += driver.driverLicenseNumber.toString().split('').map(Number)
+    .reduce(function(a, b) { return a + b; }, 0).toString().slice(-2)
+    .padStart(2, '0');
+    fileName += date[0] + '-';
+    fileName = fileName.padEnd(25, '0');
+    return fileName;
   };
 };
