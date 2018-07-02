@@ -1,4 +1,5 @@
-'use strict'
+'use strict';
+
 var async = require('async');
 module.exports = function(app, cb) {
   var datasources = Object.keys(app.dataSources);
