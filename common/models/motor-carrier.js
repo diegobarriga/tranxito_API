@@ -645,10 +645,9 @@ module.exports = function(MotorCarrier) {
       if (modelName === 'Person') {
         data.accountType = 'D';
         data.accountStatus = true;
-        data.moveYardsUse = false;
-        data.personalUse = false;
-        data.defaultUse = true;
-        data.exemptDriverConfiguration = '0';
+        data.moveYardsUse = (data.moveYardsUse == '1');
+        data.defaultUse = (data.defaultUse == '1');
+        data.personalUse = (data.personalUse == '1');
       }
 
       if (modelName === 'Device') {
