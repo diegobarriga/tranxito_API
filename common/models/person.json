@@ -53,6 +53,9 @@
     "image": {
       "type": "string",
       "default": "personDefaultProfilePicture.jpeg"
+    },
+    "comment": {
+      "type": "string"
     }
   },
   "validations": [],
