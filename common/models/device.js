@@ -157,4 +157,27 @@ module.exports = function(Device) {
       http: {path: '/:id/linkVehicle', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
     });
+
+  Device.unlink = function(id, cb) {
+    Device.findById(id, function(err, device) {
+      if (err) cb(err);
+      if (!device) {
+        err = Error('Device not found');
+        err.statusCode = '404';
+        cb(err, 'Device not found');
+      } else {
+        device.vehicleId = null;
+        device.save();
+        cb(null, `Device ${device.id} succesfully unlinked`);
+      }
+    });
+  };
+
+  Device.remoteMethod(
+    'unlink',
+    {
+      accepts: {arg: 'id', type: 'number', required: true},
+      http: {path: '/:id/unlink', verb: 'post'},
+      returns: {arg: 'message', type: 'string'},
+    });
 };
