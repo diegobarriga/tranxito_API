@@ -115,4 +115,46 @@ module.exports = function(Device) {
       http: {path: '/:id/validConfig', verb: 'get'},
       returns: {arg: 'message', type: 'string'},
     });
+
+  Device.linkVehicle = function(id, vehicleId, cb) {
+    Device.findById(id, function(err, device) {
+      if (err) return cb(err);
+      if (!device) {
+        err = Error('Device not found');
+        err.statusCode = '404';
+        cb(err, 'Device not found');
+      } else {
+        app.models.Vehicle.findById(vehicleId,  function(err, vehicle) {
+          if (err) return cb(err);
+          if (!vehicle) {
+            err = Error('Vehicle not found');
+            err.statusCode = '404';
+            cb(err, 'Vehicle not found');
+          } else {
+            vehicle.devices(function(err, dev) {
+              if (err) cb(err);
+              if (dev) {
+                dev.vehicleId = null;
+                dev.save();
+              }
+            });
+            device.vehicle(vehicle);
+            device.save();
+            cb(null, `Device ${device.id} linked to vehicle ${vehicle.id}`);
+          }
+        });
+      }
+    });
+  };
+
+  Device.remoteMethod(
+    'linkVehicle',
+    {
+      accepts: [
+        {arg: 'id', type: 'number', required: true},
+        {arg: 'vehicleId', type: 'number', required: true},
+      ],
+      http: {path: '/:id/linkVehicle', verb: 'post'},
+      returns: {arg: 'message', type: 'string'},
+    });
 };
