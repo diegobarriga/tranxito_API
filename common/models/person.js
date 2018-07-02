@@ -5,6 +5,7 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 var rolInt8 = require('bitwise-rotation').rolInt8;
+var fs = require('fs');
 
 function extractDateTime(timestamp) {
   let date = new Date(Date.parse(timestamp));
@@ -38,6 +39,10 @@ function calculateLineChecksum(line) {
   binary = '0b' + rolInt8(Number(binary), 3).toString(2); // 3 left rotations
   let checkValue = binary ^ '0b10010110'; // xor with hexa 96 (decimal 150)
   return Number(checkValue).toString(16);
+};
+
+function createContainerName(name) {
+  return `${name}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
 };
 
 function emailValidator(err) {
@@ -403,6 +408,7 @@ module.exports = function(Person) {
   };
 
   Person.getReport = function(id, cb) {
+    const Container = Person.app.models.Container;
     Person.findById(id, function(err, person) {
       if (err) {
         return cb(err);
@@ -420,30 +426,37 @@ module.exports = function(Person) {
          function(error, currentUserEvents, currentCMVEvents,
           unidentifiedUserEvents) {
            if (error) return cb(error);
-           const containerName = Person.createContainerName('Report');
-           const header = Person.reportHeader(currentUserEvents[0]);
-           const userList = Person.reportUserList(currentCMVEvents);
-           const cmvList = Person.reportCmvList(currentUserEvents);
+           let containerName = createContainerName('Report');
+           let fileName =  Person.reportFileName(
+            currentUserEvents[0]);
+           let header = Person.reportHeader(currentUserEvents[0]);
+           let userList = Person.reportUserList(currentCMVEvents);
+           let cmvList = Person.reportCmvList(currentUserEvents);
            let eventsandComments = Person.reportEventListandComments(
             currentUserEvents, cmvList[1], userList[1]);
-           const eventsList = eventsandComments[0];
-           const comments = eventsandComments[1];
-           const certificationList = Person.reportCertificationList(
+           let eventsList = eventsandComments[0];
+           let comments = eventsandComments[1];
+           let certificationList = Person.reportCertificationList(
             currentUserEvents, cmvList[1]);
-           const malfunctionList = Person.reportMalfunctionList(
+           let malfunctionList = Person.reportMalfunctionList(
             currentUserEvents, cmvList[1]);
-           const loginout = Person.reportLoginout(currentUserEvents);
-           const powerActivity = Person.reportPowerActivity(currentUserEvents);
-           const unidentifiedUser = Person.reportUnidentifiedUser(
+           let loginout = Person.reportLoginout(currentUserEvents);
+           let powerActivity = Person.reportPowerActivity(currentUserEvents);
+           let unidentifiedUser = Person.reportUnidentifiedUser(
             unidentifiedUserEvents, cmvList[1]);
-           const fileCheckValue = Person.reportFileCheckValue();
+           let fileCheckValue = Person.reportFileCheckValue();
            let report = header + userList[0] + cmvList[0] + eventsList +
            comments + certificationList + malfunctionList + loginout +
            powerActivity + unidentifiedUser + fileCheckValue;
            console.log(report);
-           console.log('Filename:' + Person.reportFileName(
-            currentUserEvents[0]));
-           cb(null, report);
+           Container.createContainer({name: containerName},
+            function(container) {
+              let filePath = './tmp/' + containerName + '/' + fileName + '.csv';
+              fs.writeFile(filePath, report, function(erro) {
+                if (erro) return cb(erro, 'Error creating file');
+                cb(null, report, container);
+              });
+            });
          });
       };
     });
@@ -459,11 +472,6 @@ module.exports = function(Person) {
         'Get a report associated to the corresponding driver and vehicle',
       ],
     });
-
-  Person.createContainerName = function(name) {
-    return `${name}-${Math.round(Date.now())}-
-      ${Math.round(Math.random() * 1000)}`;
-  };
 
   Person.reportSection = function(header, lines) {
     let delimiter = ',';
@@ -757,7 +765,7 @@ module.exports = function(Person) {
 
   Person.reportFileCheckValue = function(numbers) {
     let header = 'End of File:' + String.fromCharCode(10);
-    header += 3333 + String.fromCharCode(10);
+    header += 'FileChecksum' + String.fromCharCode(10); // missing file checksum calculation
     return header;
   };
 
