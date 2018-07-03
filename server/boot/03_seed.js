@@ -290,8 +290,8 @@ module.exports = async function(app) {
     for (var i = 0; i < num; i++) {
       let plaque = '';
       let vin = '';
-      let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
-      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
+      let motorCarrierId = randomInt(1, 2);
+      let imei = imeigc.randomIMEI_fullRandom();
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
@@ -306,7 +306,6 @@ module.exports = async function(app) {
         'carMaker': randomChoice(companies),
         'plaque': plaque,
         'state': faker.address.state(),
-        'imeiEld': Number(imei),
         'motorCarrierId': motorCarrierId,
         'image': randomChoice(images),
       };
@@ -314,7 +313,7 @@ module.exports = async function(app) {
         'bluetoothMac': randomMac(),
         'imei': Number(imei),
         'state': true,
-        'configScript': 'AAAAAAA',
+        'configScript': '#--string script--',
         'configStatus': true,
         'sequenceId': randomInt(0, 65535),
         'motorCarrierId': motorCarrierId,
@@ -323,22 +322,39 @@ module.exports = async function(app) {
       dataDevice.push(device);
     }
 
-    Vehicle.create(dataVehicle, function(err, veh) {
+    Vehicle.create(dataVehicle, function(err, vehicles) {
       if (err) throw err;
       Device.create(dataDevice, function(err, devices) {
         if (err) throw err;
-        devices.forEach(function(dev) {
-          var car = veh.filter(function(elem) {
-            return elem.imeiEld == dev.imei;
-          });
-          dev.vehicleId = car[0].id;
-          dev.save(function(err) {
+        let devices1 = devices.filter(function(device) {
+          return device.motorCarrierId === 1;
+        })
+        let devices2 = devices.filter(function(device) {
+          return device.motorCarrierId === 2;
+        })
+        let vehicles1 = vehicles.filter(function(vehicle) {
+          return vehicle.motorCarrierId === 1;
+        })
+        let vehicles2 = vehicles.filter(function(vehicle) {
+          return vehicle.motorCarrierId === 2;
+        })
+
+        for (var i = 0; i < devices1.length; i++) {
+          devices1[i].vehicleId = vehicles1[i].id;
+          devices1[i].save(function(err) {
             if (err) throw err;
           });
-        });
+        }
+
+        for (var i = 0; i < devices2.length; i++) {
+          devices2[i].vehicleId = vehicles2[i].id;
+          devices2[i].save(function(err) {
+            if (err) throw err;
+          });
+        }
         console.log('Devices created succesfully');
       });
-      cb(null, veh);
+      cb(null, vehicles);
     });
   }
 

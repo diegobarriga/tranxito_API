@@ -39,12 +39,6 @@
     "state": {
       "type": "string"
     },
-    "imeiEld": {
-      "type": "number",
-      "postgresql": {
-        "dataType": "bigint"
-      }
-    },
     "image": {
       "type": "string",
       "default": "vehicleDefaultPic.png"
