@@ -30,11 +30,8 @@ function validateAccountStatus(err) {
 }
 
 function validateExemptDriverConfiguration(err) {
-  if ((this.accountType.trim() === 'D' &&
-    (this.exemptDriverConfiguration === undefined ||
-      this.exemptDriverConfiguration.trim() === '')) ||
-   (this.accountType === 'D' &&
-    !['E', '0'].includes(this.exemptDriverConfiguration.trim())))
+  if (this.accountType === 'D' &&
+    !['E', '0'].includes(this.exemptDriverConfiguration))
     return err();
 }
 
