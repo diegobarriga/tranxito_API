@@ -345,8 +345,7 @@ module.exports = async function(app) {
             if (err) throw err;
           });
         }
-
-        for (var j = 0; i < devices2.length; j++) {
+        for (var j = 0; j < devices2.length; j++) {
           devices2[j].vehicleId = vehicles2[j].id;
           devices2[j].save(function(err) {
             if (err) throw err;
