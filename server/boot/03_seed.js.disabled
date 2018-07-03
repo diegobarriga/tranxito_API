@@ -328,16 +328,16 @@ module.exports = async function(app) {
         if (err) throw err;
         let devices1 = devices.filter(function(device) {
           return device.motorCarrierId === 1;
-        })
+        });
         let devices2 = devices.filter(function(device) {
           return device.motorCarrierId === 2;
-        })
+        });
         let vehicles1 = vehicles.filter(function(vehicle) {
           return vehicle.motorCarrierId === 1;
-        })
+        });
         let vehicles2 = vehicles.filter(function(vehicle) {
           return vehicle.motorCarrierId === 2;
-        })
+        });
 
         for (var i = 0; i < devices1.length; i++) {
           devices1[i].vehicleId = vehicles1[i].id;
@@ -346,9 +346,9 @@ module.exports = async function(app) {
           });
         }
 
-        for (var i = 0; i < devices2.length; i++) {
-          devices2[i].vehicleId = vehicles2[i].id;
-          devices2[i].save(function(err) {
+        for (var j = 0; i < devices2.length; j++) {
+          devices2[j].vehicleId = vehicles2[j].id;
+          devices2[j].save(function(err) {
             if (err) throw err;
           });
         }
