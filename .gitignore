@@ -23,3 +23,4 @@ env.txt
 */local-storage/Vehicles/**
 !**/vehicleDefault*
 !**/personDefault*
+!**/trailerDefault*
