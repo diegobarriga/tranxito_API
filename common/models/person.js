@@ -281,6 +281,7 @@ module.exports = function(Person) {
           usefulEvents.forEach(function(event) {
             event.certified = true;
             event.dateOfCertifiedRecord = Date.now();
+            event.annotation = 'Certify event #' + String(event.id);
             event.save();
           });
           console.log(usefulEvents.length + ' events certified');
