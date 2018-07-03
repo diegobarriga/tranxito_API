@@ -10,13 +10,6 @@
     "connector": "postgresql",
     "poolIdleTimeout": 1200000
   },
-  "azureStorage": {
-    "name": "azureStorage",
-    "connector": "loopback-component-storage",
-    "provider": "azure",
-    "storageAccount": "",
-    "storageAccessKey": ""
-  },
   "container": {
     "name": "container",
     "connector": "loopback-component-storage",

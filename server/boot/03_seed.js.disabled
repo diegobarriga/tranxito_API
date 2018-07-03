@@ -50,6 +50,15 @@ module.exports = async function(app) {
     return res;
   }).catch(err => { throw err; });
 
+  var trailers = fakeTrailers(30, function(err, vehicles) {
+    if (err) throw err;
+    console.log('> Trailers created sucessfully');
+  });
+
+  trailers = await trailers.then(function(res) {
+    return res;
+  }).catch(err => { throw err; });
+
   fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
     fakeVehicles(30, function(err, vehicles) {
@@ -218,6 +227,48 @@ module.exports = async function(app) {
     });
   }
 
+  async function fakeTrailers(num, cb) {
+    await postgresDs.automigrate('Trailer');
+    let Trailer = app.models.Trailer;
+    let dataTrailer = [];
+    let images = [
+      'container.jpeg',
+      'refrigerated.jpg',
+      'dry_trailer.jpg',
+      'liquid_tank.jpg',
+      'pneumatic.jpg',
+    ];
+    let trailerCompanies = ['Hyundai Translead', 'Doepker', 'East',
+      'Felling Trailers', 'Fontaine', 'Mac'];
+    let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
+      'Liquid Tank', 'Pneumatic Tank'];
+    for (var i = 0; i < num; i++) {
+      let model = randomInt(0, 4);
+      let vinTrailer = '';
+      let motorCarrierId = i % 2 === 0 ? 2 : 1;
+      let today = new Date();
+      let thisYear = today.getUTCFullYear();
+      for (var j = 0; j < 18; j++) {
+        vinTrailer += faker.random.alphaNumeric();
+      }
+      let trailer = {
+        'manufacturer': randomChoice(trailerCompanies),
+        'model': trailerModels[model],
+        'number': vinTrailer.substr(0, 10),
+        'vin': vinTrailer,
+        'year': thisYear - randomInt(-1, 75),
+        'gvw': randomInt(500, 2000),
+        'motorCarrierId': motorCarrierId,
+        'image': images[model],
+      };
+      dataTrailer.push(trailer);
+    }
+    Trailer.create(dataTrailer, function(err, trailers) {
+      if (err) throw err;
+      cb(null, trailers);
+    });
+  }
+
   async function fakeVehicles(num, cb) {
     await postgresDs.automigrate('Vehicle');
     await postgresDs.automigrate('Device');
@@ -242,6 +293,7 @@ module.exports = async function(app) {
       let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
       let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
 
+
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
           plaque += faker.random.alphaNumeric();
@@ -255,7 +307,6 @@ module.exports = async function(app) {
         'carMaker': randomChoice(companies),
         'plaque': plaque,
         'state': faker.address.state(),
-        'imeiEld': Number(imei),
         'motorCarrierId': motorCarrierId,
         'image': randomChoice(images),
       };
@@ -263,7 +314,7 @@ module.exports = async function(app) {
         'bluetoothMac': randomMac(),
         'imei': Number(imei),
         'state': true,
-        'configScript': 'AAAAAAA',
+        'configScript': '#--string script--',
         'configStatus': true,
         'sequenceId': randomInt(0, 65535),
         'motorCarrierId': motorCarrierId,
@@ -272,22 +323,39 @@ module.exports = async function(app) {
       dataDevice.push(device);
     }
 
-    Vehicle.create(dataVehicle, function(err, veh) {
+    Vehicle.create(dataVehicle, function(err, vehicles) {
       if (err) throw err;
       Device.create(dataDevice, function(err, devices) {
         if (err) throw err;
-        devices.forEach(function(dev) {
-          var car = veh.filter(function(elem) {
-            return elem.imeiEld == dev.imei;
-          });
-          dev.vehicleId = car[0].id;
-          dev.save(function(err) {
+        let devices1 = devices.filter(function(device) {
+          return device.motorCarrierId === 1;
+        });
+        let devices2 = devices.filter(function(device) {
+          return device.motorCarrierId === 2;
+        });
+        let vehicles1 = vehicles.filter(function(vehicle) {
+          return vehicle.motorCarrierId === 1;
+        });
+        let vehicles2 = vehicles.filter(function(vehicle) {
+          return vehicle.motorCarrierId === 2;
+        });
+
+        for (var i = 0; i < devices1.length; i++) {
+          devices1[i].vehicleId = vehicles1[i].id;
+          devices1[i].save(function(err) {
             if (err) throw err;
           });
-        });
+        }
+
+        for (var j = 0; i < devices2.length; j++) {
+          devices2[j].vehicleId = vehicles2[j].id;
+          devices2[j].save(function(err) {
+            if (err) throw err;
+          });
+        }
         console.log('Devices created succesfully');
       });
-      cb(null, veh);
+      cb(null, vehicles);
     });
   }
 

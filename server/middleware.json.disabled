@@ -7,12 +7,18 @@
       "params": {
         "extended": true
       }
-    }
+    },
+    "./middleware/request-logger": {}
   },
   "initial": {
     "compression": {},
     "cors": {
-      "params": {}
+      "params": {
+        "origin": true,
+        "credentials": true,
+        "maxAge": 86400,
+        "exposedHeaders": ["LastMod"]
+      }
     },
     "helmet#xssFilter": {},
     "helmet#frameguard": {

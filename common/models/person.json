@@ -33,7 +33,8 @@
       "type": "Boolean"
     },
     "exemptDriverConfiguration": {
-      "type": "string"
+      "type": "string",
+      "default": "0"
     },
     "timeZoneOffsetUtc": {
       "type": "number"
@@ -42,17 +43,23 @@
       "type": "date"
     },
     "moveYardsUse": {
-      "type": "Boolean"
+      "type": "Boolean",
+      "default": false
     },
     "defaultUse": {
-      "type": "Boolean"
+      "type": "Boolean",
+      "default": true
     },
     "personalUse": {
-      "type": "Boolean"
+      "type": "Boolean",
+      "default": false
     },
     "image": {
       "type": "string",
       "default": "personDefaultProfilePicture.jpeg"
+    },
+    "comment": {
+      "type": "string"
     }
   },
   "validations": [],

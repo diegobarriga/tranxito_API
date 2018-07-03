@@ -10,6 +10,7 @@ module.exports = function(app) {
     var Person = app.models.Person;
     Person.findById(userId, function(err, user) {
       if (err) return cb(err);
+      if (!user) process.nextTick(() => cb(null, false));
       if (user.accountType == 'A') {
         return cb(null, true);
       } else {

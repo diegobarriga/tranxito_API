@@ -16,7 +16,7 @@ function vinValidator(err) {
 }
 
 function CmvPowerUnitNumberValidator(err) {
-  if (this.imeiEld && !this.CmvPowerUnitNumber &&
+  if (!this.CmvPowerUnitNumber &&
     this.CmvPowerUnitNumber.trim() === '') return err();
 }
 
@@ -31,7 +31,6 @@ function yearValidator(err) {
 module.exports = function(Vehicle) {
   Vehicle.validate('vin', vinValidator);
   Vehicle.validatesUniquenessOf('vin', {message: 'VIN already exists'});
-  Vehicle.validatesNumericalityOf('imeiEld', {int: true});
   Vehicle.validatesLengthOf('CmvPowerUnitNumber', {min: 1, max: 10});
   Vehicle.validate('year', yearValidator);
   Vehicle.validate('CmvPowerUnitNumber', CmvPowerUnitNumberValidator,
