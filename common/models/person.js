@@ -513,12 +513,17 @@ module.exports = function(Person) {
     });
 
   Person.reportSection = function(header, lines) {
+
     let delimiter = ',';
-    let lineBreak = String.fromCharCode(10);
+    let lineBreak = String.fromCharCode(10); // check if it should be 13 instead of 10
     var section = header + lineBreak;
     lines.forEach(function(line) {
       let newLine = '';
       line.forEach(function(element) {
+        element = element.replace(new RegExp(',', 'g'), ';')
+        .replace(new RegExp(lineBreak, 'g'), ';')
+        .replace(new RegExp(String.fromCharCode(12), 'g'), ';')
+        .replace(new RegExp(String.fromCharCode(13), 'g'), ';');
         newLine += element + delimiter;
       });
       newLine = newLine.replace(/(^[,]+)|([,]+$)/g, '');
