@@ -9,11 +9,14 @@
     "lint": "eslint .",
     "start": "node .",
     "posttest": "npm run lint && nsp check",
-    "console": "loopback-console"
+    "console": "loopback-console",
+    "test": "mocha --recursive \"./test/\""
   },
   "dependencies": {
     "async": "^2.6.0",
+    "bitwise-rotation": "^1.0.1",
     "body-parser": "^1.18.3",
+    "chai": "^4.1.2",
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "faker": "^4.1.0",
@@ -41,8 +44,10 @@
     "validator": "^9.4.1"
   },
   "devDependencies": {
+    "@loopback/testlab": "^0.10.4",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
+    "mocha": "^5.2.0",
     "nsp": "^2.1.0"
   },
   "repository": {

@@ -4,6 +4,46 @@ var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
+var rolInt8 = require('bitwise-rotation').rolInt8;
+var fs = require('fs');
+
+function extractDateTime(timestamp) {
+  let date = new Date(Date.parse(timestamp));
+  const hours = (date.getHours() < 10) ? '0' +  date.getHours() :
+  '' + date.getHours();
+  const minutes = (date.getMinutes() < 10) ? '0' +  date.getMinutes() :
+  '' + date.getMinutes();
+  const seconds = (date.getSeconds() < 10) ? '0' +  date.getSeconds() :
+  '' + date.getSeconds();
+  const day = (date.getDate() < 10) ? '0' +  date.getDate() :
+  '' + date.getDate();
+  const month = (date.getMonth() + 1 < 10) ? '0' +  (date.getMonth() + 1) :
+  '' + (date.getMonth() + 1);
+  const year = ('' + date.getFullYear()).slice(-2);
+  let dateString = month + day + year;
+  let timeString = hours + minutes + seconds;
+  return [dateString, timeString];
+};
+
+function calculateLineChecksum(line) {
+  let sum = 0;
+  for (var i = 0; i < line.length; i++) {
+    let character = line.charAt(i);
+    if (/^\d+$/.test(character) || /[a-zA-Z]/.test(character)) {
+      sum += character.charCodeAt() - 48;
+    };
+  };
+
+  let hexadecimal = sum.toString(16).slice(-2); // 8-bit lower byte of hexa representation
+  let binary = '0b' + parseInt(hexadecimal, 16).toString(2).padStart(8, '0'); // binary from hexa
+  binary = '0b' + rolInt8(Number(binary), 3).toString(2); // 3 left rotations
+  let checkValue = binary ^ '0b10010110'; // xor with hexa 96 (decimal 150)
+  return Number(checkValue).toString(16);
+};
+
+function createContainerName(name) {
+  return `${name}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+};
 
 function emailValidator(err) {
   if (!validator.isEmail(String(this.email))) return err();
@@ -195,7 +235,6 @@ module.exports = function(Person) {
         err.statusCode = '404';
         cb(err, 'Person not found');
       } else if (person.accountType !== 'D') {
-        console.log(person);
         err = Error('Person found but not a driver.');
         err.statusCode = '422';
         cb(err, 'Person is not a driver');
@@ -306,4 +345,439 @@ module.exports = function(Person) {
         'If req is given, certify only the records given by eventsIds',
       ],
     });
+
+  Person.getReportData = function(person, cb) {
+    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+    const DATE_LIMIT = Date.now() - ONE_WEEK;
+    person.events.find(
+      {
+        where: {
+          timestamp: {gt: DATE_LIMIT},
+        }, order: 'timestamp DESC',
+        include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
+      }, function(erro, events) {
+      if (erro) return cb(erro);
+
+      if (events == undefined || events == null || events.length == null ||
+       events.length == 0) {
+        let problem = Error('No events during last week for current driver');
+        problem.statusCode = '404';
+        return cb(problem, 'No events found for driver');
+      }
+      let currentUserEvents = [];
+      events.forEach(function(event) {
+        let e = event.toJSON();
+        currentUserEvents.push(e);
+      });
+
+      Person.app.models.Event.find({
+        where: {
+          timestamp: {gt: DATE_LIMIT},
+          vehicleId: currentUserEvents[0].vehicleId,
+        }, order: 'timestamp DESC',
+        include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
+      }, function(err, elements) {
+        if (err) return cb(err);
+        let currentCMVEvents = [];
+        elements.forEach(function(element) {
+          let elem = element.toJSON();
+          currentCMVEvents.push(elem);
+        });
+
+        Person.app.models.Event.find({
+          where: {
+            timestamp: {gt: DATE_LIMIT},
+            driverId: null,
+            motorCarrierId: person.motorCarrierId,
+          }, order: 'timestamp DESC',
+          include: ['driver', 'codriver', 'vehicle', 'motorCarrier'],
+        }, function(error, unidentifiedEvents) {
+          if (error) return cb(error);
+          let unidentifiedUserEvents = [];
+          unidentifiedEvents.forEach(function(element) {
+            let elem = element.toJSON();
+            unidentifiedUserEvents.push(elem);
+          });
+          return cb(null, currentUserEvents, currentCMVEvents,
+           unidentifiedUserEvents);
+        });
+      });
+    });
+  };
+
+  Person.getReport = function(id, cb) {
+    const Container = Person.app.models.Container;
+    Person.findById(id, function(err, person) {
+      if (err) {
+        return cb(err);
+      }
+      if (!person) {
+        err = Error('Person not found');
+        err.statusCode = '404';
+        cb(err, 'Person not found');
+      } else if (person.accountType !== 'D') {
+        err = Error('Person found but not a driver.');
+        err.statusCode = '422';
+        cb(err, 'Person is not a driver');
+      } else {
+        Person.getReportData(person,
+         function(error, currentUserEvents, currentCMVEvents,
+          unidentifiedUserEvents) {
+           if (error) return cb(error);
+           let containerName = createContainerName('Report');
+           let fileName =  Person.reportFileName(
+            currentUserEvents[0]);
+           let header = Person.reportHeader(currentUserEvents[0]);
+           let userList = Person.reportUserList(currentCMVEvents);
+           let cmvList = Person.reportCmvList(currentUserEvents);
+           let eventsandComments = Person.reportEventListandComments(
+            currentUserEvents, cmvList[1], userList[1]);
+           let eventsList = eventsandComments[0];
+           let comments = eventsandComments[1];
+           let certificationList = Person.reportCertificationList(
+            currentUserEvents, cmvList[1]);
+           let malfunctionList = Person.reportMalfunctionList(
+            currentUserEvents, cmvList[1]);
+           let loginout = Person.reportLoginout(currentUserEvents);
+           let powerActivity = Person.reportPowerActivity(currentUserEvents);
+           let unidentifiedUser = Person.reportUnidentifiedUser(
+            unidentifiedUserEvents, cmvList[1]);
+           let fileCheckValue = Person.reportFileCheckValue();
+           let report = header + userList[0] + cmvList[0] + eventsList +
+           comments + certificationList + malfunctionList + loginout +
+           powerActivity + unidentifiedUser + fileCheckValue;
+           console.log(report);
+           Container.createContainer({name: containerName},
+            function(container) {
+              let filePath = './tmp/' + containerName + '/' + fileName + '.csv';
+              fs.writeFile(filePath, report, function(erro) {
+                if (erro) return cb(erro, 'Error creating file');
+                cb(null, report, container);
+              });
+            });
+         });
+      };
+    });
+  };
+
+  Person.remoteMethod(
+    'getReport',
+    {
+      accepts: {arg: 'id', type: 'string', required: true},
+      http: {path: '/:id/getReport', verb: 'get'},
+      returns: {arg: 'data', type: 'string'},
+      description: [
+        'Get a report associated to the corresponding driver and vehicle',
+      ],
+    });
+
+  Person.reportSection = function(header, lines) {
+    let delimiter = ',';
+    let lineBreak = String.fromCharCode(10);
+    var section = header + lineBreak;
+    lines.forEach(function(line) {
+      let newLine = '';
+      line.forEach(function(element) {
+        newLine += element + delimiter;
+      });
+      newLine = newLine.replace(/(^[,]+)|([,]+$)/g, '');
+      newLine = newLine + delimiter + calculateLineChecksum(newLine);
+      newLine = newLine + lineBreak;
+      section += newLine;
+    });
+    return section;
+  };
+
+  Person.reportHeader = function(data) {
+    const header = 'ELD File Header Segment:';
+    let driver = data.driver;
+    let codriver = data.codriver;
+    let vehicle = data.vehicle;
+    let motorCarrier = data.motorCarrier;
+    let lines = [];
+
+    let date = extractDateTime(data.timestamp);
+
+    lines.push([
+      driver.lastName,
+      driver.firstName,
+      driver.username,
+      driver.licenseIssuingState,
+      driver.driverLicenseNumber,
+    ], [
+      (codriver === undefined) ? null : codriver.lastName,
+      (codriver === undefined) ? null : codriver.firstName,
+      (codriver === undefined) ? null : codriver.username,
+    ], [
+      vehicle.CmvPowerUnitNumber,
+      vehicle.vin,
+      vehicle.trailerNumber,
+    ], [
+      motorCarrier.usdotNumber,
+      motorCarrier.name,
+      motorCarrier.multidayBasisUsed,
+      driver.startingTime24HourPeriod,
+      driver.timeZoneOffsetUtc,
+    ], [
+      data.shippingDocNumber,
+      driver.exemptDriverConfiguration,
+    ], [
+      date[0],
+      date[1],
+      data.coordinates.lat.toFixed(2),
+      data.coordinates.lng.toFixed(2),
+      data.totalVehicleMiles,
+      data.totalEngineHours,
+    ]);  // falta una linea de datos del eld y los checkline de cada linea
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportUserList = function(data) {
+    const header = 'User List:';
+    let lines = [];
+    let uniqueUserIds = [];
+    let counter = 1;
+    let userListNumber = {};
+
+    data.forEach(function(event) {
+      let driver = event.driver;
+      let codriver = event.codriver;
+      if (driver == undefined) {
+        driver = {};
+        driver.id = null;
+        driver.accountType = null;
+        driver.firstName = null;
+        driver.lastName = null;
+      }
+      if (driver != undefined && uniqueUserIds.indexOf(driver.id) == -1) {
+        lines.push([
+          counter,
+          driver.accountType,
+          driver.lastName,
+          driver.firstName,
+        ]);
+        userListNumber[event.driverId] = counter;
+        counter += 1;
+        uniqueUserIds.push(driver.id);
+      }
+      if (codriver != undefined && uniqueUserIds.indexOf(codriver.id) == -1) {
+        lines.push([
+          counter,
+          event.driver.accountType,
+          event.driver.lastName,
+          event.driver.firstName,
+        ]);
+        userListNumber[event.codriverId] = counter;
+        counter += 1;
+        uniqueUserIds.push(codriver.id);
+      }
+    });
+
+    return [Person.reportSection(header, lines), userListNumber];
+  };
+
+  Person.reportCmvList = function(data) {
+    const header = 'CMV List:';
+    let lines = [];
+    let uniqueVehicleIds = [];
+    let counter = 1;
+    let cmvListNumber = {};
+
+    data.forEach(function(event) {
+      let vehicle = event.vehicle;
+      if (uniqueVehicleIds.indexOf(vehicle.id) == -1) {
+        lines.push([
+          counter,
+          vehicle.CmvPowerUnitNumber,
+          vehicle.vin,
+        ]);
+        cmvListNumber[vehicle.id] = counter;
+        counter += 1;
+        uniqueVehicleIds.push(vehicle.id);
+      };
+    });
+    return [Person.reportSection(header, lines), cmvListNumber];
+  };
+
+  Person.reportEventListandComments = function(data, cmvListNumber,
+   userListNumber) {
+    const header = 'ELD Event List:';
+    const header2 = 'ELD Event Annotations or Comments:';
+    let lines = [];
+    let lines2 = [];
+
+    data.forEach(function(event) {
+      if ([1, 2, 3].indexOf(event.type) != -1) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.recordStatus,
+          event.recordOrigin,
+          event.type,
+          event.code,
+          date[0],
+          date[1],
+          event.accumulatedVehicleMiles,
+          event.elapsedEngineHours,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
+          event.distSinceLastValidCoords,
+          cmvListNumber[event.vehicleId],
+          userListNumber[event.driverId],
+          event.malfunctionIndicatorStatus ? 1 : 0,
+          event.dataDiagnosticEventIndicatorStatusForDriver ? 1 : 0,
+          event.dataCheckValue,
+        ]);
+
+        lines2.push([
+          event.sequenceId,
+          event.driver.username,
+          event.annotation,
+          date[0],
+          date[1],
+          event.driverLocationDescription,
+        ]);
+      }
+    });
+    return [Person.reportSection(header, lines),
+      Person.reportSection(header2, lines2)];
+  };
+
+  Person.reportCertificationList = function(data, cmvListNumber) {
+    const header = 'Driver’s Certification/Recertification Actions:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 4) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          date[0],
+          date[1],
+          event.dateOfCertifiedRecord,
+          cmvListNumber[event.vehicleId],
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportMalfunctionList = function(data, cmvListNumber) {
+    const header = 'Malfunctions and Data Diagnostic Events:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 7) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          event.diagnosticCode,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+          cmvListNumber[event.vehicleId],
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportLoginout = function(data) {
+    const header = 'ELD Login/Logout Report:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 5) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          event.driver.username,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportPowerActivity = function(data) {
+    const header = 'CMV Engine Power-Up and Shut Down Activity:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.type == 6) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.code,
+          date[0],
+          date[1],
+          event.totaVehicleMiles,
+          event.totalEngineHours,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
+          event.vehicle.CmvPowerUnitNumber,
+          event.vehicle.vin,
+          event.vehicle.trailerNumber,
+          event.shippingDocNumber,
+        ]);
+      }
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportUnidentifiedUser = function(data, cmvListNumber) {
+    const header = 'Unidentified Driver Profile Records:';
+    let lines = [];
+
+    data.forEach(function(event) {
+      if (event.driverId == null) {
+        let date = extractDateTime(event.timestamp);
+        lines.push([
+          event.sequenceId,
+          event.recordStatus,
+          event.recordOrigin,
+          event.type,
+          event.code,
+          date[0],
+          date[1],
+          event.accumulatedVehicleMiles,
+          event.elapsedEngineHours,
+          event.coordinates.lat.toFixed(2),
+          event.coordinates.lng.toFixed(2),
+          event.distSinceLastValidCoords,
+          cmvListNumber[event.vehicleId],
+          event.malfunctionIndicatorStatus ? 1 : 0,
+          event.dataCheckValue,
+        ]);
+      };
+    });
+    return Person.reportSection(header, lines);
+  };
+
+  Person.reportFileCheckValue = function(numbers) {
+    let header = 'End of File:' + String.fromCharCode(10);
+    header += 'FileChecksum' + String.fromCharCode(10); // missing file checksum calculation
+    return header;
+  };
+
+  Person.reportFileName = function(data) {
+    let fileName = '';
+    let driver = data.driver;
+    let date = extractDateTime(Date(Date.now()));
+    fileName += driver.lastName.substring(0, 5).padEnd(5, '_');
+    fileName += driver.driverLicenseNumber.toString().slice(-2);
+    fileName += driver.driverLicenseNumber.toString().split('').map(Number)
+    .reduce(function(a, b) { return a + b; }, 0).toString().slice(-2)
+    .padStart(2, '0');
+    fileName += date[0] + '-';
+    fileName = fileName.padEnd(25, '0');
+    return fileName;
+  };
 };

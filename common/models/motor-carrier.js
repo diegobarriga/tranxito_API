@@ -756,7 +756,7 @@ module.exports = function(MotorCarrier) {
         {arg: 'message', type: 'string', root: true},
       ],
       description: [
-        'Create múltiple people through a csv',
+        'Create multiple drivers through a csv',
       ],
     });
 

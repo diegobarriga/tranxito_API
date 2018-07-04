@@ -290,8 +290,9 @@ module.exports = async function(app) {
     for (var i = 0; i < num; i++) {
       let plaque = '';
       let vin = '';
-      let motorCarrierId = randomInt(1, 2);
-      let imei = imeigc.randomIMEI_fullRandom();
+      let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
+      let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
+
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
