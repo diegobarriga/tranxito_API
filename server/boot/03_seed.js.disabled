@@ -50,15 +50,6 @@ module.exports = async function(app) {
     return res;
   }).catch(err => { throw err; });
 
-  var trailers = fakeTrailers(30, function(err, vehicles) {
-    if (err) throw err;
-    console.log('> Trailers created sucessfully');
-  });
-
-  trailers = await trailers.then(function(res) {
-    return res;
-  }).catch(err => { throw err; });
-
   fakeDrivers(50, function(err, drivers) {
     if (err) throw err;
     fakeVehicles(30, function(err, vehicles) {
@@ -227,53 +218,14 @@ module.exports = async function(app) {
     });
   }
 
-  async function fakeTrailers(num, cb) {
-    await postgresDs.automigrate('Trailer');
-    let Trailer = app.models.Trailer;
-    let dataTrailer = [];
-    let images = [
-      'container.jpeg',
-      'refrigerated.jpg',
-      'dry_trailer.jpg',
-      'liquid_tank.jpg',
-      'pneumatic.jpg',
-    ];
-    let trailerCompanies = ['Hyundai Translead', 'Doepker', 'East',
-      'Felling Trailers', 'Fontaine', 'Mac'];
-    let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
-      'Liquid Tank', 'Pneumatic Tank'];
-    for (var i = 0; i < num; i++) {
-      let model = randomInt(0, 4);
-      let vinTrailer = '';
-      let motorCarrierId = i % 2 === 0 ? 2 : 1;
-      let today = new Date();
-      let thisYear = today.getUTCFullYear();
-      for (var j = 0; j < 18; j++) {
-        vinTrailer += faker.random.alphaNumeric();
-      }
-      let trailer = {
-        'manufacturer': randomChoice(trailerCompanies),
-        'model': trailerModels[model],
-        'number': vinTrailer.substr(0, 10),
-        'vin': vinTrailer,
-        'year': thisYear - randomInt(-1, 75),
-        'gvw': randomInt(500, 2000),
-        'motorCarrierId': motorCarrierId,
-        'image': images[model],
-      };
-      dataTrailer.push(trailer);
-    }
-    Trailer.create(dataTrailer, function(err, trailers) {
-      if (err) throw err;
-      cb(null, trailers);
-    });
-  }
-
   async function fakeVehicles(num, cb) {
+    await postgresDs.automigrate('Trailer');
     await postgresDs.automigrate('Vehicle');
     await postgresDs.automigrate('Device');
     let Vehicle = app.models.Vehicle;
     let Device = app.models.Device;
+    let Trailer = app.models.Trailer;
+    let dataTrailer = [];
     let dataVehicle = [];
     let dataDevice = [];
     let models = ['Truck', 'Bus', 'Car'];
@@ -286,18 +238,33 @@ module.exports = async function(app) {
       'vehicleDefault5.jpeg',
       'vehicleDefault6.jpeg',
     ];
+    let imagesTrailers = [
+      'container.jpeg',
+      'refrigerated.jpg',
+      'dry_trailer.jpg',
+      'liquid_tank.jpg',
+      'pneumatic.jpg',
+    ];
+    let trailerCompanies = ['Hyundai Translead', 'Doepker', 'East',
+      'Felling Trailers', 'Fontaine', 'Mac'];
+    let trailerModels = ['Container', 'Refrigerated Van', 'Dry Van',
+      'Liquid Tank', 'Pneumatic Tank'];
 
     for (var i = 0; i < num; i++) {
       let plaque = '';
       let vin = '';
       let imei = (i === 0) ? 357042063084165 : imeigc.randomIMEI_fullRandom();
       let motorCarrierId = i === 0 ? carriers[1].id : randomInt(1, 2);
-
+      let model = randomInt(0, 4);
+      let vinTrailer = '';
+      let today = new Date();
+      let thisYear = today.getUTCFullYear();
 
       for (var j = 0; j < 18; j++) {
         if (j < 6) {
           plaque += faker.random.alphaNumeric();
         }
+        vinTrailer += faker.random.alphaNumeric();
         vin += faker.random.alphaNumeric();
       }
       let vehicle = {
@@ -319,6 +286,17 @@ module.exports = async function(app) {
         'sequenceId': randomInt(0, 65535),
         'motorCarrierId': motorCarrierId,
       };
+      let trailer = {
+        'manufacturer': randomChoice(trailerCompanies),
+        'model': trailerModels[model],
+        'number': vinTrailer.substr(0, 10),
+        'vin': vinTrailer,
+        'year': thisYear - randomInt(-1, 75),
+        'gvw': randomInt(500, 2000),
+        'motorCarrierId': motorCarrierId,
+        'image': imagesTrailers[model],
+      };
+      dataTrailer.push(trailer);
       dataVehicle.push(vehicle);
       dataDevice.push(device);
     }
@@ -353,6 +331,28 @@ module.exports = async function(app) {
           });
         }
         console.log('Devices created succesfully');
+        Trailer.create(dataTrailer, function(err, trailers) {
+          if (err) throw err;
+          let trailers1 = trailers.filter(function(trailer) {
+            return trailer.motorCarrierId === 1;
+          });
+          let trailers2 = trailers.filter(function(trailer) {
+            return trailer.motorCarrierId === 2;
+          });
+          for (var i = 0; i < trailers1.length; i++) {
+            trailers1[i].vehicleId = vehicles1[i].id;
+            trailers1[i].save(function(err) {
+              if (err) throw err;
+            });
+          }
+          for (var j = 0; j < trailers2.length; j++) {
+            trailers2[j].vehicleId = vehicles2[j].id;
+            trailers2[j].save(function(err) {
+              if (err) throw err;
+            });
+          }
+          console.log('Trailers created succesfully');
+        });
       });
       cb(null, vehicles);
     });

@@ -1,5 +1,6 @@
 'use strict';
 var validator = require('validator');
+var app = require('../../server/server.js');
 
 function vinValidator(err) {
   if (this.vin != '' && (this.vin.trim().length > 18 ||
@@ -68,4 +69,71 @@ module.exports = function(Trailer) {
     returns: {arg: 'message', type: 'string'},
     http: {path: '/:id/setImage', verb: 'post'},
   });
+
+  Trailer.linkVehicle = function(id, vehicleId, cb) {
+    Trailer.findById(id, function(err, trailer) {
+      if (err) return cb(err);
+      if (!trailer) {
+        err = Error('Trailer not found');
+        err.statusCode = '404';
+        cb(err, 'Trailer not found');
+      } else {
+        app.models.Vehicle.findById(vehicleId,  function(err, vehicle) {
+          if (err) return cb(err);
+          if (!vehicle) {
+            err = Error('Vehicle not found');
+            err.statusCode = '404';
+            cb(err, 'Vehicle not found');
+          } else {
+            vehicle.trailer(function(err, tr) {
+              if (err) cb(err);
+              if (tr) {
+                tr.vehicleId = null;
+                tr.save();
+              }
+            });
+            trailer.vehicle(vehicle);
+            trailer.save();
+            cb(null, `Trailer ${trailer.id} linked to vehicle ${vehicle.id}`);
+          }
+        });
+      }
+    });
+  };
+
+  Trailer.remoteMethod(
+    'linkVehicle',
+    {
+      accepts: [
+        {arg: 'id', type: 'number', required: true},
+        {arg: 'vehicleId', type: 'number', required: true},
+      ],
+      http: {path: '/:id/linkVehicle', verb: 'post'},
+      returns: {arg: 'message', type: 'string'},
+      description: ['Link trailer with a vehicle'],
+    });
+
+  Trailer.unlink = function(id, cb) {
+    Trailer.findById(id, function(err, trailer) {
+      if (err) cb(err);
+      if (!trailer) {
+        err = Error('Trailer not found');
+        err.statusCode = '404';
+        cb(err, 'Trailer not found');
+      } else {
+        trailer.vehicleId = null;
+        trailer.save();
+        cb(null, `Trailer ${trailer.id} succesfully unlinked`);
+      }
+    });
+  };
+
+  Trailer.remoteMethod(
+    'unlinkVehicle',
+    {
+      accepts: {arg: 'id', type: 'number', required: true},
+      http: {path: '/:id/unlink', verb: 'post'},
+      returns: {arg: 'message', type: 'string'},
+      description: ["Unlink trailer's vehicle"],
+    });
 };

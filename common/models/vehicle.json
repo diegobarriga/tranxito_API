@@ -65,6 +65,11 @@
       "type": "hasOne",
       "model": "Device",
       "foreignKey": ""
+    },
+    "trailer": {
+      "type": "hasOne",
+      "model": "Trailer",
+      "foreignKey": ""
     }
   },
   "acls": [
@@ -162,6 +167,34 @@
       "principalId": "S",
       "permission": "ALLOW",
       "property": "__destroy__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__get__trailer"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__create__trailer"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__update__trailer"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
+      "property": "__destroy__trailer"
     },
     {
       "accessType": "EXECUTE",
@@ -386,6 +419,13 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "__get__devices"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__trailer"
     }
   ],
   "methods": {}

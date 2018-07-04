@@ -156,6 +156,7 @@ module.exports = function(Device) {
       ],
       http: {path: '/:id/linkVehicle', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
+      description: ['Link device with a vehicle'],
     });
 
   Device.unlink = function(id, cb) {
@@ -179,5 +180,6 @@ module.exports = function(Device) {
       accepts: {arg: 'id', type: 'number', required: true},
       http: {path: '/:id/unlink', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
+      description: ["Unlink device's vehicle"],
     });
 };
