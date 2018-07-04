@@ -113,7 +113,7 @@ module.exports = function(Trailer) {
       description: ['Link trailer with a vehicle'],
     });
 
-  Trailer.unlink = function(id, cb) {
+  Trailer.unlinkVehicle = function(id, cb) {
     Trailer.findById(id, function(err, trailer) {
       if (err) cb(err);
       if (!trailer) {
@@ -132,7 +132,7 @@ module.exports = function(Trailer) {
     'unlinkVehicle',
     {
       accepts: {arg: 'id', type: 'number', required: true},
-      http: {path: '/:id/unlink', verb: 'post'},
+      http: {path: '/:id/unlinkVehicle', verb: 'post'},
       returns: {arg: 'message', type: 'string'},
       description: ["Unlink trailer's vehicle"],
     });
