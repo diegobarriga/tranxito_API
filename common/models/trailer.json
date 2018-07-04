@@ -103,6 +103,13 @@
       "principalType": "ROLE",
       "principalId": "S",
       "permission": "ALLOW",
+      "property": "__get__vehicle"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "S",
+      "permission": "ALLOW",
       "property": "setImage"
     },
     {
@@ -132,6 +139,13 @@
       "principalId": "D",
       "permission": "ALLOW",
       "property": "__get__motorCarrier"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "D",
+      "permission": "ALLOW",
+      "property": "__get__vehicle"
     }
   ],
   "methods": {}
