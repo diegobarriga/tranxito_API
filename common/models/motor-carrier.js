@@ -688,6 +688,9 @@ module.exports = function(MotorCarrier) {
         if (modelName === 'Device') {
           model = MotorCarrier.app.models.Device;
         }
+        if (modelName === 'Trailer') {
+          model = MotorCarrier.app.models.Trailer;
+        }
         model.create(dataList[index], transactionOptions, function(err) {
           if (err) {
             errors.push(err);
