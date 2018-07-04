@@ -41,7 +41,7 @@ function calculateLineChecksum(line) {
   return Number(checkValue).toString(16);
 };
 
-function createContainerName(name) {
+function createFolderName(name) {
   return `${name}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
 };
 
@@ -406,7 +406,6 @@ module.exports = function(Person) {
   };
 
   Person.getReport = function(id, cb) {
-    const Container = Person.app.models.Container;
     Person.findById(id, function(err, person) {
       if (err) {
         return cb(err);
@@ -424,7 +423,7 @@ module.exports = function(Person) {
          function(error, currentUserEvents, currentCMVEvents,
           unidentifiedUserEvents) {
            if (error) return cb(error);
-           let containerName = createContainerName('Report');
+           let folderName = createFolderName('Report');
            let fileName =  Person.reportFileName(
             currentUserEvents[0]);
            let header = Person.reportHeader(currentUserEvents[0]);
@@ -447,14 +446,11 @@ module.exports = function(Person) {
            comments + certificationList + malfunctionList + loginout +
            powerActivity + unidentifiedUser + fileCheckValue;
            console.log(report);
-           Container.createContainer({name: containerName},
-            function(container) {
-              let filePath = './tmp/' + containerName + '/' + fileName + '.csv';
-              fs.writeFile(filePath, report, function(erro) {
-                if (erro) return cb(erro, 'Error creating file');
-                cb(null, report, container);
-              });
-            });
+           let filePath = './tmp/' + folderName + '/' + fileName + '.csv';
+           fs.writeFile(filePath, report, function(erro) {
+             if (erro) return cb(erro, 'Error creating file');
+             cb(null, filePath, report);
+           });
          });
       };
     });
