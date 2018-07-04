@@ -508,8 +508,7 @@ module.exports = function(MotorCarrier) {
   );
 
   MotorCarrier.createContainerName = function(modelName) {
-    return `${modelName}-${Math.round(Date.now())}-
-      ${Math.round(Math.random() * 1000)}`;
+    return `${modelName}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
   };
 
   MotorCarrier.peopleCsvUpload = function(id, req, callback) {
