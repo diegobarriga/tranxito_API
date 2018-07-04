@@ -318,6 +318,8 @@ module.exports = function(Person) {
             usefulEvents = events;
           }
           usefulEvents.forEach(function(event) {
+            event.type = 4;
+            event.code = Math.min(event.code + 1, 9);
             event.certified = true;
             event.dateOfCertifiedRecord = Date.now();
             event.annotation = 'Certify event #' + String(event.id);

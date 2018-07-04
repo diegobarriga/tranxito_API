@@ -65,6 +65,11 @@
       "type": "hasOne",
       "model": "Device",
       "foreignKey": ""
+    },
+    "trailer": {
+      "type": "hasOne",
+      "model": "Trailer",
+      "foreignKey": ""
     }
   },
   "acls": [

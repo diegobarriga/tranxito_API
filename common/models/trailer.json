@@ -36,6 +36,11 @@
       "type": "belongsTo",
       "model": "MotorCarrier",
       "foreignKey": ""
+    },
+    "vehicle": {
+      "type": "belongsTo",
+      "model": "Vehicle",
+      "foreignKey": ""
     }
   },
   "acls": [
