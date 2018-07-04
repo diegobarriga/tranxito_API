@@ -7,6 +7,7 @@ var GeoPoint = loopback.GeoPoint;
 var ImeiGenCheck = require('imei_gencheck');
 const imeigc = new ImeiGenCheck();
 var randomMac = require('random-mac');
+var states = require('./../states.json');
 const TrackingTime = 30; // every TrackingTime minutes generate a new tracking
 const EventTime = 30; // every EventTime hours generate a new DutyStatusEvent
 const DailyHours = 2; // daily hours for simulation
@@ -120,7 +121,8 @@ module.exports = async function(app) {
         'username': 'pablo.sanchez', 'emailVerified': true,
         'motorCarrierId': carriers[0].id, 'password': '1234',
         'driverLicenseNumber': '10234502',
-        'licenseIssuingState': 'Santiago',
+        'licenseIssuingCountry': 'Canada',
+        'licenseIssuingState': 'AB',
         'accountStatus': true, 'exemptDriverConfiguration': 'E',
         'timeZoneOffsetUtc': 5, 'startingTime24HourPeriod': Date.now(),
         'moveYardsUse': true, 'defaultUse': true, 'personalUse': true,
@@ -145,7 +147,8 @@ module.exports = async function(app) {
         'username': 'pedro.lopez', 'emailVerified': true,
         'motorCarrierId': carriers[1].id, 'password': '1234',
         'driverLicenseNumber': '10255321',
-        'licenseIssuingState': 'Santiago',
+        'licenseIssuingCountry': 'USA',
+        'licenseIssuingState': 'MD',
         'accountStatus': true, 'exemptDriverConfiguration': 'E',
         'timeZoneOffsetUtc': 4, 'startingTime24HourPeriod': Date.now(),
         'moveYardsUse': false, 'defaultUse': true, 'personalUse': false,
@@ -176,6 +179,7 @@ module.exports = async function(app) {
 
   async function fakeDrivers(num, cb) {
     let Person = app.models.Person;
+    let countries = ['USA', 'Canada', 'Mexico', 'Other'];
     var data = [];
     let images = [
       'personDefault1.jpeg',
@@ -186,6 +190,7 @@ module.exports = async function(app) {
     ];
 
     for (var i = 0; i < 20; i++) {
+      let country = randomChoice(countries);
       let name = faker.name.firstName();
       let lastname = faker.name.lastName();
       let driver = {
@@ -197,7 +202,8 @@ module.exports = async function(app) {
         'emailVerified': true,
         'password': '1234',
         'driverLicenseNumber': faker.random.number(),
-        'licenseIssuingState': faker.address.state(),
+        'licenseIssuingState': randomChoice(states[country]).code,
+        'licenseIssuingCountry': country,
         'accountStatus': true,
         'exemptDriverConfiguration': 'E',
         'timeZoneOffsetUtc': randomInt(4, 11), // entre 4 y 11
