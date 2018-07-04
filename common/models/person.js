@@ -1,6 +1,7 @@
 'use strict';
 var validator = require('validator');
 var eld = require('../../server/eld.json');
+var states = require('../../server/states.json');
 var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
@@ -51,27 +52,54 @@ function emailValidator(err) {
 }
 
 function validateDriverLiceseNumber(err) {
-  if (this.accountType.trim() === 'D' &&
+  if (this.accountType.toUpperCase().trim() === 'D' &&
     (this.driverLicenseNumber === undefined ||
     this.driverLicenseNumber.trim() === ''))
     return err();
 }
 
 function validateLicensesIssuingState(err) {
-  if (this.accountType.trim() === 'D' &&
+  if (this.accountType.toUpperCase().trim() === 'D' &&
   (this.licenseIssuingState === undefined ||
     this.licenseIssuingState.trim() === ''))
     return err();
 }
 
+function validateLicensesIssuingCountry(err) {
+  if (this.accountType.toUpperCase().trim() === 'D' &&
+  (this.licenseIssuingCountry === undefined ||
+    this.licenseIssuingCountry.trim() === ''))
+    return err();
+}
+
+function validateLicensesIssuingCountry2(err) {
+  let countries = ['USA', 'Mexico', 'Canada', 'Other'];
+  if (this.accountType.toUpperCase().trim() === 'D' &&
+  !countries.includes(this.licenseIssuingCountry.trim()))
+    return err();
+}
+
+function validateLicensesIssuingState2(err) {
+  if (this.accountType.toUpperCase().trim() === 'D') {
+    let valid = false;
+    for (let state of states[this.licenseIssuingCountry]) {
+      if (state.code === this.licenseIssuingState) {
+        valid = true;
+        break;
+      }
+    }
+    if (!valid) return err();
+  }
+}
+
 function validateAccountStatus(err) {
-  if (this.accountType.trim() === 'D' &&
+  if (this.accountType.toUpperCase().trim() === 'D' &&
     this.accountStatus === undefined)
     return err();
 }
 
 function validateExemptDriverConfiguration(err) {
-  if (this.accountType === 'D' &&
+  if (this.accountType.toUpperCase() === 'D' &&
     !['E', '0'].includes(this.exemptDriverConfiguration))
     return err();
 }
@@ -87,7 +115,7 @@ function validateTimeZoneOffsetUtc(err) {
 }
 
 function validateStartingTime24HourPeriod(err) {
-  if (this.accountType.trim() === 'D' &&
+  if (this.accountType.toUpperCase().trim() === 'D' &&
    this.startingTime24HourPeriod === undefined)
     return err();
 }
@@ -98,6 +126,10 @@ function firstNameValidator(err) {
 
 function lastNameValidator(err) {
   if (this.lastName && this.lastName.trim() === '') return err();
+}
+
+function capitalize(str) {
+  return str.trim().charAt(0).toUpperCase() + str.trim().slice(1);
 }
 
 module.exports = function(Person) {
@@ -125,6 +157,13 @@ module.exports = function(Person) {
     {'message': "Can't be blank when accountType is D"});
   Person.validate('licenseIssuingState', validateLicensesIssuingState,
     {'message': "Can't be blank when accountType is D"});
+  Person.validate('licenseIssuingCountry', validateLicensesIssuingCountry,
+    {'message': "Can't be blank when accountType is D"});
+  Person.validate('licenseIssuingCountry', validateLicensesIssuingCountry2,
+    {'message':
+    "Issuing country can only be one of 'USA', 'Mexico', 'Canada' or 'Other'"});
+  Person.validate('licenseIssuingState', validateLicensesIssuingState2,
+    {'message': 'Invalid licence issuing state code'});
   Person.validate('accountStatus', validateAccountStatus,
     {'message': "Can't be blank when accountType is D"});
   Person.validate(

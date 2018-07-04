@@ -29,6 +29,9 @@
     "licenseIssuingState": {
       "type": "string"
     },
+    "licenseIssuingCountry": {
+      "type": "string"
+    },
     "accountStatus": {
       "type": "Boolean"
     },
