@@ -1,5 +1,6 @@
 'use strict';
 var validator = require('validator');
+var eld = require('../../server/eld.json');
 var app = require('../../server/server.js');
 var _         = require('lodash');
 var loopback  = require('loopback');
@@ -407,7 +408,7 @@ module.exports = function(Person) {
     });
   };
 
-  Person.getReport = function(id, cb) {
+  Person.getReport = function(id, comment, cb) {
     Person.findById(id, function(err, person) {
       if (err) {
         return cb(err);
@@ -428,7 +429,7 @@ module.exports = function(Person) {
            let folderName = createFolderName('Report');
            let fileName =  Person.reportFileName(
             currentUserEvents[0]);
-           let header = Person.reportHeader(currentUserEvents[0]);
+           let header = Person.reportHeader(currentUserEvents[0], comment);
            let userList = Person.reportUserList(currentCMVEvents);
            let cmvList = Person.reportCmvList(currentUserEvents);
            let eventsandComments = Person.reportEventListandComments(
@@ -461,7 +462,10 @@ module.exports = function(Person) {
   Person.remoteMethod(
     'getReport',
     {
-      accepts: {arg: 'id', type: 'string', required: true},
+      accepts: [
+        {arg: 'id', type: 'number', required: true},
+        {arg: 'comment', type: 'string'},
+      ],
       http: {path: '/:id/getReport', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
@@ -486,7 +490,7 @@ module.exports = function(Person) {
     return section;
   };
 
-  Person.reportHeader = function(data) {
+  Person.reportHeader = function(data, outputComment) {
     const header = 'ELD File Header Segment:';
     let driver = data.driver;
     let codriver = data.codriver;
@@ -526,7 +530,12 @@ module.exports = function(Person) {
       data.coordinates.lng.toFixed(2),
       data.totalVehicleMiles,
       data.totalEngineHours,
-    ]);  // falta una linea de datos del eld y los checkline de cada linea
+    ], [
+      eld.registration_id,
+      eld.identifier,
+      eld.auth_value,
+      outputComment,
+    ]);  // faltan los checkline de cada linea
     return Person.reportSection(header, lines);
   };
 
