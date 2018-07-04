@@ -23,7 +23,7 @@
       "required": true
     }
   },
-  "hidden": ["createDevices"],
+  "hidden": [],
   "validations": [],
   "relations": {
     "vehicles": {
