@@ -44,7 +44,7 @@ module.exports = function(app) {
             return cb(null, true);
           } else if ((isSupport &&
               ctxModel === 'Person' || ctxModel === 'Vehicle' ||
-              ctxModel === 'Trailer'
+              ctxModel === 'Trailer' || ctxModel === 'Device'
             ) && user.motorCarrierId === modelInstance.motorCarrierId) {
             return cb(null, true);
           } else {
