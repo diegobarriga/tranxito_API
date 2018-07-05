@@ -8,7 +8,9 @@ var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 var rolInt8 = require('bitwise-rotation').rolInt8;
 var rolInt16 = require('bitwise-rotation').rolInt16;
+var path = require('path');
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 
 function extractDateTime(timestamp) {
   let date = new Date(Date.parse(timestamp));
@@ -45,7 +47,8 @@ function calculateLineChecksum(line) {
 };
 
 function createFolderName(name) {
-  return `${name}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+  return `${name}-${Math.round(Date.now())}-` +
+    `${Math.round(Math.random() * 1000)}`;
 };
 
 function emailValidator(err) {
@@ -358,15 +361,32 @@ module.exports = function(Person) {
           } else {
             usefulEvents = events;
           }
+
           usefulEvents.forEach(function(event) {
-            event.type = 4;
-            event.code = Math.min(event.code + 1, 9);
-            event.certified = true;
-            event.dateOfCertifiedRecord = Date.now();
-            event.annotation = 'Certify event #' + String(event.id);
-            event.save();
+            let oldData = {
+              certified: true,
+              dateOfCertifiedRecord: Date.now(),
+            };
+            let duplicatedData = Object.assign({}, event.__data);
+            delete duplicatedData.id;
+            // Create Referece with original event and update data
+            duplicatedData.referenceId = event.__data.id;
+            duplicatedData.type = 4;
+            if (event.type === 4) {
+              duplicatedData.code = Math.min(event.code + 1, 9);
+            } else {
+              duplicatedData.code = 1;
+            }
+            duplicatedData.annotation = 'Certify event #' + String(event.id);
+            duplicatedData.recordOrigin = 2;
+            event.updateAttributes(oldData, function(err, _) {
+              if (err) throw err;
+            });
+            Person.app.models.Event.create(duplicatedData,
+              function(err, _) {
+                if (err) throw err;
+              });
           });
-          console.log(usefulEvents.length + ' events certified');
           return cb(null, {'message': usefulEvents.length +
           ' events certified'}); // revisar que respuesta se debe enviar
         });
@@ -448,7 +468,7 @@ module.exports = function(Person) {
     });
   };
 
-  Person.getReport = function(id, comment, cb) {
+  Person.sendReport = function(id, comment, cb) {
     Person.findById(id, function(err, person) {
       if (err) {
         return cb(err);
@@ -495,9 +515,30 @@ module.exports = function(Person) {
               unidentifiedUser[0] + fileCheckValue;
            console.log(report);
            let filePath = './tmp/' + folderName + '/' + fileName + '.csv';
-           fs.writeFile(filePath, report, function(erro) {
-             if (erro) return cb(erro, 'Error creating file');
-             cb(null, filePath, report);
+           mkdirp(path.dirname(filePath), function(err) {
+             if (err) cb(err);
+
+             fs.writeFile(filePath, report, function(erro) {
+               if (erro) return cb(erro, 'Error creating file');
+               // cb(null, filePath, report);
+               Person.app.models.Email.send(
+                 {
+                   to: [eld.FMCSAEmailAddress, person.email],
+                   from: person.email,
+                   subject: `ELD records from ${eld.registration_id}`,
+                   text: comment,
+                   attachments: [path.resolve(filePath)],
+                 }
+               ).then(response => {
+                 fs.unlink(filePath, (err) => {
+                   if (err) throw err;
+                   fs.rmdir(path.dirname(filePath), (err) => {
+                     if (err) throw err;
+                   });
+                 });
+                 cb(null, response.message);
+               }).catch(error => cb(error));
+             });
            });
          });
       };
@@ -505,16 +546,16 @@ module.exports = function(Person) {
   };
 
   Person.remoteMethod(
-    'getReport',
+    'sendReport',
     {
       accepts: [
         {arg: 'id', type: 'number', required: true},
         {arg: 'comment', type: 'string'},
       ],
-      http: {path: '/:id/getReport', verb: 'get'},
+      http: {path: '/:id/sendReport', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
-        'Get a report associated to the corresponding driver and vehicle',
+        'Send a report associated to the corresponding driver and vehicle',
       ],
     });
 
@@ -828,7 +869,7 @@ module.exports = function(Person) {
     let binary = '0b' + parseInt(hexadecimal, 16).toString(2).padStart(16, '0'); // binary from hexa
     binary = '0b' + rolInt16(Number(binary), 3).toString(2); // 3 left rotations
     let checkValue = binary ^ '0b1001011010011100'; // xor with hexa 969C (decimal 38556)
-    header += Number(checkValue).toString(16) + String.fromCharCode(10); // missing file checksum calculation
+    header += Number(checkValue).toString(16) + String.fromCharCode(10);
     return header;
   };
 

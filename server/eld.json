@@ -2,5 +2,6 @@
   "registration_id": "00000001",
   "provider": "E2E Group",
   "identifier": "E2EGRP",
-  "auth_value": "D5BEE7580C1427764145"
+  "auth_value": "D5BEE7580C1427764145",
+  "FMCSAEmailAddress": "figarrido@uc.cl"
 }
