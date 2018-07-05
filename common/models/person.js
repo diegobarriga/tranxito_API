@@ -360,15 +360,32 @@ module.exports = function(Person) {
           } else {
             usefulEvents = events;
           }
+
           usefulEvents.forEach(function(event) {
-            event.type = 4;
-            event.code = Math.min(event.code + 1, 9);
-            event.certified = true;
-            event.dateOfCertifiedRecord = Date.now();
-            event.annotation = 'Certify event #' + String(event.id);
-            event.save();
+            let oldData = {
+              certified: true,
+              dateOfCertifiedRecord: Date.now(),
+            };
+            let duplicatedData = Object.assign({}, event.__data);
+            delete duplicatedData.id;
+            // Create Referece with original event and update data
+            duplicatedData.referenceId = event.__data.id;
+            duplicatedData.type = 4;
+            if (event.type === 4) {
+              duplicatedData.code = Math.min(event.code + 1, 9);
+            } else {
+              duplicatedData.code = 1;
+            }
+            duplicatedData.annotation = 'Certify event #' + String(event.id);
+            duplicatedData.recordOrigin = 2;
+            event.updateAttributes(oldData, function(err, _) {
+              if (err) throw err;
+            });
+            Person.app.models.Event.create(duplicatedData,
+              function(err, _) {
+                if (err) throw err;
+              });
           });
-          console.log(usefulEvents.length + ' events certified');
           return cb(null, {'message': usefulEvents.length +
           ' events certified'}); // revisar que respuesta se debe enviar
         });
