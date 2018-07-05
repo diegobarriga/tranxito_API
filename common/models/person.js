@@ -7,7 +7,9 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 var rolInt8 = require('bitwise-rotation').rolInt8;
+var path = require('path');
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 
 function extractDateTime(timestamp) {
   let date = new Date(Date.parse(timestamp));
@@ -44,7 +46,8 @@ function calculateLineChecksum(line) {
 };
 
 function createFolderName(name) {
-  return `${name}-${Math.round(Date.now())}-${Math.round(Math.random() * 1000)}`;
+  return `${name}-${Math.round(Date.now())}-` +
+    `${Math.round(Math.random() * 1000)}`;
 };
 
 function emailValidator(err) {
@@ -447,7 +450,7 @@ module.exports = function(Person) {
     });
   };
 
-  Person.getReport = function(id, comment, cb) {
+  Person.sendReport = function(id, comment, cb) {
     Person.findById(id, function(err, person) {
       if (err) {
         return cb(err);
@@ -489,9 +492,30 @@ module.exports = function(Person) {
            powerActivity + unidentifiedUser + fileCheckValue;
            console.log(report);
            let filePath = './tmp/' + folderName + '/' + fileName + '.csv';
-           fs.writeFile(filePath, report, function(erro) {
-             if (erro) return cb(erro, 'Error creating file');
-             cb(null, filePath, report);
+           mkdirp(path.dirname(filePath), function(err) {
+             if (err) cb(err);
+
+             fs.writeFile(filePath, report, function(erro) {
+               if (erro) return cb(erro, 'Error creating file');
+               // cb(null, filePath, report);
+               Person.app.models.Email.send(
+                 {
+                   to: [eld.FMCSAEmailAddress, person.email],
+                   from: person.email,
+                   subject: `ELD records from ${eld.registration_id}`,
+                   text: comment,
+                   attachments: [path.resolve(filePath)],
+                 }
+               ).then(response => {
+                 fs.unlink(filePath, (err) => {
+                   if (err) throw err;
+                   fs.rmdir(path.dirname(filePath), (err) => {
+                     if (err) throw err;
+                   });
+                 });
+                 cb(null, response.message);
+               }).catch(error => cb(error));
+             });
            });
          });
       };
@@ -499,16 +523,16 @@ module.exports = function(Person) {
   };
 
   Person.remoteMethod(
-    'getReport',
+    'sendReport',
     {
       accepts: [
         {arg: 'id', type: 'number', required: true},
         {arg: 'comment', type: 'string'},
       ],
-      http: {path: '/:id/getReport', verb: 'get'},
+      http: {path: '/:id/sendReport', verb: 'get'},
       returns: {arg: 'data', type: 'string'},
       description: [
-        'Get a report associated to the corresponding driver and vehicle',
+        'Send a report associated to the corresponding driver and vehicle',
       ],
     });
 
