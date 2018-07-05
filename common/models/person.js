@@ -7,6 +7,7 @@ var _         = require('lodash');
 var loopback  = require('loopback');
 var LoopBackContext = require('loopback-context');
 var rolInt8 = require('bitwise-rotation').rolInt8;
+var rolInt16 = require('bitwise-rotation').rolInt16;
 var fs = require('fs');
 
 function extractDateTime(timestamp) {
@@ -483,10 +484,15 @@ module.exports = function(Person) {
            let powerActivity = Person.reportPowerActivity(currentUserEvents);
            let unidentifiedUser = Person.reportUnidentifiedUser(
             unidentifiedUserEvents, cmvList[1]);
-           let fileCheckValue = Person.reportFileCheckValue();
-           let report = header + userList[0] + cmvList[0] + eventsList +
-           comments + certificationList + malfunctionList + loginout +
-           powerActivity + unidentifiedUser + fileCheckValue;
+           let lineCheckSums = header[1] + userList[0][1] + cmvList[0][1] +
+            eventsList[0] + comments[1] + certificationList[1] +
+             malfunctionList[1] + loginout[1] +
+           powerActivity[1] + unidentifiedUser[1];
+           let fileCheckValue = Person.reportFileCheckValue(lineCheckSums);
+           let report = header[0] + userList[0][0] + cmvList[0][0] +
+            eventsList[0] + comments[0] + certificationList[0] +
+             malfunctionList[0] + loginout[0] + powerActivity[0] +
+              unidentifiedUser[0] + fileCheckValue;
            console.log(report);
            let filePath = './tmp/' + folderName + '/' + fileName + '.csv';
            fs.writeFile(filePath, report, function(erro) {
@@ -516,17 +522,20 @@ module.exports = function(Person) {
     let delimiter = ',';
     let lineBreak = String.fromCharCode(10);
     var section = header + lineBreak;
+    let totalCheckSum = 0;
     lines.forEach(function(line) {
       let newLine = '';
       line.forEach(function(element) {
         newLine += element + delimiter;
       });
       newLine = newLine.replace(/(^[,]+)|([,]+$)/g, '');
-      newLine = newLine + delimiter + calculateLineChecksum(newLine);
+      let checkSum = calculateLineChecksum(newLine);
+      newLine = newLine + delimiter + checkSum;
       newLine = newLine + lineBreak;
       section += newLine;
+      totalCheckSum += parseInt(checkSum, 16);
     });
-    return section;
+    return [section, totalCheckSum];
   };
 
   Person.reportHeader = function(data, outputComment) {
@@ -807,9 +816,13 @@ module.exports = function(Person) {
     return Person.reportSection(header, lines);
   };
 
-  Person.reportFileCheckValue = function(numbers) {
+  Person.reportFileCheckValue = function(sum) {
     let header = 'End of File:' + String.fromCharCode(10);
-    header += 'FileChecksum' + String.fromCharCode(10); // missing file checksum calculation
+    let hexadecimal = sum.toString(16).slice(-4); // 16-bit lower byte of hexa representation
+    let binary = '0b' + parseInt(hexadecimal, 16).toString(2).padStart(16, '0'); // binary from hexa
+    binary = '0b' + rolInt16(Number(binary), 3).toString(2); // 3 left rotations
+    let checkValue = binary ^ '0b1001011010011100'; // xor with hexa 969C (decimal 38556)
+    header += Number(checkValue).toString(16) + String.fromCharCode(10); // missing file checksum calculation
     return header;
   };
 
