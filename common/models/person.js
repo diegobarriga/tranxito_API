@@ -485,7 +485,7 @@ module.exports = function(Person) {
            let unidentifiedUser = Person.reportUnidentifiedUser(
             unidentifiedUserEvents, cmvList[1]);
            let lineCheckSums = header[1] + userList[0][1] + cmvList[0][1] +
-            eventsList[0] + comments[1] + certificationList[1] +
+            eventsList[1] + comments[1] + certificationList[1] +
              malfunctionList[1] + loginout[1] +
            powerActivity[1] + unidentifiedUser[1];
            let fileCheckValue = Person.reportFileCheckValue(lineCheckSums);
@@ -527,6 +527,7 @@ module.exports = function(Person) {
     lines.forEach(function(line) {
       let newLine = '';
       line.forEach(function(element) {
+        element = String(element);
         element = element.replace(new RegExp(',', 'g'), ';')
         .replace(new RegExp(lineBreak, 'g'), ';')
         .replace(new RegExp(String.fromCharCode(12), 'g'), ';')
